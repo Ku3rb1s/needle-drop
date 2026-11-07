@@ -16,11 +16,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Needle Drop">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="preload" href="fonts/outfit-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/fonts.css?v=1">
 <link rel="stylesheet" href="css/base.css?v=9">
-<link rel="stylesheet" href="css/app.css?v=9">
+<link rel="stylesheet" href="css/app.css?v=10">
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -182,6 +181,7 @@
   <section id="end" class="stage glass hidden">
     <div class="round-meta"><span class="pill" id="endCat"></span><span class="pill" id="endFound"></span></div>
     <div class="lib-hero"><div class="cat-kicker">Deine Punkte</div><div class="lib-num" id="endScore">0</div><div class="lib-sub" id="endSub"></div><div class="daily-next hidden" id="dailyNext"></div></div>
+    <div class="dstats hidden" id="dailyStats"></div>
     <div class="group icons endlist" id="endList"></div>
     <div class="controls" style="margin-top:20px">
       <button class="big" id="againBtn"><svg class="ic"><use href="#i-restart"/></svg>Nochmal</button>
@@ -236,8 +236,14 @@
     <div class="group-h">So zählen die Punkte</div>
     <div class="group" id="pointsInfo"></div>
     <div class="group-f">Falscher Tipp oder „Mehr hören“ schaltet die nächste Stufe frei. Nur der Interpret richtig: halbe Punkte der Stufe, auf der er stimmte. Die Musik kommt als 30-s-Vorschau von Deezer – ohne Anmeldung.</div>
-    <div class="group" id="resetBox" style="margin-top:22px">
+    <div class="group-h">Daten &amp; Musik</div>
+    <div class="group">
+      <div class="cell"><span class="grow">Musik von Deezer<span class="sub">Suche und 30-s-Vorschauen kommen direkt von deezer.com – dafür ruft dein Browser Deezer auf.</span></span></div>
+      <div class="cell"><span class="grow">Alles andere bleibt hier<span class="sub">Einstellungen, Rekorde und Challenge-Ergebnisse liegen nur auf diesem Gerät. Kein Konto, kein Server.</span></span></div>
+    </div>
+    <div class="group" id="resetBox" style="margin-top:12px">
       <button class="cell tap danger" id="btnResetBest"><span class="grow">Rekorde zurücksetzen</span></button>
+      <button class="cell tap danger" id="btnResetAll"><span class="grow">Alle gespeicherten Daten löschen<span class="sub">Rekorde, Challenge-Ergebnisse, Serie und Einstellungen</span></span></button>
     </div>
   </div>
 </dialog>
@@ -247,7 +253,7 @@
 
 <script src="js/deezer.js?v=7"></script>
 <script src="js/audio.js?v=7"></script>
-<script src="js/quiz.js?v=7"></script>
-<script src="js/daily.js?v=1"></script>
+<script src="js/quiz.js?v=8"></script>
+<script src="js/daily.js?v=2"></script>
 </body>
 </html>

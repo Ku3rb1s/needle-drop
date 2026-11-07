@@ -104,6 +104,7 @@ const Daily = (() => {
         <span class="grow">${esc(x.t)}<span class="sub">${esc(x.a)}</span><span class="emo">${x.e}</span></span>
         <span class="trail ${x.p ? '' : 'zero'}">${x.p ? '+' + fmtN(x.p) : '0'}</span></div>`).join('');
     $('#dailyNext').classList.remove('hidden');
+    renderStats(d);
     $('#againBtn').classList.add('hidden');
     $('#shareBtn').classList.replace('ghost', 'big');
     $('#shareBtn').dataset.daily = d;
@@ -116,9 +117,40 @@ const Daily = (() => {
     tick(); timer = setInterval(tick, 1000);
   }
 
+  /** Statistik über alle gespielten Tage – alles nur aus dem lokalen Speicher */
+  function renderStats(d) {
+    const L = log(), days = Object.keys(L);
+    const scores = days.map(k => L[k].score);
+    const avg = scores.length ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
+    // Bei welcher Stufe wurden Songs erkannt? (aus dem Emoji-Raster: Position von 🟩, sonst „nicht erkannt“)
+    const labels = [...LADDERS.classic.map(fmtS), '✗'];
+    const all = Array(7).fill(0), now = Array(7).fill(0);
+    for (const k of days) for (const x of L[k].items) {
+      const i = Array.from(x.e).indexOf('🟩');
+      const slot = i < 0 ? 6 : i;
+      all[slot]++;
+      if (k === d) now[slot]++;
+    }
+    const max = Math.max(1, ...all);
+    $('#dailyStats').innerHTML = `
+      <div class="dstats-tiles">
+        <div><b>${days.length}</b><span>Gespielt</span></div>
+        <div><b>${fmtN(avg)}</b><span>Ø Punkte</span></div>
+        <div><b>${streak()}</b><span>Serie</span></div>
+        <div><b>${Math.max(LS.get('dailyBest', 0), streak())}</b><span>Beste Serie</span></div>
+      </div>
+      <div class="dstats-h">Erkannt bei</div>
+      <div class="dist">${all.map((n, i) => `
+        <div class="dist-row${now[i] ? ' today' : ''}${i === 6 ? ' miss' : ''}"><span class="lbl">${labels[i]}</span>
+          <span class="dist-bar" style="width:${Math.max(8, n / max * 100)}%">${n}</span></div>`).join('')}
+      </div>`;
+    $('#dailyStats').classList.remove('hidden');
+  }
+
   /** Normale Ergebnis-Ansicht wiederherstellen (wenn danach ein normales Spiel endet) */
   function resetEnd() {
     $('#dailyNext').classList.add('hidden');
+    $('#dailyStats').classList.add('hidden');
     $('#againBtn').classList.remove('hidden');
     $('#shareBtn').classList.replace('big', 'ghost');
     delete $('#shareBtn').dataset.daily;

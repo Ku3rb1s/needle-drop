@@ -26,7 +26,9 @@ Lokal starten: `node server.js` → http://127.0.0.1:8890/
 ## Tägliche Challenge
 
 Jeden Tag 5 Songs aus dem Billionärs Club, für alle gleich: Die Auswahl hängt nur vom Datum (Europe/Berlin) ab – kein Server nötig.
-Feste Regeln (klassische Leiter, Suchen, Start am Anfang, Tipps erlaubt), einmal pro Tag. Ergebnis, Serie und Countdown werden lokal gespeichert (`js/daily.js`).
+Feste Regeln (klassische Leiter, Suchen, Start am Anfang, Tipps erlaubt), einmal pro Tag. Ergebnis, Serie, Statistik („erkannt bei …“) und Countdown werden nur lokal gespeichert (`js/daily.js`).
+
+**Datensparsam:** Außer Deezer (Suche + Vorschauen) ruft die Seite keine fremden Server auf; alles andere bleibt im Browser.
 
 ## Aufbau
 
@@ -35,6 +37,7 @@ Feste Regeln (klassische Leiter, Suchen, Start am Anfang, Tipps erlaubt), einmal
 | `index.html` | Markup (Start, Spiel, Auflösung, Ende) und Icons |
 | `logo.svg` | Logo (Vorlage für die PNG-Icons): Platte wie bei Musik-Bingo mit Tonarm |
 | `css/base.css` | Basis-Look 1:1 aus Musik-Bingo (Farbthemen, Glas, Platte, Menüs) – Änderungen am besten in beiden Projekten |
+| `css/fonts.css`, `fonts/` | Schrift Outfit lokal (SIL OFL, `fonts/OFL.txt`) – keine Verbindung zu Google Fonts |
 | `css/app.css` | Quiz-eigene Teile (Leiter, Suche, Tipps, Ergebnis) |
 | `js/deezer.js` | JSONP, Playlists laden, Suche, Link-Erkennung |
 | `js/audio.js` | Web-Audio-Snippets, Startpunkt-Erkennung |

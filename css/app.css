@@ -165,3 +165,19 @@ header{max-width:720px}
 .daily.done .daily-r{color:var(--accent)}
 .daily-next{margin-top:10px;font-size:.9rem;color:var(--muted)}
 .daily-next b{color:var(--text);font-variant-numeric:tabular-nums}
+
+/* Statistik der Tages-Challenge (nur lokal) */
+.dstats{margin-top:18px;text-align:left}
+.dstats-tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.dstats-tiles div{background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:14px;padding:10px 6px;text-align:center}
+.dstats-tiles b{display:block;font-family:Outfit,system-ui,sans-serif;font-size:1.5rem;font-weight:800;line-height:1.1}
+.dstats-tiles span{font-size:.72rem;color:var(--muted)}
+.dstats-h{font-size:.76rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:16px 4px 8px}
+.dist{display:grid;gap:5px}
+.dist-row{display:grid;grid-template-columns:44px 1fr;align-items:center;gap:8px;font-size:.8rem;color:var(--muted)}
+.dist-row .lbl{text-align:right;font-variant-numeric:tabular-nums}
+.dist-bar{height:22px;min-width:26px;border-radius:7px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:flex-end;padding:0 8px;
+  color:var(--text);font-weight:700;font-size:.78rem;box-sizing:border-box}
+.dist-row.today .dist-bar{background:linear-gradient(90deg,var(--quiz1),var(--quiz2));color:#2a1400}
+.dist-row.miss .lbl{color:var(--danger)}
+@media (max-width:640px){.dstats-tiles b{font-size:1.25rem}}

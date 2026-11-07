@@ -662,6 +662,11 @@ $('#setLadder').onclick = e => {
   opt.ladder = b.dataset.v; LS.set('ladder', opt.ladder); renderSettings();
   if (G && !$('#game').classList.contains('hidden')) toast('Gilt ab dem nächsten Spiel');
 };
+$('#btnResetAll').onclick = () => {
+  if (!confirm('Alles löschen, was Needle Drop auf diesem Gerät gespeichert hat?')) return;
+  try { Object.keys(localStorage).filter(k => k.startsWith('mq.')).forEach(k => localStorage.removeItem(k)); } catch {}
+  location.reload();
+};
 $('#btnResetBest').onclick = () => {
   if (!confirm('Alle Rekorde auf diesem Gerät löschen?')) return;
   try { Object.keys(localStorage).filter(k => k.startsWith('mq.best')).forEach(k => localStorage.removeItem(k)); } catch {}
