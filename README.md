@@ -53,10 +53,10 @@ Deutsch, Englisch, Französisch, Spanisch, Norwegisch – gleiches System wie Mu
 Alle Texte stehen im Code auf Deutsch und laufen über `tx(Text)`; feste Texte in `index.html` werden automatisch übersetzt.
 Neue Texte in allen Sprachdateien ergänzen – `node scripts/check-lang.js` zeigt, was fehlt.
 
-## Billionärs Club automatisch
+## Songlisten automatisch
 
-`.github/workflows/update-billions.yml` baut `data/billions.json` am 1. jedes Monats neu (oder per Hand: Actions → Run workflow).
-Ist kworb.net oder Deezer gestört, bricht das Skript ab, statt eine halbe Liste zu speichern.
+`.github/workflows/update-billions.yml` („Songlisten aktualisieren“) baut am 1. jedes Monats `data/billions.json` und `data/cats/*.json` neu
+(oder per Hand: Actions → Run workflow). Ist kworb.net oder Deezer gestört, bleibt die alte Liste stehen, statt eine halbe zu speichern.
 
 ## Versionen
 
@@ -80,6 +80,8 @@ Bei jedem Update `APP_VERSION`/`APP_DATE` in `js/quiz.js` erhöhen, einen Eintra
 | `js/quiz.js` | Kategorien, Spielablauf, Wertung, Hinweise, Anzeige |
 | `data/billions.json` | Billionärs Club: Songs mit ≥ 1 Mrd. Spotify-Streams |
 | `scripts/build-billions.js` | erzeugt `data/billions.json` neu (Quelle kworb.net → Deezer-Zuordnung) |
+| `data/sources.json` | Quellen der Kategorien: Deezer-Playlist-IDs je Kategorie, Mindest-Bekanntheit, Ausschlüsse |
+| `scripts/build-cats.js` | mischt die Playlists je Kategorie, entfernt Doppelte und sehr unbekannte Songs → `data/cats/<id>.json` |
 
 ## Kategorien
 
@@ -90,7 +92,10 @@ Bei jedem Update `APP_VERSION`/`APP_DATE` in `js/quiz.js` erhöhen, einen Eintra
 | Deutsch | Deutschrap, Deutsch-Pop, Schlager & Party (inkl. Malle, Après-Ski), Neue Deutsche Welle |
 | Spezial | Aktuelle Hits, Billionärs Club, TikTok-Hits, Film & Serien, Disney (deutsch), Eurovision, Eigene Playlist |
 
-Alle außer Billionärs Club und Eigene Playlist kommen aus offiziellen Deezer-Redaktions-Playlists (IDs in `CATS` in `js/quiz.js`, Gruppen in `GROUPS`).
+Die Kategorien sind aus vielen offiziellen Deezer-Redaktions-Playlists gemischt (je 80 bis 700 Songs). Welche Playlists, steht in
+`data/sources.json`; nach einer Änderung `node scripts/build-cats.js` (oder nur eine Kategorie: `node scripts/build-cats.js 00s`).
+Die Jahrzehnte nutzen u. a. die Jahres-Hitlisten „Top Hits <Jahr>“ der Deezer-Redaktion – damit stimmt das Jahrzehnt.
+Aktuelle Hits und TikTok-Hits laden live aus den aktuellen Charts (IDs in `CATS` in `js/quiz.js`).
 Der **Billionärs Club** basiert auf der Streamliste von kworb.net; neu bauen mit `node scripts/build-billions.js`
 (dauert einige Minuten wegen des Deezer-Limits von 50 Anfragen / 5 s).
 

@@ -1,5 +1,5 @@
 /* Needle Drop – Spielablauf und Anzeige */
-const APP_VERSION = '1.14.3', APP_DATE = '07.11.2026'; // bei jedem Update erhöhen + CHANGELOG.md ergänzen
+const APP_VERSION = '1.15.0', APP_DATE = '07.11.2026'; // bei jedem Update erhöhen + CHANGELOG.md ergänzen
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 
@@ -35,6 +35,8 @@ const fmtN = n => Math.round(n).toLocaleString(LOC());
 
 // Quellen: Deezer-Redaktions-Playlists; Billionärs Club als eigene Liste (scripts/build-billions.js)
 const P = id => ({ type: 'playlist', id });
+// Fertig gemischte Songliste einer Kategorie (gebaut von scripts/build-cats.js aus den Playlists in data/sources.json)
+const C = id => ({ type: 'static', url: `data/cats/${id}.json` });
 // Latin-Kategorie: nur Songs dieser Interpreten aus dem Billionärs Club – also nur Latin-Hits mit über 1 Mrd. Streams
 const LATIN_ARTISTS = ['Bad Bunny', 'J Balvin', 'Daddy Yankee', 'Shakira', 'Enrique Iglesias', 'Ozuna', 'KAROL G', 'Maluma', 'Rauw Alejandro',
   'Luis Fonsi', 'Nicky Jam', 'Don Omar', 'Anuel AA', 'Sebastián Yatra', 'Camilo', 'Myke Towers', 'Jhayco', 'Jhay Cortez', 'Farruko', 'Feid',
@@ -43,31 +45,31 @@ const LATIN_ARTISTS = ['Bad Bunny', 'J Balvin', 'Daddy Yankee', 'Shakira', 'Enri
   'Mau y Ricky', 'CNCO', 'Arcángel', 'Tainy', 'Grupo Frontera', 'Eslabon Armado', 'Fuerza Regida', 'Junior H', 'Natanael Cano', 'Young Miko',
   'Xavi', 'Morat', 'Aitana', 'Lola Indigo', 'Bad Gyal', 'Mora', 'Chencho Corleone', 'Dalex', 'Piso 21', 'Cali Y El Dandee', 'Alvaro Soler'];
 const CATS = [
-  { id: '70s', group: 'decades', name: '70er', big: '70s', color: '#e08a1e', src: [P(1470022445), P(8496467462)], decade: 1970 },
-  { id: '80s', group: 'decades', name: '80er', big: '80s', color: '#e043f5', src: [P(867825522)], decade: 1980 },
-  { id: '90s', group: 'decades', name: '90er', big: '90s', color: '#7c4dff', src: [P(878989033), P(3829647662)], decade: 1990 },
-  { id: '00s', group: 'decades', name: '2000er', big: '00s', color: '#3b82f6', src: [P(1977689462), P(11153531204)], decade: 2000 },
-  { id: '10s', group: 'decades', name: '2010er', big: '10s', color: '#10b981', src: [P(14917741483)], decade: 2010 },
-  { id: '20s', group: 'decades', name: '2020er', big: '20s', color: '#8ace00', src: [P(13650084141)], decade: 2020 },
+  { id: '70s', group: 'decades', name: '70er', big: '70s', color: '#e08a1e', src: [C('70s')], decade: 1970 },
+  { id: '80s', group: 'decades', name: '80er', big: '80s', color: '#e043f5', src: [C('80s')], decade: 1980 },
+  { id: '90s', group: 'decades', name: '90er', big: '90s', color: '#7c4dff', src: [C('90s')], decade: 1990 },
+  { id: '00s', group: 'decades', name: '2000er', big: '00s', color: '#3b82f6', src: [C('00s')], decade: 2000 },
+  { id: '10s', group: 'decades', name: '2010er', big: '10s', color: '#10b981', src: [C('10s')], decade: 2010 },
+  { id: '20s', group: 'decades', name: '2020er', big: '20s', color: '#8ace00', src: [C('20s')], decade: 2020 },
   // International
-  { id: 'pop', group: 'intl', name: 'Pop', icon: 'star', sub: 'Chart-Pop von früher bis heute', color: '#ff6eb4', src: [P(1282483245), P(8282573142)] },
-  { id: 'rap', group: 'intl', name: 'Hip-Hop & Rap', icon: 'mic', sub: 'US-Rap von den 90ern bis heute', color: '#f5b301', src: [P(3366148622), P(7662551722), P(12547421383)] },
-  { id: 'rnb', group: 'intl', name: 'R&B', icon: 'heart', sub: 'Klassiker aus den 90ern und 2000ern', color: '#a855f7', src: [P(11472627304), P(2021626162)] },
-  { id: 'rock', group: 'intl', name: 'Rock', icon: 'guitar', sub: 'Klassiker und große Hymnen', color: '#e11d1d', src: [P(11242423484), P(1306931615)] },
-  { id: 'edm', group: 'intl', name: 'EDM', icon: 'wave', sub: 'Avicii, Guetta, Calvin Harris & Dance-Klassiker', color: '#5b5cf6', src: [P(14429104921), P(11600724204), P(6237312204), P(11340708804)] },
-  { id: 'latin', group: 'intl', name: 'Latin', icon: 'sun', sub: 'Reggaeton und Latin-Hits', color: '#ff7a1a', src: [{ type: 'static', url: 'data/billions.json', artists: LATIN_ARTISTS }, P(789123393)] },
+  { id: 'pop', group: 'intl', name: 'Pop', icon: 'star', sub: 'Chart-Pop von früher bis heute', color: '#ff6eb4', src: [C('pop')] },
+  { id: 'rap', group: 'intl', name: 'Hip-Hop & Rap', icon: 'mic', sub: 'US-Rap von den 90ern bis heute', color: '#f5b301', src: [C('rap')] },
+  { id: 'rnb', group: 'intl', name: 'R&B', icon: 'heart', sub: 'Klassiker aus den 90ern und 2000ern', color: '#a855f7', src: [C('rnb')] },
+  { id: 'rock', group: 'intl', name: 'Rock', icon: 'guitar', sub: 'Klassiker und große Hymnen', color: '#e11d1d', src: [C('rock')] },
+  { id: 'edm', group: 'intl', name: 'EDM', icon: 'wave', sub: 'Avicii, Guetta, Calvin Harris & Dance-Klassiker', color: '#5b5cf6', src: [C('edm')] },
+  { id: 'latin', group: 'intl', name: 'Latin', icon: 'sun', sub: 'Reggaeton und Latin-Hits', color: '#ff7a1a', src: [{ type: 'static', url: 'data/billions.json', artists: LATIN_ARTISTS }, C('latin')] },
   // Deutsch
-  { id: 'derap', group: 'de', name: 'Deutschrap', icon: 'mic', sub: 'Von den Klassikern bis heute', color: '#c81e4a', src: [P(10578289242), P(146820791)] },
-  { id: 'depop', group: 'de', name: 'Deutsch-Pop', icon: 'star', sub: 'Deutschsprachige Pop-Hits', color: '#38bdf8', src: [P(11242422704)] },
-  { id: 'schlager', group: 'de', name: 'Schlager & Party', icon: 'party', sub: 'Schlager, Malle, Après-Ski', color: '#ff4fa3', src: [P(8699026122), P(7947319822), P(12244014291)] },
-  { id: 'ndw', group: 'de', name: 'Neue Deutsche Welle', icon: 'sea', sub: 'Die 80er auf Deutsch', color: '#f7e400', src: [P(6758361584)] },
+  { id: 'derap', group: 'de', name: 'Deutschrap', icon: 'mic', sub: 'Von den Klassikern bis heute', color: '#c81e4a', src: [C('derap')] },
+  { id: 'depop', group: 'de', name: 'Deutsch-Pop', icon: 'star', sub: 'Deutschsprachige Pop-Hits', color: '#38bdf8', src: [C('depop')] },
+  { id: 'schlager', group: 'de', name: 'Schlager & Party', icon: 'party', sub: 'Schlager, Malle, Après-Ski', color: '#ff4fa3', src: [C('schlager')] },
+  { id: 'ndw', group: 'de', name: 'Neue Deutsche Welle', icon: 'sea', sub: 'Die 80er auf Deutsch', color: '#f7e400', src: [C('ndw')] },
   // Spezial
-  { id: 'now', group: 'special', name: 'Aktuelle Hits', icon: 'trend', sub: 'Charts Deutschland & weltweit', color: '#22c55e', src: [P(1111143121), P(3155776842)] },
+  { id: 'now', group: 'special', name: 'Aktuelle Hits', icon: 'trend', sub: 'Charts Deutschland & weltweit', color: '#22c55e', src: [P(1111143121), P(3155776842), P(785141981), P(65490170)] },
   { id: 'billion', group: 'special', name: 'Billionärs Club', icon: 'diamond', sub: 'Über 1 Mrd. Spotify-Streams', color: '#e5a50a', src: [{ type: 'static', url: 'data/billions.json' }] },
-  { id: 'tiktok', group: 'special', name: 'TikTok-Hits', icon: 'phone', sub: 'Was gerade viral geht', color: '#25f4ee', src: [P(4403076402)] },
-  { id: 'film', group: 'special', name: 'Film & Serien', icon: 'clapper', sub: 'Soundtracks und Titelsongs', color: '#d62d3a', src: [P(754776991), P(6238866284), P(13253799423)] },
-  { id: 'disney', group: 'special', name: 'Disney', icon: 'castle', sub: 'Die großen Disney-Songs im Original', color: '#2f6bff', src: [P(1962379246)] },
-  { id: 'esc', group: 'special', name: 'Eurovision', icon: 'globe', sub: 'Sieger und Fan-Lieblinge', color: '#9b5cf6', src: [P(9037748342), P(12593394863)] },
+  { id: 'tiktok', group: 'special', name: 'TikTok-Hits', icon: 'phone', sub: 'Was gerade viral geht', color: '#25f4ee', src: [P(4403076402), P(8740958602), P(10920666262)] },
+  { id: 'film', group: 'special', name: 'Film & Serien', icon: 'clapper', sub: 'Soundtracks und Titelsongs', color: '#d62d3a', src: [C('film')] },
+  { id: 'disney', group: 'special', name: 'Disney', icon: 'castle', sub: 'Die großen Disney-Songs im Original', color: '#2f6bff', src: [C('disney')] },
+  { id: 'esc', group: 'special', name: 'Eurovision', icon: 'globe', sub: 'Sieger und Fan-Lieblinge', color: '#9b5cf6', src: [C('esc')] },
   { id: 'custom', group: 'special', name: 'Eigene Playlist', icon: 'link', sub: 'Spotify- oder Deezer-Link', color: '#6b7280', src: null },
 ];
 const GROUPS = [['decades', 'Jahrzehnte'], ['intl', 'International'], ['de', 'Deutsch'], ['special', 'Spezial']];
@@ -145,7 +147,7 @@ async function loadPool(cat) {
       if (!r.ok) throw new Error(tx('Liste für diese Kategorie fehlt noch.'));
       const d = await r.json();
       const only = s.artists && new Set(s.artists.map(a => a.toLowerCase()));
-      return d.tracks.filter(t => !only || only.has(String(t.artist).toLowerCase())).map(t => ({ id: t.id, title: t.title, artist: { name: t.artist }, rank: t.streams, stub: true }));
+      return d.tracks.filter(t => !only || only.has(String(t.artist).toLowerCase())).map(t => ({ id: t.id, title: t.title, artist: { name: t.artist }, rank: t.rank ?? t.streams, explicit_lyrics: !!t.x, stub: true }));
     }
     if (s.type === 'spotify') return Spot.tracks(s);
     return DZ.sourceTracks(s);

@@ -2,6 +2,13 @@
 
 Die Versionsnummer steht in `js/quiz.js` (`APP_VERSION`) und unten in den Einstellungen. In `index.html` bei jedem Update auch `?v=` an CSS/JS-Dateien erhöhen.
 
+## 1.15.0 – 07.11.2026
+- **Viel mehr Songs** in allen Kategorien: jede ist jetzt aus vielen Redaktions-Playlists gemischt, ohne doppelte Songs. 2000er, 2010er und 2020er haben je 700 statt 70–125 Songs, 70er bis 90er 560–660, Pop 678, Schlager 569, Rock und EDM je 514
+- Die Jahrzehnte nutzen die offiziellen Jahres-Hitlisten von Deezer – damit stimmt das Jahrzehnt
+- Sehr unbekannte Songs bleiben draußen; „Leicht“ und „Normal“ nehmen weiter nur die bekanntesten Songs einer Kategorie
+- Kategorien laden schneller: eine fertige Liste statt vieler einzelner Playlists
+- Aktuelle Hits und TikTok-Hits mischen jetzt mehr aktuelle Charts
+
 ## 1.14.3 – 07.11.2026
 - „Mehr hören“ ist jetzt als Hauptknopf gefüllt in der Kategoriefarbe – Tipp und Auflösen bleiben dezent daneben
 

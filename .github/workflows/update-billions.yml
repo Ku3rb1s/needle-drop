@@ -1,7 +1,9 @@
-name: Billionärs-Club aktualisieren
+name: Songlisten aktualisieren
 
-# Baut data/billions.json jeden Monat neu (neue Songs mit ≥ 1 Mrd. Spotify-Streams kommen dazu)
-# und committet nur, wenn sich etwas geändert hat. Per Hand: Actions → „Billionärs-Club aktualisieren“ → Run workflow.
+# Baut jeden Monat neu und committet nur, wenn sich etwas geändert hat:
+#  - data/billions.json  (Songs mit ≥ 1 Mrd. Spotify-Streams)
+#  - data/cats/*.json    (Kategorien, gemischt aus den Playlists in data/sources.json)
+# Per Hand: Actions → „Songlisten aktualisieren“ → Run workflow.
 on:
   schedule:
     - cron: '5 23 1 * *'   # 1. des Monats 23:05 UTC = kurz nach Mitternacht in DE – die Tägliche Challenge bleibt so den ganzen Tag gleich
@@ -13,24 +15,26 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Liste neu bauen
+      - name: Billionärs Club neu bauen
         run: node scripts/build-billions.js
+      - name: Kategorien neu bauen
+        run: node scripts/build-cats.js
       - name: Committen, falls geändert
         run: |
-          if git diff --quiet -- data/billions.json; then
-            echo "Keine Änderungen an der Liste."
+          if git diff --quiet -- data/billions.json data/cats; then
+            echo "Keine Änderungen an den Listen."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/billions.json
-          git commit -m "Billionärs Club automatisch aktualisiert ($(date +%Y-%m-%d))"
+          git add data/billions.json data/cats
+          git commit -m "Songlisten automatisch aktualisiert ($(date +%Y-%m-%d))"
           # Falls während des Laufs jemand anderes gepusht hat: erst den neuen Stand holen
           git pull --rebase origin main
           git push
