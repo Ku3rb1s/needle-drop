@@ -2,6 +2,14 @@
 
 Die Versionsnummer steht in `js/quiz.js` (`APP_VERSION`) und unten in den Einstellungen. In `index.html` bei jedem Update auch `?v=` an CSS/JS-Dateien erhöhen.
 
+## 1.9.0 – 07.11.2026
+- Neu: Nach der Auflösung den Song direkt **auf Spotify oder Deezer anhören**
+- Platte lässt sich mit der Tastatur bedienen (Tab, dann Enter/Leertaste)
+- Behoben: Fehlermeldung in der Konsole, wenn sich eine Vorschau nicht dekodieren ließ (der Song wurde schon vorher korrekt übersprungen)
+- Behoben: Ungültige gespeicherte Einstellungen konnten die Startseite blockieren – sie werden jetzt auf Standard zurückgesetzt
+- Behoben: „Ø Stufe“ in der Statistik im Zahlenformat der Sprache
+- Billionärs-Liste wird kurz nach Mitternacht aktualisiert, damit die Tägliche Challenge den ganzen Tag für alle gleich bleibt
+
 ## 1.8.0 – 07.11.2026
 - **Spotify-Import ist live:** Unter „Eigene Playlist“ einen Spotify-Link (Playlist oder Album, bis 100 Songs) einfügen – die Songs werden automatisch bei Deezer gefunden
 

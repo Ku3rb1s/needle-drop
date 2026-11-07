@@ -50,7 +50,9 @@ const Snip = (() => {
     if (!r.ok) throw new Error('HTTP ' + r.status);
     const data = await r.arrayBuffer();
     const c = ac();
-    return await new Promise((res, rej) => c.decodeAudioData(data, res, rej)); // Callback-Form für ältere Safari
+    // Callback-Form für ältere Safari; neuere Browser geben zusätzlich ein Promise zurück – dessen Fehler abfangen,
+    // sonst steht er als „Uncaught (in promise)“ in der Konsole (der Song wird ohnehin übersprungen)
+    return await new Promise((res, rej) => { const p = c.decodeAudioData(data, res, rej); if (p && p.catch) p.catch(() => {}); });
   }
 
   /** Startpunkt in Sekunden. `need` = Länge der längsten Stufe, die noch hineinpassen muss.

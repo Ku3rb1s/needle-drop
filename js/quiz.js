@@ -1,5 +1,5 @@
 /* Needle Drop – Spielablauf und Anzeige */
-const APP_VERSION = '1.8.0', APP_DATE = '07.11.2026'; // bei jedem Update erhöhen + CHANGELOG.md ergänzen
+const APP_VERSION = '1.9.0', APP_DATE = '07.11.2026'; // bei jedem Update erhöhen + CHANGELOG.md ergänzen
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 
@@ -82,6 +82,14 @@ const opt = {
   ladder: LS.get('ladder', 'classic'), answer: LS.get('answer', 'search'), auto: LS.get('auto', false),
   clean: LS.get('clean', false), vol: LS.get('vol', 80), muted: false, sfx: LS.get('sfx', true),
 };
+// Gespeicherte Werte prüfen – unbekannte (z. B. nach Umbauten) auf Standard zurücksetzen
+if (!CATS.some(c => c.id === opt.cat)) opt.cat = '80s';
+if (!DIFF[opt.diff]) opt.diff = 'normal';
+if (!LADDERS[opt.ladder]) opt.ladder = 'classic';
+if (!START_INFO[opt.startMode] && !['start', 'hook', 'random'].includes(opt.startMode)) opt.startMode = 'start';
+if (![5, 10, 15, 20].includes(opt.count)) opt.count = 10;
+if (!['search', 'mc'].includes(opt.answer)) opt.answer = 'search';
+
 // Während der Tages-Challenge gelten feste Regeln (für alle gleich), sonst die eigenen Einstellungen
 const DAILY_RULES = { answer: "search", startMode: "start", hintsOn: "on" };
 const rule = k => (G && G.daily && k in DAILY_RULES) ? DAILY_RULES[k] : opt[k];
@@ -309,7 +317,7 @@ function finishRound(won) {
   G.score += r.pts;
   const t = r.track;
   // Platte dreht sich um und zeigt das Cover (wie bei Musik-Bingo)
-  $('#discCover').innerHTML = t.album?.cover_big ? `<img src="${t.album.cover_big}" alt="">` : '🎵';
+  $('#discCover').innerHTML = t.album?.cover_big ? `<img src="${esc(t.album.cover_big)}" alt="">` : '🎵';
   $('#disc').classList.add('flipped');
   const ans = $('#rvA').parentElement;
   ans.className = 'rv-answer ' + (won ? '' : r.pts ? 'half' : 'bad');
@@ -319,6 +327,9 @@ function finishRound(won) {
   $('#rvArtist').textContent = t.artist?.name || '';
   const y = r.album?.release_date?.slice(0, 4);
   $('#rvMeta').textContent = [t.album?.title, y].filter(Boolean).join(' · ');
+  const q = encodeURIComponent(`${showTitle(t)} ${t.artist?.name || ''}`);
+  $('#rvLinks').innerHTML = `<a class="pill-btn" href="https://open.spotify.com/search/${q}" target="_blank" rel="noopener">${tx('Auf Spotify anhören')}</a>`
+    + (t.link ? `<a class="pill-btn" href="${esc(t.link)}" target="_blank" rel="noopener">${tx('Auf Deezer anhören')}</a>` : '');
   $('#nextBtn').textContent = G.i + 1 >= G.n ? tx('Zum Ergebnis') : tx('Nächster Song');
   $('#playArea').classList.add('hidden');
   $('#possibleLine').textContent = r.won ? tx('Erkannt!') : tx('Auflösung');
@@ -415,7 +426,7 @@ function renderStats() {
       <div><b>${S.games}</b><span>${tx('Spiele')}</span></div>
       <div><b>${S.songs}</b><span>${tx('Songs')}</span></div>
       <div><b>${pct} %</b><span>${tx('erkannt')}</span></div>
-      <div><b>${S.found ? (avg + 1).toFixed(1).replace('.', ',') : '–'}</b><span>${tx('Ø Stufe')}</span></div>
+      <div><b>${S.found ? (avg + 1).toLocaleString(LOC(), { minimumFractionDigits: 1, maximumFractionDigits: 1 }) : '–'}</b><span>${tx('Ø Stufe')}</span></div>
     </div>
     ${fav ? `<div class="group-f center" style="margin-top:12px">${tx('Deine Stärke: {c} – {p} % erkannt', { c: `<b>${esc(fav.c.name)}</b>`, p: Math.round(fav.f / fav.s * 100) })}</div>` : ''}
     <div class="group-h">${tx('Nach Kategorie')}</div>
@@ -861,6 +872,7 @@ $('#disc').onclick = () => {
     const d = $('#disc'); d.classList.remove('playing', 'counting'); d.classList.add('paused');
   } else playSnippet();
 };
+$('#disc').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); $('#disc').click(); } });
 $('#skipBtn').onclick = skip;
 $('#hintBtn').onclick = () => { $('#hintPanel').classList.toggle('hidden'); renderHints(); };
 $('#giveupBtn').onclick = () => { if (!R().done && confirm(tx('Song auflösen? Du bekommst nur Punkte, falls der Interpret schon stimmte.'))) finishRound(false); };

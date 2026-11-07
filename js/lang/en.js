@@ -5,6 +5,8 @@
   name: 'English',
   flag: '🇬🇧',
   dict: {
+    "Auf Spotify anhören": "Listen on Spotify",
+    "Auf Deezer anhören": "Listen on Deezer",
     "+{n} Punkte": "+{n} points",
     "0 Punkte": "0 points",
     "0,1 s": "0.1 s",

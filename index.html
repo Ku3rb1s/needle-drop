@@ -19,7 +19,7 @@
 <link rel="preload" href="fonts/outfit-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/fonts.css?v=1">
 <link rel="stylesheet" href="css/base.css?v=9">
-<link rel="stylesheet" href="css/app.css?v=16">
+<link rel="stylesheet" href="css/app.css?v=17">
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -130,7 +130,7 @@
       <div class="possible" id="possibleLine"></div>
     </div>
 
-    <div class="disc-wrap tappable paused" id="disc" role="button" aria-label="Ausschnitt abspielen">
+    <div class="disc-wrap tappable paused" id="disc" role="button" tabindex="0" aria-label="Ausschnitt abspielen">
       <div class="flipper">
         <div class="face front">
           <svg class="ring-svg" viewBox="0 0 120 120"><defs><filter id="ringBlur" x="-25%" y="-25%" width="150%" height="150%"><feGaussianBlur stdDeviation="2.6"/></filter></defs><circle class="trk" cx="60" cy="60" r="56"/><circle class="ring-glow" cx="60" cy="60" r="56" filter="url(#ringBlur)"/><circle class="ring" cx="60" cy="60" r="56"/></svg>
@@ -172,7 +172,7 @@
 
     <div id="reveal" class="reveal hidden">
       <div class="rv-answer"><div class="rv-q" id="rvQ"></div><div class="rv-a" id="rvA"></div></div>
-      <div class="rv-song" data-no-tx><div class="rv-title" id="rvTitle"></div><div class="rv-artist" id="rvArtist"></div><div class="rv-meta" id="rvMeta"></div></div>
+      <div class="rv-song" data-no-tx><div class="rv-title" id="rvTitle"></div><div class="rv-artist" id="rvArtist"></div><div class="rv-meta" id="rvMeta"></div><div class="rv-links" id="rvLinks"></div></div>
       <div class="controls" style="margin-top:16px"><button class="big" id="nextBtn">Weiter</button></div>
     </div>
 
@@ -343,15 +343,15 @@
 <div id="loading" class="loading hidden"><div class="loader"></div><p id="loadingTxt">Lade Songs…</p></div>
 <div id="toast" class="hidden"></div>
 
-<script src="js/lang/en.js?v=2"></script>
-<script src="js/lang/fr.js?v=2"></script>
-<script src="js/lang/es.js?v=2"></script>
-<script src="js/lang/nb.js?v=2"></script>
+<script src="js/lang/en.js?v=3"></script>
+<script src="js/lang/fr.js?v=3"></script>
+<script src="js/lang/es.js?v=3"></script>
+<script src="js/lang/nb.js?v=3"></script>
 <script src="js/i18n.js?v=1"></script>
 <script src="js/deezer.js?v=8"></script>
 <script src="js/spotify.js?v=3"></script>
-<script src="js/audio.js?v=7"></script>
-<script src="js/quiz.js?v=18"></script>
+<script src="js/audio.js?v=8"></script>
+<script src="js/quiz.js?v=19"></script>
 <script src="js/daily.js?v=5"></script>
 </body>
 </html>

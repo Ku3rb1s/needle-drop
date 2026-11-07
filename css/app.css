@@ -246,3 +246,11 @@ header{max-width:720px}
 .confetti i{position:absolute;top:-20px;width:9px;height:14px;border-radius:2px;animation:fall linear forwards}
 @keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
 #statsBox .cell b{font-variant-numeric:tabular-nums}
+
+/* Song nach der Auflösung anhören */
+.rv-links{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:10px}
+.rv-links:empty{display:none}
+.rv-links a{text-decoration:none;font-size:.82rem}
+/* Platte: sichtbarer Fokus für Tastatur */
+#disc:focus-visible{outline:none}
+#disc:focus-visible .disc{box-shadow:0 0 0 3px var(--cat),0 20px 50px -15px rgba(0,0,0,.8)}

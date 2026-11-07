@@ -4,6 +4,8 @@
   name: 'Español',
   flag: '🇪🇸',
   dict: {
+    "Auf Spotify anhören": "Escuchar en Spotify",
+    "Auf Deezer anhören": "Escuchar en Deezer",
     "+{n} Punkte": "+{n} puntos",
     "0 Punkte": "0 puntos",
     "0,1 s": "0,1 s",

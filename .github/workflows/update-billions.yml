@@ -4,7 +4,7 @@ name: Billionärs-Club aktualisieren
 # und committet nur, wenn sich etwas geändert hat. Per Hand: Actions → „Billionärs-Club aktualisieren“ → Run workflow.
 on:
   schedule:
-    - cron: '23 4 1 * *'   # am 1. jedes Monats, 04:23 UTC
+    - cron: '5 23 1 * *'   # 1. des Monats 23:05 UTC = kurz nach Mitternacht in DE – die Tägliche Challenge bleibt so den ganzen Tag gleich
   workflow_dispatch:
 
 permissions:

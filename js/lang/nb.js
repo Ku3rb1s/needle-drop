@@ -4,6 +4,8 @@
   name: 'Norsk',
   flag: '🇳🇴',
   dict: {
+    "Auf Spotify anhören": "Hør på Spotify",
+    "Auf Deezer anhören": "Hør på Deezer",
     "+{n} Punkte": "+{n} poeng",
     "0 Punkte": "0 poeng",
     "0,1 s": "0,1 s",
