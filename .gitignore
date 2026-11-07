@@ -2,3 +2,5 @@ node_modules/
 .DS_Store
 Thumbs.db
 logo-options/
+worker/.wrangler/
+node_modules/
