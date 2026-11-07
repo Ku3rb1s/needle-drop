@@ -320,5 +320,10 @@
     "Tippe auf „Hinzufügen“.": "Trykk på «Legg til».",
     "Die App speichert getrennt vom Browser: Einstellungen und Anmeldungen gibst du dort einmal neu ein.": "Appen lagrer data separat fra nettleseren: der legger du inn innstillinger og innlogginger én gang til.",
     "Verstanden": "Skjønner",
+    "Dein Code": "Koden din",
+    "Auf anderen Geräten weiterspielen": "Spill videre på andre enheter",
+    "Noch nicht gesichert – in der Jukebox sichern": "Ikke lagret ennå – lagre den i Jukebox",
+    "Code {c} · verwalten in der Jukebox": "Kode {c} · administreres i Jukebox",
+    "Rekorde, Serien und Profil mit einem Code mitnehmen – ohne E-Mail und Passwort": "Ta med rekorder, rekker og profil med en kode – uten e-post og passord",
   },
 };

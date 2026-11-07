@@ -1,5 +1,5 @@
 /* Needle Drop – Spielablauf und Anzeige */
-const APP_VERSION = '1.13.0', APP_DATE = '07.11.2026'; // bei jedem Update erhöhen + CHANGELOG.md ergänzen
+const APP_VERSION = '1.13.1', APP_DATE = '07.11.2026'; // bei jedem Update erhöhen + CHANGELOG.md ergänzen
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 
@@ -828,9 +828,13 @@ function parseChanges(text) {
 /* Spielerprofil (geteilt mit Bingo und Jukebox) */
 function renderProfile() {
   const p = Profile.get(), s = Sync.status();
-  $('#syncTitle').textContent = s.connected ? tx('Auf allen Geräten verbunden') : tx('Auf allen Geräten spielen');
-  $('#syncSub').textContent = s.connected ? tx('Code {c} · ändern in der Jukebox', { c: s.code }) : tx('Rekorde, Serie und Profil mit einem Code mitnehmen');
-  $('#syncIc').style.background = s.connected ? 'linear-gradient(135deg,#10b981,#0ea5e9)' : 'linear-gradient(135deg,#ff4f86,#fbbf24)';
+  // „Dein Code“ (verwaltet in der Jukebox). Noch nicht gesichert? Merkt sich die Jukebox unter hub.codeSaved.
+  let saved = false; try { saved = JSON.parse(localStorage.getItem('hub.codeSaved')) === s.code; } catch {}
+  const unsaved = s.connected && !saved;
+  $('#syncTitle').textContent = s.connected ? tx('Dein Code') : tx('Auf anderen Geräten weiterspielen');
+  $('#syncSub').textContent = unsaved ? '⚠️ ' + tx('Noch nicht gesichert – in der Jukebox sichern')
+    : s.connected ? tx('Code {c} · verwalten in der Jukebox', { c: s.code }) : tx('Rekorde, Serien und Profil mit einem Code mitnehmen – ohne E-Mail und Passwort');
+  $('#syncIc').style.background = unsaved ? 'linear-gradient(135deg,#f59e0b,#ef4444)' : s.connected ? 'linear-gradient(135deg,#10b981,#0ea5e9)' : 'linear-gradient(135deg,#ff4f86,#fbbf24)';
   $('#profEmoji').textContent = p.emoji;
   if (document.activeElement !== $('#profName')) $('#profName').value = p.name;
   $('#profName').placeholder = tx('Dein Name');
