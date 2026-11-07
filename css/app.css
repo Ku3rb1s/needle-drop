@@ -47,7 +47,12 @@ header{max-width:720px}
 .step .p{font-size:.64rem;opacity:.75}
 
 .action-row{margin:0 0 12px}
-.pill-btn.active{border-color:var(--warn);color:var(--warn)}
+/* Aktions-Knöpfe dezent eingefärbt: Weiterhören in der Kategoriefarbe, Tipp gold, Auflösen rot */
+#skipBtn{--c:var(--cat)} #hintBtn{--c:#fbbf24} #giveupBtn{--c:#f87171}
+#skipBtn,#hintBtn,#giveupBtn{background:color-mix(in srgb,var(--c) 13%,rgba(255,255,255,.04)) var(--g-sheen);border-color:color-mix(in srgb,var(--c) 42%,transparent)}
+#skipBtn .ic,#hintBtn .ic,#giveupBtn .ic{color:var(--c)}
+#skipBtn:hover:not(:disabled),#hintBtn:hover:not(:disabled),#giveupBtn:hover:not(:disabled){background-color:color-mix(in srgb,var(--c) 22%,transparent);border-color:color-mix(in srgb,var(--c) 65%,transparent)}
+.pill-btn.active{border-color:var(--c,var(--warn));color:var(--c,var(--warn));background-color:color-mix(in srgb,var(--c,var(--warn)) 24%,transparent)}
 .pill-btn:disabled{opacity:.35}
 .status:empty{display:none}
 .status{margin-bottom:10px}
