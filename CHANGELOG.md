@@ -2,6 +2,10 @@
 
 Die Versionsnummer steht in `js/quiz.js` (`APP_VERSION`) und unten in den Einstellungen. In `index.html` bei jedem Update auch `?v=` an CSS/JS-Dateien erhöhen.
 
+## 1.12.4 – 07.11.2026
+- Kein ungewolltes Zoomen mehr am Handy (Doppeltippen oder Spreizen) – fühlt sich an wie eine App
+- Suche am Handy: Das Suchfeld gleitet beim Antippen weich nach oben, statt zu springen
+
 ## 1.12.3 – 07.11.2026
 - Suche am Handy: Die Vorschläge lassen sich jetzt scrollen und passen über die Tastatur. Beim Antippen des Suchfelds rutscht es nach oben, damit die Liste Platz hat. Wischen wählt keinen Song mehr aus Versehen aus
 

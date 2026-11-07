@@ -1,5 +1,5 @@
 /* Needle Drop – Spielablauf und Anzeige */
-const APP_VERSION = '1.12.3', APP_DATE = '07.11.2026'; // bei jedem Update erhöhen + CHANGELOG.md ergänzen
+const APP_VERSION = '1.12.4', APP_DATE = '07.11.2026'; // bei jedem Update erhöhen + CHANGELOG.md ergänzen
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 
@@ -1102,18 +1102,32 @@ function fitSuggest() {
 window.visualViewport?.addEventListener('resize', fitSuggest);
 window.visualViewport?.addEventListener('scroll', fitSuggest);
 addEventListener('resize', fitSuggest);
-/* Am Handy: beim Tippen ins Suchfeld das Feld nach oben holen, damit die Vorschläge darunter Platz haben */
+/* Am Handy: das Suchfeld weich nach oben holen, damit die Vorschläge darunter Platz haben.
+   Schon beim Antippen (touchstart) – dann ist das Feld oben, bevor die Tastatur kommt, und iOS muss nicht selbst
+   springen. Bei Fokus ohne Antippen (z. B. Tastatur-Weiter) dasselbe nach dem Fokus. */
 const touchUI = matchMedia('(pointer: coarse)').matches;
-gi.addEventListener('focus', () => {
+let lift = 0;
+function liftSearch() {
   if (!touchUI) return;
-  document.body.classList.add('typing');
-  setTimeout(() => {                                               // warten, bis die Tastatur da ist
-    const top = gi.closest('.guess').getBoundingClientRect().top;
-    const sat = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--sat')) || 0;
-    window.scrollBy(0, top - sat - 14);
-    setTimeout(fitSuggest, 350);
-  }, 280);
-});
+  document.body.classList.add('typing');                       // unten Platz schaffen, sonst ginge es nicht weit genug hoch
+  cancelAnimationFrame(lift);
+  const sat = Math.max(0, parseFloat(getComputedStyle($('header')).paddingTop) - 16) || 0; // Abstand zur Statusleiste
+  const from = scrollY, dy = gi.closest('.guess').getBoundingClientRect().top - sat - 14;
+  if (Math.abs(dy) < 4) return fitSuggest();
+  const t0 = performance.now(), ms = 320, ease = t => 1 - Math.pow(1 - t, 3);
+  let done = false;
+  const step = now => {
+    const t = Math.min(1, (now - t0) / ms);
+    scrollTo(0, from + dy * ease(t));
+    if (t < 1) lift = requestAnimationFrame(step); else { done = true; fitSuggest(); }
+  };
+  lift = requestAnimationFrame(step);
+  // Absicherung: läuft die Animation nicht (z. B. Stromsparmodus), direkt ans Ziel
+  setTimeout(() => { if (!done) { cancelAnimationFrame(lift); scrollTo(0, from + dy); fitSuggest(); } }, ms + 150);
+}
+gi.addEventListener('touchstart', () => { if (document.activeElement !== gi) liftSearch(); }, { passive: true });
+gi.addEventListener('focus', () => setTimeout(() => { if (Math.abs(gi.closest('.guess').getBoundingClientRect().top - 80) > 120) liftSearch(); }, 60));
+window.visualViewport?.addEventListener('resize', () => { if (document.activeElement === gi) setTimeout(fitSuggest, 50); });
 gi.addEventListener('blur', () => setTimeout(() => { if (document.activeElement !== gi) document.body.classList.remove('typing'); }, 200));
 gi.addEventListener('blur', () => setTimeout(closeSuggest, 150));
 document.addEventListener('keydown', e => {
