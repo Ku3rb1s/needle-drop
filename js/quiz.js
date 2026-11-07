@@ -551,17 +551,33 @@ function applyTheme() {
     `<button class="theme-pick ${th === id ? 'on' : ''}" data-theme-pick="${id}"><i style="background:linear-gradient(135deg,${a},${b})"></i>${name}</button>`).join('');
 }
 function renderSettings() {
-  $('#setCount').value = String(opt.count);
-  $('#setAnswer').value = opt.answer;
+  const segOn = (id, v) => $$(`#${id} button`).forEach(b => b.classList.toggle('on', b.dataset.v == v));
+  segOn('setLadder', opt.ladder); segOn('setStart', opt.startMode); segOn('setAnswer', opt.answer); segOn('setCount', opt.count);
   $('#setAuto').checked = !!opt.auto;
   $('#setHints').checked = opt.hintsOn === 'on';
   $('#setClean').checked = !!opt.clean;
-  $$('#setStart button').forEach(b => b.classList.toggle('on', b.dataset.v === opt.startMode));
-  $$('#setLadder button').forEach(b => b.classList.toggle('on', b.dataset.v === opt.ladder));
   $('#startInfo').textContent = START_INFO[opt.startMode];
   const L = LADDERS[opt.ladder];
-  $('#pointsInfo').innerHTML = [0, 3].map(k => `<div class="cell"><span class="grow">Erkannt bei ${L.slice(k, k + 3).map(fmtS).join(' · ')}</span><b>${PTS.slice(k, k + 3).join(' · ')}</b></div>`).join('');
+  $('#pointsInfo').innerHTML = L.map((s, k) => `<div class="cell"><span class="grow">Erkannt bei ${fmtS(s)}</span><b>${PTS[k]}</b></div>`).join('');
+  // Zusammenfassungen auf der Übersichtsseite
+  const LN = { easy: 'Entspannt', classic: 'Klassisch', pro: 'Profi' }[opt.ladder];
+  const SN = { start: 'Am Anfang', hook: 'Hook', random: 'Zufällig' }[opt.startMode];
+  $('#subRules').textContent = `${LN} · ${SN} · ${opt.answer === 'mc' ? '4 Antworten' : 'Suchen'} · ${opt.count} Songs`;
+  $('#subHelp').textContent = [opt.hintsOn === 'on' ? 'Tipps an' : 'Tipps aus', opt.auto ? 'Autoplay an' : '', opt.clean ? 'ohne Explicit' : ''].filter(Boolean).join(' · ');
+  $('#subDesign').textContent = (THEMES.find(x => x[0] === opt.theme) || THEMES[0])[1];
+  $('#subPoints').textContent = '600 bis 100 je Stufe, Tipps kosten Punkte';
+  $('#subData').textContent = 'Alles bleibt auf diesem Gerät';
   applyTheme();
+}
+
+/* Seiten im Einstellungsmenü (Übersicht → Unterseite → zurück) */
+function goPage(p, back = false) {
+  const page = $(`#sheetSettings .page[data-page="${p}"]`) || $('#sheetSettings .page[data-page="main"]');
+  $$('#sheetSettings .page').forEach(x => x.classList.toggle('active', x === page));
+  page.classList.toggle('back', back);
+  $('#navTitle').textContent = page.dataset.title;
+  $('#navBack').classList.toggle('invisible', page.dataset.page === 'main');
+  $('#sheetSettings .sheet-body').scrollTop = 0;
 }
 
 /* ---------- Lautstärke (nur am PC sichtbar – am Handy regeln die Tasten) ---------- */
@@ -673,12 +689,14 @@ $('#shareBtn').onclick = async () => {
 
 // Einstellungen
 const sheet = $('#sheetSettings');
-const openSettings = () => {
-  renderSettings(); sheet.showModal();
+const openSettings = (p = 'main') => {
+  renderSettings(); goPage(p); sheet.showModal();
   LS.set('seenSettings', true); $('#settingsDot').classList.add('hidden');
 };
-$('#btnSettings').onclick = openSettings;
-$('#setupRow').onclick = openSettings;
+$('#btnSettings').onclick = () => openSettings();
+$('#setupRow').onclick = () => openSettings('rules'); // Regel-Pills → direkt zu den Spielregeln
+sheet.addEventListener('click', e => { const g = e.target.closest('[data-go]'); if (g) goPage(g.dataset.go); });
+$('#navBack').onclick = () => goPage('main', true);
 sheet.addEventListener('click', e => { if (e.target === sheet || e.target.closest('[data-close]')) sheet.close(); });
 // Startseite dahinter sofort mitziehen (Regel-Pills, Rekord) – nicht erst beim Schließen
 const refreshBehind = () => { if (!$('#home').classList.contains('hidden')) renderHome(); };
@@ -688,11 +706,12 @@ sheet.addEventListener('close', () => {
   if (!$('#home').classList.contains('hidden')) renderHome();
   else if (G && R() && !R().done && !$('#game').classList.contains('hidden')) { renderChoices(); renderHints(); }
 });
-$('#setCount').onchange = e => { opt.count = +e.target.value; LS.set('count', opt.count); };
-$('#setAnswer').onchange = e => { opt.answer = e.target.value; LS.set('answer', opt.answer); };
-$('#setAuto').onchange = e => { opt.auto = e.target.checked; LS.set('auto', opt.auto); };
-$('#setHints').onchange = e => { opt.hintsOn = e.target.checked ? 'on' : 'off'; LS.set('hintsOn', opt.hintsOn); };
-$('#setClean').onchange = e => { opt.clean = e.target.checked; LS.set('clean', opt.clean); };
+const segPick = (id, fn) => { $('#' + id).onclick = e => { const b = e.target.closest('button'); if (b) { fn(b.dataset.v); renderSettings(); } }; };
+segPick('setCount', v => { opt.count = +v; LS.set('count', opt.count); });
+segPick('setAnswer', v => { opt.answer = v; LS.set('answer', opt.answer); });
+$('#setAuto').onchange = e => { opt.auto = e.target.checked; LS.set('auto', opt.auto); renderSettings(); };
+$('#setHints').onchange = e => { opt.hintsOn = e.target.checked ? 'on' : 'off'; LS.set('hintsOn', opt.hintsOn); renderSettings(); };
+$('#setClean').onchange = e => { opt.clean = e.target.checked; LS.set('clean', opt.clean); renderSettings(); };
 $('#setStart').onclick = e => {
   const b = e.target.closest('button'); if (!b) return;
   opt.startMode = b.dataset.v; LS.set('startMode2', opt.startMode); renderSettings();
@@ -719,7 +738,7 @@ $('#volMute').onclick = () => { opt.muted = !opt.muted; applyVol(); };
 $('#choices').onclick = e => { const b = e.target.closest('[data-c]'); if (b) choose(+b.dataset.c); };
 $('#themeRow').onclick = e => {
   const b = e.target.closest('[data-theme-pick]'); if (!b) return;
-  opt.theme = b.dataset.themePick; LS.set('theme', opt.theme); applyTheme();
+  opt.theme = b.dataset.themePick; LS.set('theme', opt.theme); renderSettings();
 };
 
 const gi = $('#guessInput');

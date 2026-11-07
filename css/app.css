@@ -197,3 +197,6 @@ header{max-width:720px}
   .decades button{font-size:.95rem;padding:.55em 0}
   .decades button small{font-size:.6rem}
 }
+
+/* Einstellungen: Seitenwechsel-Animation darf keinen waagerechten Scrollbalken erzeugen */
+#sheetSettings .sheet-body{overflow-x:hidden}
