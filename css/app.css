@@ -136,3 +136,17 @@ header{max-width:720px}
   .choices{grid-template-columns:1fr}
 }
 
+
+/* Aktuelle Spielregeln unter dem Spielen-Knopf – zeigt, was einstellbar ist, ohne die Seite zu füllen */
+.setup{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px;margin:16px auto 0;padding:4px;background:none;border:0;
+  color:var(--muted);font-weight:500;font-size:.8rem;white-space:normal;max-width:560px}
+.setup #setupChips{display:contents}
+.setup .chip{display:inline-flex;align-items:center;gap:5px;padding:.35em .75em;border-radius:99px;background:var(--g-bg);border:1px solid var(--g-brd);box-shadow:var(--g-hi)}
+.setup .chip .ic{width:1em;height:1em;opacity:.8}
+.setup-edit{display:inline-flex;align-items:center;gap:5px;padding:.35em .6em;color:var(--text);font-weight:600}
+.setup-edit .ic{width:1.05em;height:1.05em}
+@media (hover:hover){.setup:hover .chip{border-color:rgba(255,255,255,.3)}.setup:hover .setup-edit{color:var(--quiz1)}}
+.setup:active{transform:scale(.98)}
+/* Punkt am Einstellungen-Knopf, bis man sie einmal geöffnet hat */
+.hbtn{position:relative}
+.new-dot{position:absolute;top:4px;right:4px;width:10px;height:10px;border-radius:50%;background:var(--quiz1);box-shadow:0 0 0 2px var(--bg),0 0 10px var(--quiz1)}

@@ -348,7 +348,21 @@ function renderHome() {
   $('#homeCatName').textContent = c.name;
   $('#startLbl').textContent = `${c.name} spielen`;
   const best = LS.get(bestKey(), 0);
-  $('#bestPill').textContent = best ? `🏆 Rekord ${fmtN(best)}` : `${DIFF[opt.diff].label} · ${opt.count} Songs`;
+  renderSetup();
+  $('#bestPill').textContent = best ?`🏆 Rekord ${fmtN(best)}` : `${DIFF[opt.diff].label} · ${opt.count} Songs`;
+}
+
+/** Aktuelle Regeln als kleine Pills unter dem Spielen-Knopf (Klick öffnet die Einstellungen) */
+function renderSetup() {
+  const L = LADDERS[opt.ladder];
+  const chip = (ic, t) => `<span class="chip"><svg class="ic"><use href="#i-${ic}"/></svg>${t}</span>`;
+  $('#setupChips').innerHTML = [
+    chip('clock', `${fmtS(L[0])} – ${fmtS(L[L.length - 1])}`),
+    chip(opt.answer === 'mc' ? 'list' : 'search', opt.answer === 'mc' ? '4 Antworten' : 'Suchen'),
+    chip('start', { start: 'Am Anfang', hook: 'Hook', random: 'Zufällig' }[opt.startMode]),
+    chip('bulb', opt.hintsOn === 'on' ? 'Tipps an' : 'Tipps aus'),
+  ].join('');
+  $('#settingsDot').classList.toggle('hidden', !!LS.get('seenSettings', false));
 }
 
 function renderMeta() {
@@ -607,8 +621,17 @@ $('#shareBtn').onclick = async () => {
 
 // Einstellungen
 const sheet = $('#sheetSettings');
-$('#btnSettings').onclick = () => { renderSettings(); sheet.showModal(); };
+const openSettings = () => {
+  renderSettings(); sheet.showModal();
+  LS.set('seenSettings', true); $('#settingsDot').classList.add('hidden');
+};
+$('#btnSettings').onclick = openSettings;
+$('#setupRow').onclick = openSettings;
 sheet.addEventListener('click', e => { if (e.target === sheet || e.target.closest('[data-close]')) sheet.close(); });
+// Startseite dahinter sofort mitziehen (Regel-Pills, Rekord) – nicht erst beim Schließen
+const refreshBehind = () => { if (!$('#home').classList.contains('hidden')) renderHome(); };
+sheet.addEventListener('change', refreshBehind);
+sheet.addEventListener('click', e => { if (e.target.closest('.seg button')) refreshBehind(); });
 sheet.addEventListener('close', () => {
   if (!$('#home').classList.contains('hidden')) renderHome();
   else if (G && R() && !R().done && !$('#game').classList.contains('hidden')) { renderChoices(); renderHints(); }
