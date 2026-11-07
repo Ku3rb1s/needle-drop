@@ -58,6 +58,9 @@ const opt = {
   ladder: LS.get('ladder', 'classic'), answer: LS.get('answer', 'search'), auto: LS.get('auto', false),
   clean: LS.get('clean', false), vol: LS.get('vol', 80), muted: false,
 };
+// Während der Tages-Challenge gelten feste Regeln (für alle gleich), sonst die eigenen Einstellungen
+const DAILY_RULES = { answer: "search", startMode: "start", hintsOn: "on" };
+const rule = k => (G && G.daily && k in DAILY_RULES) ? DAILY_RULES[k] : opt[k];
 const bestKey = (cat = opt.cat) => `best2.${cat}.${opt.diff}.${opt.count}.${opt.ladder}.${opt.answer}`;
 const pools = {};
 let G = null;
@@ -120,7 +123,7 @@ function prepare(r) {
     if (opt.clean && t.explicit_lyrics) throw new Error('explizit'); // Billionärs-Liste kennt das erst hier
     try { r.buf = await Snip.load(t.preview); }
     catch { t = r.track = await DZ.track(t.id); r.buf = await Snip.load(t.preview); }
-    r.offset = Snip.findStart(r.buf, opt.startMode, STEPS[STEPS.length - 1]);
+    r.offset = Snip.findStart(r.buf, rule("startMode"), STEPS[STEPS.length - 1]);
     DZ.album(t.album.id).then(a => r.album = a).catch(() => {});
   })();
 }
@@ -283,6 +286,8 @@ function finishRound(won) {
 
 function endGame() {
   Snip.stop();
+  if (G.daily) return Daily.finish();
+  Daily.resetEnd();
   const max = G.n * PTS[0];
   const key = bestKey(G.cat.id);
   const best = LS.get(key, 0);
@@ -349,6 +354,7 @@ function renderHome() {
   $('#startLbl').textContent = `${c.name} spielen`;
   const best = LS.get(bestKey(), 0);
   renderSetup();
+  window.Daily?.renderCard();
   $('#bestPill').textContent = best ?`🏆 Rekord ${fmtN(best)}` : `${DIFF[opt.diff].label} · ${opt.count} Songs`;
 }
 
@@ -394,7 +400,7 @@ function renderRound() {
     $('#playArea').classList.remove('hidden');
   }
   renderMeta();
-  $('#gameKicker').textContent = G.cat.name;
+  $('#gameKicker').textContent = G.daily ? `${G.cat.name} #${G.daily.no}` : G.cat.name;
   const icon = $('#gameCatIcon');
   icon.className = 'cat-icon' + (G.cat.group === 'decades' ? ' dec' : '');
   icon.innerHTML = catIcon(G.cat);
@@ -420,7 +426,7 @@ function renderRound() {
 /* ---------- 4 Antworten (Multiple Choice) ---------- */
 function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 function renderChoices() {
-  const r = R(), mc = opt.answer === 'mc';
+  const r = R(), mc = rule("answer") === 'mc';
   $('#choices').classList.toggle('hidden', !mc);
   $('.guess').classList.toggle('hidden', mc);
   if (!mc) return;
@@ -449,7 +455,7 @@ function choose(i) {
 
 function renderHints() {
   const r = R(), t = r.track, a = r.album;
-  const enabled = opt.hintsOn === 'on', unlocked = r.stage >= HINT_FROM;
+  const enabled = rule("hintsOn") === 'on', unlocked = r.stage >= HINT_FROM;
   const btn = $('#hintBtn');
   btn.classList.toggle('hidden', !enabled);
   btn.disabled = !unlocked;
@@ -605,6 +611,11 @@ const goHome = () => { Snip.stop(); G = null; renderHome(); show('home'); };
 /** Zur Startseite – mitten im Spiel nur nach Rückfrage */
 function leave() {
   const inGame = G && !$('#game').classList.contains('hidden');
+  if (inGame && G.daily) {
+    // Tages-Challenge: Abbrechen zählt als gespielt (sonst könnte man sie beliebig oft neu versuchen)
+    if (!confirm('Challenge abbrechen? Sie zählt dann mit den bisherigen Punkten – heute geht es nicht nochmal.')) return;
+    return Daily.finish(true);
+  }
   if (inGame && !confirm('Spiel beenden? Der bisherige Punktestand geht verloren.')) return;
   goHome();
 }
@@ -612,7 +623,8 @@ $('#homeBtn').onclick = goHome;
 $('#btnQuit').onclick = leave;
 $('#logoBtn').onclick = leave;
 $('#shareBtn').onclick = async () => {
-  const text = shareText();
+  const d = $('#shareBtn').dataset.daily;
+  const text = d ? Daily.shareText(d) : shareText();
   try {
     if (navigator.share && matchMedia('(pointer:coarse)').matches) await navigator.share({ text });
     else { await navigator.clipboard.writeText(text); toast('Ergebnis kopiert'); }
@@ -682,7 +694,7 @@ document.addEventListener('keydown', e => {
   else if (e.key === 'ArrowUp') { e.preventDefault(); setVol(opt.vol + 5); }
   else if (e.key === 'ArrowDown') { e.preventDefault(); setVol(opt.vol - 5); }
   else if (e.key === 'm' || e.key === 'M') { opt.muted = !opt.muted; applyVol(); }
-  else if (opt.answer === 'mc' && /^[1-4]$/.test(e.key) && !R()?.done) choose(+e.key - 1);
+  else if (rule("answer") === 'mc' && /^[1-4]$/.test(e.key) && !R()?.done) choose(+e.key - 1);
 });
 
 $('#customUrl').value = LS.get('customUrl', '');

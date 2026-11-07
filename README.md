@@ -23,6 +23,11 @@ Lokal starten: `node server.js` → http://127.0.0.1:8890/
   Stark −150 (Anfangsbuchstaben, Interpret-Initiale, verpixeltes Cover).
 - **Schwierigkeit:** sortiert nach Deezer-`rank` (bzw. Streams); Leicht = bekannteste 35 %, Normal = 70 %, Schwer = alle.
 
+## Tägliche Challenge
+
+Jeden Tag 5 Songs aus dem Billionärs Club, für alle gleich: Die Auswahl hängt nur vom Datum (Europe/Berlin) ab – kein Server nötig.
+Feste Regeln (klassische Leiter, Suchen, Start am Anfang, Tipps erlaubt), einmal pro Tag. Ergebnis, Serie und Countdown werden lokal gespeichert (`js/daily.js`).
+
 ## Aufbau
 
 | Datei | Inhalt |
@@ -33,6 +38,7 @@ Lokal starten: `node server.js` → http://127.0.0.1:8890/
 | `css/app.css` | Quiz-eigene Teile (Leiter, Suche, Tipps, Ergebnis) |
 | `js/deezer.js` | JSONP, Playlists laden, Suche, Link-Erkennung |
 | `js/audio.js` | Web-Audio-Snippets, Startpunkt-Erkennung |
+| `js/daily.js` | Tägliche Challenge (Auswahl per Datum, Serie, Teilen) |
 | `js/quiz.js` | Kategorien, Spielablauf, Wertung, Hinweise, Anzeige |
 | `data/billions.json` | Billionärs Club: Songs mit ≥ 1 Mrd. Spotify-Streams |
 | `scripts/build-billions.js` | erzeugt `data/billions.json` neu (Quelle kworb.net → Deezer-Zuordnung) |

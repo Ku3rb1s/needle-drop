@@ -19,8 +19,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/base.css?v=8">
-<link rel="stylesheet" href="css/app.css?v=8">
+<link rel="stylesheet" href="css/base.css?v=9">
+<link rel="stylesheet" href="css/app.css?v=9">
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -64,6 +64,11 @@
 <main>
   <!-- ============ Start ============ -->
   <div id="home">
+    <button class="glass daily" id="dailyCard">
+      <span class="daily-ic"><svg class="ic"><use href="#i-calendar"/></svg><b id="dailyNo">#1</b></span>
+      <span class="grow"><b>Tägliche Challenge</b><span class="sub" id="dailySub"></span></span>
+      <span class="daily-r" id="dailyRight"></span>
+    </button>
     <section class="stage glass">
       <div class="round-meta"><span class="pill">Song-Quiz</span><span class="pill" id="bestPill">Noch kein Rekord</span></div>
       <div class="cat" id="homeCat">
@@ -176,7 +181,7 @@
   <!-- ============ Ende ============ -->
   <section id="end" class="stage glass hidden">
     <div class="round-meta"><span class="pill" id="endCat"></span><span class="pill" id="endFound"></span></div>
-    <div class="lib-hero"><div class="cat-kicker">Deine Punkte</div><div class="lib-num" id="endScore">0</div><div class="lib-sub" id="endSub"></div></div>
+    <div class="lib-hero"><div class="cat-kicker">Deine Punkte</div><div class="lib-num" id="endScore">0</div><div class="lib-sub" id="endSub"></div><div class="daily-next hidden" id="dailyNext"></div></div>
     <div class="group icons endlist" id="endList"></div>
     <div class="controls" style="margin-top:20px">
       <button class="big" id="againBtn"><svg class="ic"><use href="#i-restart"/></svg>Nochmal</button>
@@ -240,8 +245,9 @@
 <div id="loading" class="loading hidden"><div class="loader"></div><p id="loadingTxt">Lade Songs…</p></div>
 <div id="toast" class="hidden"></div>
 
-<script src="js/deezer.js?v=6"></script>
-<script src="js/audio.js?v=6"></script>
-<script src="js/quiz.js?v=6"></script>
+<script src="js/deezer.js?v=7"></script>
+<script src="js/audio.js?v=7"></script>
+<script src="js/quiz.js?v=7"></script>
+<script src="js/daily.js?v=1"></script>
 </body>
 </html>

@@ -1,0 +1,148 @@
+/* Tägliche Challenge: jeden Tag dieselben 5 Songs für alle.
+   - Auswahl hängt nur vom Datum ab (Zufallsgenerator mit dem Datum als Startwert) → überall gleich, ohne Server.
+   - Quelle: Billionärs Club (feste Liste in data/billions.json, ändert sich nicht wie Deezer-Playlists).
+   - Feste Regeln (DAILY_RULES in quiz.js), einmal pro Tag, Ergebnis + Serie werden lokal gespeichert. */
+const Daily = (() => {
+  const N = 5;
+  const START = '2026-11-07';                     // Challenge #1
+  const CAT = { id: 'daily', group: 'special', name: 'Tägliche Challenge', icon: 'calendar', color: '#f59e0b' };
+  const TZ = 'Europe/Berlin';                     // Tageswechsel um Mitternacht deutscher Zeit – für alle gleich
+
+  const today = () => new Date().toLocaleDateString('sv-SE', { timeZone: TZ }); // „2026-11-07“
+  const dayNo = d => Math.round((Date.parse(d) - Date.parse(START)) / 864e5) + 1;
+  const prevDay = d => new Date(Date.parse(d) - 864e5).toISOString().slice(0, 10);
+
+  // Kleiner Zufallsgenerator mit Startwert (mulberry32) – gleiches Datum → gleiche Folge
+  function rng(str) {
+    let h = 2166136261;
+    for (const ch of str) h = Math.imul(h ^ ch.charCodeAt(0), 16777619);
+    return () => {
+      h = (h + 0x6D2B79F5) | 0;
+      let t = Math.imul(h ^ (h >>> 15), 1 | h);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  const log = () => LS.get('daily', {});           // { "2026-11-07": { score, found, items, aborted } }
+  const result = d => log()[d];
+
+  /** Serie: aufeinanderfolgende gespielte Tage bis heute (oder bis gestern, wenn heute noch offen) */
+  function streak() {
+    const L = log();
+    let d = today();
+    if (!L[d]) d = prevDay(d);
+    let n = 0;
+    while (L[d]) { n++; d = prevDay(d); }
+    return n;
+  }
+
+  function msToMidnight() {
+    const p = Object.fromEntries(new Intl.DateTimeFormat('en-GB', { timeZone: TZ, hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' })
+      .formatToParts(new Date()).map(x => [x.type, +x.value]));
+    return (86400 - (p.hour * 3600 + p.minute * 60 + p.second)) * 1000;
+  }
+  const fmtLeft = ms => { const s = Math.max(0, Math.floor(ms / 1000)); return [s / 3600, (s % 3600) / 60, s % 60].map(v => String(Math.floor(v)).padStart(2, '0')).join(':'); };
+
+  /* ---------- Starten ---------- */
+  async function start() {
+    const d = today();
+    if (result(d)) return showResult(d);
+    loading(true, 'Lade die heutige Challenge…');
+    Snip.ac();
+    try {
+      const pool = await loadPool(CATS.find(c => c.id === 'billion'));
+      // Nur die bekannteren 70 % (nach Streams), fest sortiert – damit die Auswahl überall gleich ist
+      const known = [...pool].sort((a, b) => (b.rank - a.rank) || (a.id - b.id)).slice(0, Math.ceil(pool.length * 0.7));
+      const rnd = rng('needle-drop|' + d);
+      for (let i = known.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [known[i], known[j]] = [known[j], known[i]]; }
+      const artists = new Set();
+      const cand = known.filter(t => { const a = norm(t.artist?.name); if (artists.has(a)) return false; artists.add(a); return true; }).slice(0, 40);
+      STEPS = LADDERS.classic;
+      G = { cat: CAT, cand, pool, next: 0, rounds: [], i: -1, score: 0, n: N, daily: { date: d, no: dayNo(d) } };
+      setCat(CAT.color);
+      show('game');
+      await nextRound();
+    } catch (e) {
+      toast(e.message || 'Challenge konnte nicht geladen werden');
+      G = null; show('home');
+    } finally { loading(false); }
+  }
+
+  /* ---------- Ende (oder Abbruch) ---------- */
+  function finish(aborted = false) {
+    Snip.stop();
+    const { date } = G.daily;
+    const rounds = G.rounds.filter(Boolean);
+    const items = rounds.map(r => ({
+      t: showTitle(r.track), a: r.track.artist?.name || '', c: r.track.album?.cover_small || '',
+      p: r.done ? r.pts : 0, e: r.done ? emojiRow(r) : '⬛⬛⬛⬛⬛⬛',
+    }));
+    while (items.length < N) items.push({ t: '–', a: 'nicht gespielt', c: '', p: 0, e: '⬛⬛⬛⬛⬛⬛' });
+    const score = items.reduce((s, x) => s + x.p, 0);
+    const L = log();
+    L[date] = { score, found: rounds.filter(r => r.won).length, items, aborted: aborted || undefined };
+    LS.set('daily', L);
+    LS.set('dailyBest', Math.max(LS.get('dailyBest', 0), streak()));
+    G = null;
+    showResult(date);
+  }
+
+  /* ---------- Ergebnis-Ansicht (auch später am selben Tag wieder aufrufbar) ---------- */
+  let timer = 0;
+  function showResult(d) {
+    const res = result(d);
+    if (!res) return;
+    setCat(CAT.color);
+    $('#endCat').textContent = `Tägliche Challenge #${dayNo(d)}`;
+    $('#endFound').textContent = `${res.found} von ${N} erkannt`;
+    $('#endScore').textContent = fmtN(res.score);
+    const st = streak();
+    $('#endSub').textContent = `von ${fmtN(N * PTS[0])} möglichen` + (st ? ` · 🔥 Serie ${st}` : '') + (res.aborted ? ' · abgebrochen' : '');
+    $('#endList').innerHTML = res.items.map(x => `
+      <div class="cell"><img class="pl-cover" src="${x.c}" alt="">
+        <span class="grow">${esc(x.t)}<span class="sub">${esc(x.a)}</span><span class="emo">${x.e}</span></span>
+        <span class="trail ${x.p ? '' : 'zero'}">${x.p ? '+' + fmtN(x.p) : '0'}</span></div>`).join('');
+    $('#dailyNext').classList.remove('hidden');
+    $('#againBtn').classList.add('hidden');
+    $('#shareBtn').classList.replace('ghost', 'big');
+    $('#shareBtn').dataset.daily = d;
+    clearInterval(timer);
+    const tick = () => {
+      if ($('#end').classList.contains('hidden')) return clearInterval(timer);
+      $('#dailyNext').innerHTML = `Nächste Challenge in <b>${fmtLeft(msToMidnight())}</b>`;
+    };
+    show('end');
+    tick(); timer = setInterval(tick, 1000);
+  }
+
+  /** Normale Ergebnis-Ansicht wiederherstellen (wenn danach ein normales Spiel endet) */
+  function resetEnd() {
+    $('#dailyNext').classList.add('hidden');
+    $('#againBtn').classList.remove('hidden');
+    $('#shareBtn').classList.replace('big', 'ghost');
+    delete $('#shareBtn').dataset.daily;
+  }
+
+  function shareText(d) {
+    const res = result(d);
+    const st = streak();
+    return `🎵 Needle Drop #${dayNo(d)} · ${fmtN(res.score)} Punkte\n${res.items.map(x => x.e).join('\n')}` +
+      (st > 1 ? `\n🔥 Serie: ${st} Tage` : '') + `\nhttps://ku3rb1s.github.io/needle-drop/`;
+  }
+
+  /* ---------- Karte auf der Startseite ---------- */
+  function renderCard() {
+    const d = today(), res = result(d), st = streak();
+    $('#dailyNo').textContent = '#' + dayNo(d);
+    $('#dailySub').textContent = res
+      ? `Heute: ${fmtN(res.score)} Punkte · ${res.found}/${N} erkannt`
+      : `5 Songs · für alle gleich · ${st ? `🔥 Serie ${st}` : 'jeden Tag neu'}`;
+    $('#dailyRight').innerHTML = res ? `<svg class="ic"><use href="#i-check"/></svg>Ergebnis` : `Spielen<svg class="ic chev"><use href="#i-chev"/></svg>`;
+    $('#dailyCard').classList.toggle('done', !!res);
+  }
+
+  $('#dailyCard').onclick = () => { const d = today(); result(d) ? showResult(d) : start(); };
+  renderCard();
+  return { start, finish, showResult, resetEnd, shareText, renderCard, today };
+})();
