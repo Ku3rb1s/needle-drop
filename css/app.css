@@ -240,3 +240,9 @@ header{max-width:720px}
   .tiles.dec{grid-template-columns:repeat(3,1fr)}
   .cat-tabs button{font-size:.8rem;padding:.6em .1em}
 }
+
+/* Konfetti bei 0,1-s-Treffern (wie Musik-Bingo) */
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:300;overflow:hidden}
+.confetti i{position:absolute;top:-20px;width:9px;height:14px;border-radius:2px;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+#statsBox .cell b{font-variant-numeric:tabular-nums}

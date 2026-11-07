@@ -19,7 +19,7 @@
 <link rel="preload" href="fonts/outfit-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/fonts.css?v=1">
 <link rel="stylesheet" href="css/base.css?v=9">
-<link rel="stylesheet" href="css/app.css?v=15">
+<link rel="stylesheet" href="css/app.css?v=16">
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -61,6 +61,7 @@
   <symbol id="i-palette" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18c1.2 0 1.8-.8 1.8-1.7 0-1.3-1.2-1.6-1.2-2.8 0-1 .8-1.7 1.8-1.7h2.1A4.5 4.5 0 0 0 21 10.3C21 6.2 17 3 12 3z"/><circle cx="7.5" cy="11" r="1.2"/><circle cx="10.5" cy="7" r="1.2"/><circle cx="15" cy="7.5" r="1.2"/></symbol>
   <symbol id="i-clapper" viewBox="0 0 24 24"><path d="M3.5 10h17v9a1.5 1.5 0 0 1-1.5 1.5H5A1.5 1.5 0 0 1 3.5 19z"/><path d="M3.2 9.6 2.6 6.9a1.3 1.3 0 0 1 1-1.6l13.7-3a1.3 1.3 0 0 1 1.6 1l.6 2.7z"/><path d="M7.5 4.6l2.6 3.4M12.4 3.5 15 6.9"/></symbol>
   <symbol id="i-sea" viewBox="0 0 24 24"><path d="M2.5 15c2 0 2.5-1.6 4.75-1.6S10 15 12 15s2.5-1.6 4.75-1.6S19.5 15 21.5 15"/><path d="M2.5 19.5c2 0 2.5-1.6 4.75-1.6S10 19.5 12 19.5s2.5-1.6 4.75-1.6 2.75 1.6 4.75 1.6"/><path d="M4 11c1.3-3.8 4.6-6.5 8.3-6.5 2.6 0 4.3 1.3 4.3 3.1 0 1.4-1.1 2.4-2.5 2.4-1.2 0-2-.8-2-1.8"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></symbol>
   <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></symbol>
 </svg>
 <div class="bg"><i></i><i></i><i></i></div>
@@ -149,13 +150,13 @@
         <button class="pill-btn" id="giveupBtn"><svg class="ic"><use href="#i-flag"/></svg>Auflösen</button>
       </div>
       <div id="status" class="status"></div>
-      <div id="choices" class="choices hidden"></div>
+      <div id="choices" class="choices hidden" data-no-tx></div>
       <div class="guess">
         <div class="group">
           <div class="cell"><svg class="ic muted"><use href="#i-search"/></svg>
             <input id="guessInput" class="bare" placeholder="Song oder Interpret suchen…" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search"></div>
         </div>
-        <ul id="suggest" class="suggest hidden"></ul>
+        <ul id="suggest" class="suggest hidden" data-no-tx></ul>
       </div>
 
       <div id="hintPanel" class="hint-panel hidden">
@@ -171,7 +172,7 @@
 
     <div id="reveal" class="reveal hidden">
       <div class="rv-answer"><div class="rv-q" id="rvQ"></div><div class="rv-a" id="rvA"></div></div>
-      <div class="rv-song"><div class="rv-title" id="rvTitle"></div><div class="rv-artist" id="rvArtist"></div><div class="rv-meta" id="rvMeta"></div></div>
+      <div class="rv-song" data-no-tx><div class="rv-title" id="rvTitle"></div><div class="rv-artist" id="rvArtist"></div><div class="rv-meta" id="rvMeta"></div></div>
       <div class="controls" style="margin-top:16px"><button class="big" id="nextBtn">Weiter</button></div>
     </div>
 
@@ -184,7 +185,7 @@
 
     <details class="tries" id="triesBox">
       <summary>Deine Versuche <span id="triesN"></span></summary>
-      <ol id="guesses"></ol>
+      <ol id="guesses" data-no-tx></ol>
     </details>
   </section>
 
@@ -193,7 +194,7 @@
     <div class="round-meta"><span class="pill" id="endCat"></span><span class="pill" id="endFound"></span></div>
     <div class="lib-hero"><div class="cat-kicker">Deine Punkte</div><div class="lib-num" id="endScore">0</div><div class="lib-sub" id="endSub"></div><div class="daily-next hidden" id="dailyNext"></div></div>
     <div class="dstats hidden" id="dailyStats"></div>
-    <div class="group icons endlist" id="endList"></div>
+    <div class="group icons endlist" id="endList" data-no-tx></div>
     <div class="controls" style="margin-top:20px">
       <button class="big" id="againBtn"><svg class="ic"><use href="#i-restart"/></svg>Nochmal</button>
       <button class="ghost" id="shareBtn"><svg class="ic"><use href="#i-share"/></svg>Teilen</button>
@@ -214,6 +215,13 @@
     <!-- Übersicht: nur Bereiche, die eigentlichen Schalter liegen auf Unterseiten -->
     <section class="page active" data-page="main" data-title="Einstellungen">
       <div class="group icons" style="margin-top:14px">
+        <label class="cell">
+          <span class="cell-ic" style="background:#14b8a6"><svg class="ic"><use href="#i-globe"/></svg></span>
+          <span class="grow">Sprache</span>
+          <select id="langSel" aria-label="Sprache"></select>
+        </label>
+      </div>
+      <div class="group icons" style="margin-top:12px">
         <button class="cell tap" data-go="rules">
           <span class="cell-ic" style="background:linear-gradient(135deg,#fbbf24,#ea580c)"><svg class="ic"><use href="#i-clock"/></svg></span>
           <span class="grow">Spielregeln<span class="sub" id="subRules"></span></span>
@@ -231,6 +239,11 @@
         </button>
       </div>
       <div class="group icons" style="margin-top:22px">
+        <button class="cell tap" data-go="stats">
+          <span class="cell-ic" style="background:linear-gradient(135deg,#22d3ee,#3b82f6)"><svg class="ic"><use href="#i-chart"/></svg></span>
+          <span class="grow">Deine Statistik<span class="sub" id="subStats"></span></span>
+          <svg class="ic chev"><use href="#i-chev"/></svg>
+        </button>
         <button class="cell tap" data-go="points">
           <span class="cell-ic" style="background:#1ed760"><svg class="ic"><use href="#i-trophy"/></svg></span>
           <span class="grow">So zählen die Punkte<span class="sub" id="subPoints"></span></span>
@@ -243,6 +256,10 @@
         </button>
       </div>
       <button class="app-version" id="appVersion" data-go="changes"></button>
+    </section>
+
+    <section class="page" data-page="stats" data-title="Deine Statistik">
+      <div id="statsBox"></div>
     </section>
 
     <section class="page" data-page="changes" data-title="Neuerungen">
@@ -283,6 +300,7 @@
       <div class="group" style="margin-top:14px">
         <label class="cell"><span class="grow">Tipps<span class="sub">Ab der 2. Stufe – kosten 50 / 100 / 150 Punkte</span></span><span class="switch"><input type="checkbox" id="setHints"><span></span></span></label>
         <label class="cell"><span class="grow">Automatisch abspielen<span class="sub">Jeder neue Song startet sofort mit dem ersten Ausschnitt</span></span><span class="switch"><input type="checkbox" id="setAuto"><span></span></span></label>
+        <label class="cell"><span class="grow">Töne &amp; Konfetti<span class="sub">Kurze Töne bei Treffer und Fehler, Konfetti bei 0,1-s-Treffern</span></span><span class="switch"><input type="checkbox" id="setSfx"><span></span></span></label>
         <label class="cell"><span class="grow">Explizite Songs ausblenden<span class="sub">Keine Songs mit „Explicit“-Kennzeichnung</span></span><span class="switch"><input type="checkbox" id="setClean"><span></span></span></label>
       </div>
     </section>
@@ -318,10 +336,15 @@
 <div id="loading" class="loading hidden"><div class="loader"></div><p id="loadingTxt">Lade Songs…</p></div>
 <div id="toast" class="hidden"></div>
 
-<script src="js/deezer.js?v=7"></script>
-<script src="js/spotify.js?v=1"></script>
-<script src="js/audio.js?v=6"></script>
-<script src="js/quiz.js?v=15"></script>
-<script src="js/daily.js?v=3"></script>
+<script src="js/lang/en.js?v=1"></script>
+<script src="js/lang/fr.js?v=1"></script>
+<script src="js/lang/es.js?v=1"></script>
+<script src="js/lang/nb.js?v=1"></script>
+<script src="js/i18n.js?v=1"></script>
+<script src="js/deezer.js?v=8"></script>
+<script src="js/spotify.js?v=2"></script>
+<script src="js/audio.js?v=7"></script>
+<script src="js/quiz.js?v=17"></script>
+<script src="js/daily.js?v=5"></script>
 </body>
 </html>

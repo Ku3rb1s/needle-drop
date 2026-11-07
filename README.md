@@ -47,6 +47,17 @@ npx wrangler deploy     # gibt die Adresse aus, z. B. https://needle-drop-spotif
 ```
 Die Adresse dann in `js/spotify.js` bei `PROXY` eintragen. Lokal testen: `npx wrangler dev --port 8787` (die App nutzt lokal automatisch Port 8787).
 
+## Sprachen
+
+Deutsch, Englisch, Französisch, Spanisch, Norwegisch – gleiches System wie Musik-Bingo (`js/i18n.js`, `js/lang/*.js`).
+Alle Texte stehen im Code auf Deutsch und laufen über `tx(Text)`; feste Texte in `index.html` werden automatisch übersetzt.
+Neue Texte in allen Sprachdateien ergänzen – `node scripts/check-lang.js` zeigt, was fehlt.
+
+## Billionärs Club automatisch
+
+`.github/workflows/update-billions.yml` baut `data/billions.json` am 1. jedes Monats neu (oder per Hand: Actions → Run workflow).
+Ist kworb.net oder Deezer gestört, bricht das Skript ab, statt eine halbe Liste zu speichern.
+
 ## Versionen
 
 Änderungen stehen in [CHANGELOG.md](CHANGELOG.md) und in der App unter Einstellungen → Versionsnummer → „Neuerungen“.

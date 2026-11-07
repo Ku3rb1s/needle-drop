@@ -119,7 +119,32 @@ const Snip = (() => {
     return me;
   }
 
+  /** Kurze Spiel-Töne, direkt erzeugt (keine Dateien). Laufen über die Gesamtlautstärke.
+      ok = Treffer, top = Treffer bei der ersten Stufe, wrong = falscher Tipp, miss = nicht erkannt */
+  function sfx(type) {
+    const c = ac();
+    const notes = {
+      ok: [[784, 0, .12], [1175, .09, .22]],
+      top: [[784, 0, .1], [988, .08, .1], [1175, .16, .1], [1568, .24, .35]],
+      wrong: [[220, 0, .16, 'triangle', 160]],
+      miss: [[392, 0, .16, 'triangle'], [294, .14, .3, 'triangle']],
+    }[type];
+    if (!notes) return;
+    const t0 = c.currentTime + 0.01;
+    for (const [f, at, len, wave = 'sine', to] of notes) {
+      const o = c.createOscillator(), g = c.createGain();
+      o.type = wave;
+      o.frequency.setValueAtTime(f, t0 + at);
+      if (to) o.frequency.exponentialRampToValueAtTime(to, t0 + at + len);
+      g.gain.setValueAtTime(0, t0 + at);
+      g.gain.linearRampToValueAtTime(0.22, t0 + at + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.001, t0 + at + len);
+      o.connect(g).connect(master);
+      o.start(t0 + at); o.stop(t0 + at + len + 0.02);
+    }
+  }
+
   const elapsed = () => (cur && ctx) ? Math.max(0, ctx.currentTime - cur.t0) : -1;
 
-  return { ac, load, findStart, play, stop, elapsed, setVolume };
+  return { ac, load, findStart, play, stop, elapsed, setVolume, sfx };
 })();

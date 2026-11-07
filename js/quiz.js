@@ -1,5 +1,5 @@
 /* Needle Drop – Spielablauf und Anzeige */
-const APP_VERSION = '1.5.1', APP_DATE = '07.11.2026'; // bei jedem Update erhöhen + CHANGELOG.md ergänzen
+const APP_VERSION = '1.7.0', APP_DATE = '07.11.2026'; // bei jedem Update erhöhen + CHANGELOG.md ergänzen
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 
@@ -21,8 +21,9 @@ const START_INFO = {
 const PTS = [600, 500, 400, 300, 200, 100];
 const HINT_COST = [50, 100, 150];
 const HINT_FROM = 1; // Tipps erst ab Stufe 2 (0,5 s)
-const fmtS = s => String(s).replace('.', ',') + ' s';
-const fmtN = n => Math.round(n).toLocaleString('de-DE');
+const LOC = () => ({ de: 'de-DE', en: 'en-GB', fr: 'fr-FR', es: 'es-ES', nb: 'nb-NO' }[curLang] || 'de-DE');
+const fmtS = s => s.toLocaleString(LOC()) + ' s';
+const fmtN = n => Math.round(n).toLocaleString(LOC());
 
 // Quellen: Deezer-Redaktions-Playlists; Billionärs Club als eigene Liste (scripts/build-billions.js)
 const P = id => ({ type: 'playlist', id });
@@ -64,6 +65,12 @@ const DIFF = {
 const THEMES = [['graphit', 'Graphit', '#3a4252', '#1f3a32'], ['ozean', 'Ozean', '#0b4f75', '#0d6e66'], ['wald', 'Wald', '#1d5a3a', '#4c5b1a'],
   ['abend', 'Abend', '#7a2e1c', '#7d1f4a'], ['lila', 'Lila', '#4a22a0', '#8a1458'], ['oled', 'OLED', '#000', '#000']];
 
+// Namen/Beschreibungen werden beim Auslesen übersetzt (tx) – so gilt die gewählte Sprache überall
+const trProps = (o, keys) => keys.forEach(k => { if (o[k] == null) return; const v = o[k]; Object.defineProperty(o, k, { get: () => tx(v), enumerable: true, configurable: true }); });
+CATS.forEach(c => trProps(c, ['name', 'sub']));
+Object.values(DIFF).forEach(d => trProps(d, ['label', 'info']));
+trProps(START_INFO, ['start', 'hook', 'random']);
+
 const LS = {
   get(k, d) { try { const v = localStorage.getItem('mq.' + k); return v == null ? d : JSON.parse(v); } catch { return d; } },
   set(k, v) { try { localStorage.setItem('mq.' + k, JSON.stringify(v)); } catch {} },
@@ -73,7 +80,7 @@ const opt = {
   cat: LS.get('cat', '80s'), diff: LS.get('diff', 'normal'), count: LS.get('count', 10),
   startMode: LS.get('startMode2', 'start'), hintsOn: LS.get('hintsOn', 'on'), theme: LS.get('theme', 'graphit'),
   ladder: LS.get('ladder', 'classic'), answer: LS.get('answer', 'search'), auto: LS.get('auto', false),
-  clean: LS.get('clean', false), vol: LS.get('vol', 80), muted: false,
+  clean: LS.get('clean', false), vol: LS.get('vol', 80), muted: false, sfx: LS.get('sfx', true),
 };
 // Während der Tages-Challenge gelten feste Regeln (für alle gleich), sonst die eigenen Einstellungen
 const DAILY_RULES = { answer: "search", startMode: "start", hintsOn: "on" };
@@ -108,7 +115,7 @@ async function loadPool(cat) {
   const lists = await Promise.all(cat.src.map(async s => {
     if (s.type === 'static') {
       const r = await fetch(s.url);
-      if (!r.ok) throw new Error('Liste für diese Kategorie fehlt noch.');
+      if (!r.ok) throw new Error(tx('Liste für diese Kategorie fehlt noch.'));
       const d = await r.json();
       return d.tracks.map(t => ({ id: t.id, title: t.title, artist: { name: t.artist }, rank: t.streams, stub: true }));
     }
@@ -165,12 +172,12 @@ async function startGame() {
     LS.set('customUrl', $('#customUrl').value.trim());
     c = { ...cat, src: [src] };
   }
-  loading(true, 'Lade Songs…');
+  loading(true, tx('Lade Songs…'));
   Snip.ac(); // Audio im Klick freischalten (iOS)
   busy = true;
   try {
     const pool = await loadPool(c);
-    if (pool.length < 3) throw new Error('Zu wenige abspielbare Songs in dieser Quelle.');
+    if (pool.length < 3) throw new Error(tx('Zu wenige abspielbare Songs in dieser Quelle.'));
     const cand = pickTracks(pool, opt.diff, opt.count);
     STEPS = LADDERS[opt.ladder] || LADDERS.classic;
     G = { cat, cand, pool, next: 0, rounds: [], i: -1, score: 0, n: Math.min(opt.count, cand.length) };
@@ -179,9 +186,9 @@ async function startGame() {
     busy = false;
     await nextRound();
     if (!G) return;
-    if (!G.rounds.length) throw new Error('Keiner der Songs ließ sich laden. Versuch es gleich nochmal oder nimm eine andere Kategorie.');
+    if (!G.rounds.length) throw new Error(tx('Keiner der Songs ließ sich laden. Versuch es gleich nochmal oder nimm eine andere Kategorie.'));
   } catch (e) {
-    toast(e.message || 'Fehler beim Laden');
+    toast(e.message || tx('Fehler beim Laden'));
     G = null; show('home');
   } finally { busy = false; loading(false); }
 }
@@ -200,7 +207,7 @@ async function nextRoundInner() {
   Snip.stop();
   G.i++;
   if (G.i >= G.n) return endGame();
-  loading(true, 'Lade Song…');
+  loading(true, tx('Lade Song…'));
   try {
     for (;;) {
       const r = G.pending || newRound();
@@ -256,9 +263,10 @@ function guess(g) {
   let note = '';
   if (artistOk) {
     if (r.artistAt == null) r.artistAt = r.stage;
-    note = 'Interpret stimmt!';
-  } else if (titleOk) note = 'Titel stimmt, Interpret nicht';
+    note = tx('Interpret stimmt!');
+  } else if (titleOk) note = tx('Titel stimmt, Interpret nicht');
   r.guesses.push({ text, kind: note ? 'half' : 'bad', note });
+  sound('wrong');
   shake();
   advance(false);
 }
@@ -274,7 +282,7 @@ function advance(autoplay) {
 function skip() {
   const r = R();
   if (r.done) return;
-  r.guesses.push({ text: `Übersprungen bei ${fmtS(STEPS[r.stage])}`, kind: 'skip' });
+  r.guesses.push({ text: tx('Übersprungen bei {s}', { s: fmtS(STEPS[r.stage]) }), kind: 'skip' });
   advance(true);
 }
 
@@ -292,12 +300,12 @@ function finishRound(won) {
   let calc = '';
   if (won) {
     r.pts = possible(r);
-    calc = `Erkannt bei ${fmtS(STEPS[r.stage])}: ${PTS[r.stage]}` + (r.hintCost ? ` − ${r.hintCost} für Tipps` : '');
+    calc = tx('Erkannt bei {s}: {p}', { s: fmtS(STEPS[r.stage]), p: PTS[r.stage] }) + (r.hintCost ? ' ' + tx('− {n} für Tipps', { n: r.hintCost }) : '');
   } else if (r.artistAt != null) {
     const half = PTS[r.artistAt] / 2;
     r.pts = Math.max(0, half - r.hintCost);
-    calc = `Nur Interpret (bei ${fmtS(STEPS[r.artistAt])}): ${PTS[r.artistAt]} ÷ 2` + (r.hintCost ? ` − ${r.hintCost} für Tipps` : '');
-  } else { r.pts = 0; calc = 'Diesmal leider nicht erkannt'; }
+    calc = tx('Nur Interpret (bei {s}): {p} ÷ 2', { s: fmtS(STEPS[r.artistAt]), p: PTS[r.artistAt] }) + (r.hintCost ? ' ' + tx('− {n} für Tipps', { n: r.hintCost }) : '');
+  } else { r.pts = 0; calc = tx('Diesmal leider nicht erkannt'); }
   G.score += r.pts;
   const t = r.track;
   // Platte dreht sich um und zeigt das Cover (wie bei Musik-Bingo)
@@ -306,18 +314,35 @@ function finishRound(won) {
   const ans = $('#rvA').parentElement;
   ans.className = 'rv-answer ' + (won ? '' : r.pts ? 'half' : 'bad');
   $('#rvQ').textContent = calc;
-  $('#rvA').textContent = r.pts ? `+${fmtN(r.pts)} Punkte` : '0 Punkte';
+  $('#rvA').textContent = r.pts ? tx('+{n} Punkte', { n: fmtN(r.pts) }) : tx('0 Punkte');
   $('#rvTitle').textContent = showTitle(t);
   $('#rvArtist').textContent = t.artist?.name || '';
   const y = r.album?.release_date?.slice(0, 4);
   $('#rvMeta').textContent = [t.album?.title, y].filter(Boolean).join(' · ');
-  $('#nextBtn').textContent = G.i + 1 >= G.n ? 'Zum Ergebnis' : 'Nächster Song';
+  $('#nextBtn').textContent = G.i + 1 >= G.n ? tx('Zum Ergebnis') : tx('Nächster Song');
   $('#playArea').classList.add('hidden');
-  $('#possibleLine').textContent = r.won ? 'Erkannt!' : 'Auflösung';
+  $('#possibleLine').textContent = r.won ? tx('Erkannt!') : tx('Auflösung');
   $('#reveal').classList.remove('hidden');
   renderMeta();
   renderTries();
-  playSnippet();
+  if (won && r.stage === 0) { sound('top'); confetti(); }
+  else sound(won ? 'ok' : r.pts ? 'ok' : 'miss');
+  setTimeout(() => { if (G && R() === r && !$('#reveal').classList.contains('hidden')) playSnippet(); }, opt.sfx ? 450 : 0);
+}
+
+/* ---------- Töne & Konfetti ---------- */
+function sound(type) { if (opt.sfx) Snip.sfx(type); }
+function confetti(n = 90) {
+  if (!opt.sfx || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const box = document.createElement('div');
+  box.className = 'confetti';
+  const colors = [getComputedStyle(document.documentElement).getPropertyValue('--cat').trim() || '#fbbf24', '#fbbf24', '#ffffff', '#ff4fa3', '#22d3ee'];
+  box.innerHTML = Array.from({ length: n }, () => {
+    const c = colors[Math.floor(Math.random() * colors.length)];
+    return `<i style="left:${Math.random() * 100}%;background:${c};animation-duration:${1.8 + Math.random() * 1.6}s;animation-delay:${Math.random() * .4}s;transform:rotate(${Math.random() * 360}deg)"></i>`;
+  }).join('');
+  document.body.appendChild(box);
+  setTimeout(() => box.remove(), 4200);
 }
 
 function endGame() {
@@ -330,10 +355,17 @@ function endGame() {
   const isBest = G.cat.id !== 'custom' && G.score > best;
   if (isBest) LS.set(key, G.score);
   const found = G.rounds.filter(r => r.won).length;
+  recordStats(G);
+  lastResult = {
+    title: G.cat.name, sub: DIFF[opt.diff].label, score: G.score, found, n: G.n, max,
+    items: G.rounds.map(r => ({ t: showTitle(r.track), a: r.track.artist?.name || '', c: r.track.album?.cover_medium || '', e: emojiRow(r), p: r.pts })),
+    text: shareText(),
+  };
+  if (found === G.n && G.n >= 5) confetti(140);
   $('#endCat').textContent = `${G.cat.name} · ${DIFF[opt.diff].label}`;
-  $('#endFound').textContent = `${found} von ${G.n} erkannt`;
+  $('#endFound').textContent = tx('{a} von {b} erkannt', { a: found, b: G.n });
   $('#endScore').textContent = fmtN(G.score);
-  $('#endSub').textContent = `von ${fmtN(max)} möglichen` + (isBest ? ' · 🏆 Neuer Rekord!' : best ? ` · Rekord ${fmtN(best)}` : '');
+  $('#endSub').textContent = tx('von {n} möglichen', { n: fmtN(max) }) + (isBest ? ' · 🏆 ' + tx('Neuer Rekord!') : best ? ' · ' + tx('Rekord {n}', { n: fmtN(best) }) : '');
   $('#endList').innerHTML = G.rounds.map(r => `
     <div class="cell"><img class="pl-cover" src="${r.track.album?.cover_small || ''}" alt="">
       <span class="grow">${esc(showTitle(r.track))}<span class="sub">${esc(r.track.artist?.name || '')}</span><span class="emo">${emojiRow(r)}</span></span>
@@ -350,7 +382,116 @@ function emojiRow(r) {
   }).join('');
 }
 
-const shareText = () => `🎵 Needle Drop – ${G.cat.name} (${DIFF[opt.diff].label})\n${fmtN(G.score)} Punkte\n${G.rounds.map(emojiRow).join('\n')}\nhttps://ku3rb1s.github.io/needle-drop/`;
+const shareText = () => `🎵 Needle Drop – ${G.cat.name} (${DIFF[opt.diff].label})\n${tx('{n} Punkte', { n: fmtN(G.score) })}\n${G.rounds.map(emojiRow).join('\n')}\nhttps://ku3rb1s.github.io/needle-drop/`;
+
+/* ---------- Statistik (nur auf diesem Gerät) ---------- */
+let lastResult = null; // letztes Ergebnis – für „Teilen“ (Text + Bild)
+function recordStats(g) {
+  const S = LS.get('stats', null) || { games: 0, songs: 0, found: 0, stageSum: 0, cats: {}, best: [] }; // null = zurückgesetzt
+  S.games++;
+  const c = S.cats[g.cat.id] ||= { g: 0, s: 0, f: 0 };
+  c.g++;
+  for (const r of g.rounds) {
+    S.songs++; c.s++;
+    if (!r.won) continue;
+    S.found++; c.f++; S.stageSum += r.stage;
+    S.best.push({ t: showTitle(r.track), a: r.track.artist?.name || '', s: STEPS[r.stage], cat: g.cat.id, d: Daily.today() });
+  }
+  // nur die 5 schnellsten Treffer behalten
+  S.best.sort((a, b) => a.s - b.s);
+  S.best = S.best.slice(0, 5);
+  LS.set('stats', S);
+}
+function renderStats() {
+  const S = LS.get('stats', null);
+  const box = $('#statsBox');
+  if (!S || !S.games) { box.innerHTML = `<div class="group-f center" style="margin-top:20px">${tx('Noch keine Spiele – spiel eine Runde, dann erscheint hier deine Statistik.')}</div>`; return; }
+  const pct = S.songs ? Math.round(S.found / S.songs * 100) : 0;
+  const avg = S.found ? S.stageSum / S.found : 0;
+  const cats = Object.entries(S.cats).map(([id, v]) => ({ c: CATS.find(x => x.id === id), ...v })).filter(x => x.c).sort((a, b) => b.s - a.s);
+  const fav = [...cats].filter(x => x.s >= 5).sort((a, b) => b.f / b.s - a.f / a.s)[0];
+  box.innerHTML = `
+    <div class="dstats-tiles" style="margin-top:14px">
+      <div><b>${S.games}</b><span>${tx('Spiele')}</span></div>
+      <div><b>${S.songs}</b><span>${tx('Songs')}</span></div>
+      <div><b>${pct} %</b><span>${tx('erkannt')}</span></div>
+      <div><b>${S.found ? (avg + 1).toFixed(1).replace('.', ',') : '–'}</b><span>${tx('Ø Stufe')}</span></div>
+    </div>
+    ${fav ? `<div class="group-f center" style="margin-top:12px">${tx('Deine Stärke: {c} – {p} % erkannt', { c: `<b>${esc(fav.c.name)}</b>`, p: Math.round(fav.f / fav.s * 100) })}</div>` : ''}
+    <div class="group-h">${tx('Nach Kategorie')}</div>
+    <div class="group">${cats.map(x => `
+      <div class="cell"><span class="cell-ic" style="background:${x.c.color};color:${ink(x.c.color)}">${x.c.group === 'decades' ? `<b style="font-size:.7rem">${x.c.big}</b>` : `<svg class="ic"><use href="#i-${x.c.icon}"/></svg>`}</span>
+        <span class="grow">${esc(x.c.name)}<span class="sub">${tx(x.g === 1 ? '{n} Spiel' : '{n} Spiele', { n: x.g })} · ${tx('{a} von {b} erkannt', { a: x.f, b: x.s })}</span></span>
+        <b>${Math.round(x.f / x.s * 100)} %</b></div>`).join('')}</div>
+    ${S.best.length ? `<div class="group-h">${tx('Schnellste Treffer')}</div>
+    <div class="group">${S.best.map(b => `<div class="cell"><span class="grow">${esc(b.t)}<span class="sub">${esc(b.a)} · ${esc(CATS.find(c => c.id === b.cat)?.name || b.cat)}</span></span><b>${fmtS(b.s)}</b></div>`).join('')}</div>` : ''}
+    <div class="group" style="margin-top:22px"><button class="cell tap danger" id="btnResetStats"><span class="grow">${tx('Statistik zurücksetzen')}</span></button></div>`;
+  $('#btnResetStats').onclick = () => { if (confirm(tx('Statistik auf diesem Gerät löschen?'))) { LS.set('stats', null); renderStats(); } };
+}
+
+/* ---------- Ergebnis als Bild (Instagram-Story-Format) ---------- */
+async function resultImage(res) {
+  const W = 1080, H = 1920, cv = document.createElement('canvas');
+  cv.width = W; cv.height = H;
+  const x = cv.getContext('2d');
+  const cat = getComputedStyle(document.documentElement).getPropertyValue('--cat').trim() || '#fbbf24';
+  const load = src => new Promise(ok => { if (!src) return ok(null); const i = new Image(); i.crossOrigin = 'anonymous'; i.onload = () => ok(i); i.onerror = () => ok(null); i.src = src; });
+  await document.fonts.load('900 40px Outfit').catch(() => {});
+  // Hintergrund mit Farbfleck in der Kategoriefarbe
+  x.fillStyle = '#0c0c0f'; x.fillRect(0, 0, W, H);
+  const glow = (cx, cy, r, col, a) => { const gr = x.createRadialGradient(cx, cy, 0, cx, cy, r); gr.addColorStop(0, col); gr.addColorStop(1, 'transparent'); x.globalAlpha = a; x.fillStyle = gr; x.fillRect(0, 0, W, H); x.globalAlpha = 1; };
+  glow(150, 200, 900, cat, .35); glow(1000, 1700, 900, '#f59e0b', .18);
+  const font = (w, s) => `${w} ${s}px Outfit, system-ui, sans-serif`;
+  const logo = await load('icon-192.png');
+  if (logo) { x.save(); roundRect(x, 90, 110, 120, 120, 30); x.clip(); x.drawImage(logo, 90, 110, 120, 120); x.restore(); }
+  x.fillStyle = '#fff'; x.font = font(900, 64); x.fillText('Needle Drop', 240, 192);
+  x.fillStyle = cat; x.font = font(800, 40); x.fillText((res.title + (res.sub ? ' · ' + res.sub : '')).toUpperCase(), 90, 340);
+  x.fillStyle = '#fff'; x.font = font(900, 210); x.fillText(fmtN(res.score), 82, 540);
+  x.fillStyle = '#a1a1ad'; x.font = font(600, 44); x.fillText(tx('Punkte') + ' · ' + tx('{a} von {b} erkannt', { a: res.found, b: res.n }), 90, 615);
+  // Songs
+  const covers = await Promise.all(res.items.slice(0, 10).map(it => load((it.c || '').replace('56x56', '250x250'))));
+  const rows = res.items.slice(0, 10), rowH = Math.min(175, 1050 / Math.max(rows.length, 1)); // wenige Songs → größere Zeilen
+  rows.forEach((it, i) => {
+    const y = 700 + i * rowH, s = rowH - 22;
+    x.fillStyle = 'rgba(255,255,255,.06)'; roundRect(x, 70, y, W - 140, rowH - 12, 22); x.fill();
+    if (covers[i]) { x.save(); roundRect(x, 88, y + 9, s, s, 12); x.clip(); x.drawImage(covers[i], 88, y + 9, s, s); x.restore(); }
+    const tx = 88 + s + 26;
+    x.fillStyle = '#fff'; x.font = font(700, Math.round(s * .36)); x.fillText(clip(x, it.t, 600), tx, y + s * .48);
+    x.fillStyle = '#a1a1ad'; x.font = font(500, Math.round(s * .28)); x.fillText(clip(x, it.a, 520), tx, y + s * .9);
+    x.textAlign = 'right';
+    x.fillStyle = it.p ? '#1ed760' : '#6b6b75'; x.font = font(800, Math.round(s * .36)); x.fillText(it.p ? '+' + fmtN(it.p) : '0', W - 100, y + s * .55);
+    x.font = `${Math.round(s * .2)}px "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif`; x.fillText(it.e, W - 100, y + s * .92);
+    x.textAlign = 'left';
+  });
+  x.fillStyle = '#a1a1ad'; x.font = font(600, 40); x.textAlign = 'center';
+  x.fillText(tx('Erkennst du den Song in 0,1 Sekunden?'), W / 2, H - 150);
+  x.fillStyle = cat; x.font = font(800, 44); x.fillText('ku3rb1s.github.io/needle-drop', W / 2, H - 90);
+  return await new Promise(ok => cv.toBlob(ok, 'image/png'));
+}
+function roundRect(x, X, Y, w, h, r) { x.beginPath(); x.moveTo(X + r, Y); x.arcTo(X + w, Y, X + w, Y + h, r); x.arcTo(X + w, Y + h, X, Y + h, r); x.arcTo(X, Y + h, X, Y, r); x.arcTo(X, Y, X + w, Y, r); x.closePath(); }
+function clip(x, t, max) { if (x.measureText(t).width <= max) return t; while (t.length > 1 && x.measureText(t + '…').width > max) t = t.slice(0, -1); return t + '…'; }
+
+async function shareResult() {
+  const res = lastResult;
+  if (!res) return;
+  const btn = $('#shareBtn'); btn.disabled = true;
+  try {
+    const blob = await resultImage(res).catch(() => null);
+    const file = blob && new File([blob], 'needle-drop.png', { type: 'image/png' });
+    if (file && navigator.canShare?.({ files: [file] })) {
+      await navigator.share({ files: [file], text: res.text });
+    } else {
+      try { await navigator.clipboard.writeText(res.text); } catch {}
+      if (blob) {
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob); a.download = 'needle-drop.png'; a.click();
+        setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+        toast(tx('Bild gespeichert, Text kopiert'));
+      } else toast(tx('Ergebnis kopiert'));
+    }
+  } catch { /* Teilen abgebrochen */ }
+  finally { btn.disabled = false; }
+}
 
 /* ---------- Anzeige ---------- */
 function show(id) {
@@ -386,13 +527,13 @@ function renderHome() {
   setCat(c.color);
   // Reiter: zeigt immer nur eine Gruppe (Standard: die Gruppe der gewählten Kategorie)
   if (!catTab) catTab = c.group === 'genres' ? 'intl' : c.group;
-  $('#catTabs').innerHTML = GROUPS.map(([g, title]) => `<button data-tab="${g}" class="${g === catTab ? 'on' : ''}">${title}</button>`).join('');
+  $('#catTabs').innerHTML = GROUPS.map(([g, title]) => `<button data-tab="${g}" class="${g === catTab ? 'on' : ''}">${tx(title)}</button>`).join('');
   $('#catTiles').className = 'tiles' + (catTab === 'decades' ? ' dec' : '');
   $('#catTiles').innerHTML = CATS.filter(x => x.group === catTab).map(x => `
     <button class="tile${x.id === opt.cat ? ' on' : ''}" data-id="${x.id}" style="--c:${x.color};--ci:${ink(x.color)}">
       <span class="tile-ic">${x.group === 'decades' ? x.big : `<svg class="ic"><use href="#i-${x.icon}"/></svg>`}</span>
       <span class="tile-t">${x.group === 'decades' ? x.name : x.name}</span></button>`).join('');
-  $('#homeCatSub').textContent = c.sub || `Die größten Hits der ${c.name}`;
+  $('#homeCatSub').textContent = c.sub || tx('Die größten Hits der {c}', { c: c.name });
   $('#customBox').classList.toggle('hidden', opt.cat !== 'custom');
   $('#customNote').classList.toggle('hidden', opt.cat !== 'custom');
   $$('#diff button').forEach(b => b.classList.toggle('on', b.dataset.v === opt.diff));
@@ -401,11 +542,11 @@ function renderHome() {
   icon.className = 'cat-icon' + (c.group === 'decades' ? ' dec' : '');
   icon.innerHTML = catIcon(c);
   $('#homeCatName').textContent = c.name;
-  $('#startLbl').textContent = `${c.name} spielen`;
+  $('#startLbl').textContent = tx('{c} spielen', { c: c.name });
   const best = LS.get(bestKey(), 0);
   renderSetup();
   if (typeof Daily !== 'undefined') Daily.renderCard();
-  $('#bestPill').textContent = best ?`🏆 Rekord ${fmtN(best)}` : `${DIFF[opt.diff].label} · ${opt.count} Songs`;
+  $('#bestPill').textContent = best ? '🏆 ' + tx('Rekord {n}', { n: fmtN(best) }) : `${DIFF[opt.diff].label} · ${tx('{n} Songs', { n: opt.count })}`;
 }
 
 /** Aktuelle Regeln als kleine Pills unter dem Spielen-Knopf (Klick öffnet die Einstellungen) */
@@ -414,16 +555,16 @@ function renderSetup() {
   const chip = (ic, t) => `<span class="chip"><svg class="ic"><use href="#i-${ic}"/></svg>${t}</span>`;
   $('#setupChips').innerHTML = [
     chip('clock', `${fmtS(L[0])} – ${fmtS(L[L.length - 1])}`),
-    chip(opt.answer === 'mc' ? 'list' : 'search', opt.answer === 'mc' ? '4 Antworten' : 'Suchen'),
-    chip('start', { start: 'Am Anfang', hook: 'Hook', random: 'Zufällig' }[opt.startMode]),
-    chip('bulb', opt.hintsOn === 'on' ? 'Tipps an' : 'Tipps aus'),
+    chip(opt.answer === 'mc' ? 'list' : 'search', tx(opt.answer === 'mc' ? '4 Antworten' : 'Suchen')),
+    chip('start', tx({ start: 'Am Anfang', hook: 'Hook', random: 'Zufällig' }[opt.startMode])),
+    chip('bulb', tx(opt.hintsOn === 'on' ? 'Tipps an' : 'Tipps aus')),
   ].join('');
   $('#settingsDot').classList.toggle('hidden', !!LS.get('seenSettings', false));
 }
 
 function renderMeta() {
-  $('#roundNo').textContent = `Song ${G.i + 1} / ${G.n}`;
-  $('#scorePill').textContent = `${fmtN(G.score)} Punkte`;
+  $('#roundNo').textContent = tx('Song {a} / {b}', { a: G.i + 1, b: G.n });
+  $('#scorePill').textContent = tx('{n} Punkte', { n: fmtN(G.score) });
   $('#progress').innerHTML = Array.from({ length: G.n }, (_, k) => {
     const r = G.rounds[k];
     const cls = k === G.i && !r?.done ? 'cur' : r?.done ? (r.won ? 'ok' : r.pts ? 'half' : 'bad') : '';
@@ -455,7 +596,7 @@ function renderRound() {
   icon.className = 'cat-icon' + (G.cat.group === 'decades' ? ' dec' : '');
   icon.innerHTML = catIcon(G.cat);
   $('#stageName').textContent = fmtS(STEPS[r.stage]);
-  $('#possibleLine').innerHTML = `Jetzt möglich: <b>${fmtN(possible(r))}</b> Punkte`;
+  $('#possibleLine').innerHTML = tx('Jetzt möglich: {n} Punkte', { n: `<b>${fmtN(possible(r))}</b>` });
   $('#ladder').innerHTML = STEPS.map((s, k) => `
     <div class="step ${k < r.stage ? 'past' : k === r.stage ? 'cur' : ''}">
       <div class="bar" style="--h:${12 + k * 8}px"><div class="bar-fill"></div></div>
@@ -463,9 +604,9 @@ function renderRound() {
     </div>`).join('');
   setRing(0);
   const nx = STEPS[r.stage + 1];
-  $('#skipLbl').textContent = nx ? `${fmtS(nx)} hören` : 'Mehr hören';
+  $('#skipLbl').textContent = nx ? tx('{s} hören', { s: fmtS(nx) }) : tx('Mehr hören');
   $('#skipBtn').disabled = !nx;
-  $('#status').innerHTML = r.artistAt != null ? `<span class="badge warn-b">✓ Interpret richtig – jetzt noch der Song</span>` : '';
+  $('#status').innerHTML = r.artistAt != null ? `<span class="badge warn-b">✓ ${tx('Interpret richtig – jetzt noch der Song')}</span>` : '';
   $('#guessInput').value = '';
   closeSuggest();
   renderChoices();
@@ -499,6 +640,7 @@ function choose(i) {
   if (t.id === r.track.id) { r.guesses.push({ text: `${showTitle(t)} – ${t.artist?.name || ''}`, kind: 'ok' }); return finishRound(true); }
   r.wrong.push(i);
   r.guesses.push({ text: `${showTitle(t)} – ${t.artist?.name || ''}`, kind: 'bad' });
+  sound('wrong');
   shake('#choices');
   advance(false);
 }
@@ -509,7 +651,7 @@ function renderHints() {
   const btn = $('#hintBtn');
   btn.classList.toggle('hidden', !enabled);
   btn.disabled = !unlocked;
-  btn.title = unlocked ? '' : 'Tipps gibt es ab 0,5 s';
+  btn.title = unlocked ? '' : tx('Tipps gibt es ab 0,5 s');
   if (!enabled || !unlocked) $('#hintPanel').classList.add('hidden');
   btn.classList.toggle('active', !$('#hintPanel').classList.contains('hidden'));
   // „Stark“ enthält die Titel-Lücken schon – danach ist „Mittel“ überflüssig
@@ -521,16 +663,16 @@ function renderHints() {
   if (r.hints.includes(0)) {
     const y = +(a?.release_date || '').slice(0, 4);
     const genre = a?.genres?.data?.map(g => g.name).slice(0, 2).join(', ');
-    let when = y ? `${Math.floor(y / 10) * 10}er` : '';
-    if (G.cat.decade && y && Math.floor(y / 10) * 10 !== G.cat.decade) when = `${G.cat.decade}er`; // Best-of-Alben haben oft falsche Jahre
-    out.push(row('Jahrzehnt', when || (a ? 'unbekannt' : 'wird geladen…')));
-    if (genre) out.push(row('Genre', esc(genre)));
+    let when = y ? tx('{n}er', { n: Math.floor(y / 10) * 10 }) : '';
+    if (G.cat.decade && y && Math.floor(y / 10) * 10 !== G.cat.decade) when = tx('{n}er', { n: G.cat.decade }); // Best-of-Alben haben oft falsche Jahre
+    out.push(row(tx('Jahrzehnt'), when || tx(a ? 'unbekannt' : 'wird geladen…')));
+    if (genre) out.push(row(tx('Genre'), esc(genre)));
   }
   if (r.hints.includes(1) && !r.hints.includes(2))
-    out.push(row('Titel', `<span class="gaps">${esc(words.map(w => w.replace(/[\p{L}\p{N}]/gu, '_')).join('  '))}</span>`));
+    out.push(row(tx('Titel'), `<span class="gaps">${esc(words.map(w => w.replace(/[\p{L}\p{N}]/gu, '_')).join('  '))}</span>`));
   if (r.hints.includes(2)) {
-    out.push(row('Titel', `<span class="gaps">${esc(words.map(w => w.replace(/^([\p{L}\p{N}])|[\p{L}\p{N}]/gu, (m, f) => f || '_')).join('  '))}</span>`));
-    out.push(row('Interpret', esc((t.artist?.name || '?')[0]) + '…'));
+    out.push(row(tx('Titel'), `<span class="gaps">${esc(words.map(w => w.replace(/^([\p{L}\p{N}])|[\p{L}\p{N}]/gu, (m, f) => f || '_')).join('  '))}</span>`));
+    out.push(row(tx('Interpret'), esc((t.artist?.name || '?')[0]) + '…'));
   }
   $('#hintOut').innerHTML = out.join('');
   const cv = $('#pixel');
@@ -561,7 +703,7 @@ function applyTheme() {
   const bg = { graphit: '#0c0c0f', lila: '#0d0a1a', ozean: '#05111a', abend: '#130a0b', wald: '#08110c', oled: '#000000' }[th];
   $('meta[name=theme-color]').content = bg;
   $('#themeRow').innerHTML = THEMES.map(([id, name, a, b]) =>
-    `<button class="theme-pick ${th === id ? 'on' : ''}" data-theme-pick="${id}"><i style="background:linear-gradient(135deg,${a},${b})"></i>${name}</button>`).join('');
+    `<button class="theme-pick ${th === id ? 'on' : ''}" data-theme-pick="${id}"><i style="background:linear-gradient(135deg,${a},${b})"></i>${tx(name)}</button>`).join('');
 }
 function renderSettings() {
   const segOn = (id, v) => $$(`#${id} button`).forEach(b => b.classList.toggle('on', b.dataset.v == v));
@@ -569,18 +711,22 @@ function renderSettings() {
   $('#setAuto').checked = !!opt.auto;
   $('#setHints').checked = opt.hintsOn === 'on';
   $('#setClean').checked = !!opt.clean;
+  $('#setSfx').checked = !!opt.sfx;
   $('#startInfo').textContent = START_INFO[opt.startMode];
   const L = LADDERS[opt.ladder];
-  $('#pointsInfo').innerHTML = L.map((s, k) => `<div class="cell"><span class="grow">Erkannt bei ${fmtS(s)}</span><b>${PTS[k]}</b></div>`).join('');
+  $('#pointsInfo').innerHTML = L.map((s, k) => `<div class="cell"><span class="grow">${tx('Erkannt bei {s}', { s: fmtS(s) })}</span><b>${PTS[k]}</b></div>`).join('');
   // Zusammenfassungen auf der Übersichtsseite
-  const LN = { easy: 'Entspannt', classic: 'Klassisch', pro: 'Profi' }[opt.ladder];
-  const SN = { start: 'Am Anfang', hook: 'Hook', random: 'Zufällig' }[opt.startMode];
-  $('#subRules').textContent = `${LN} · ${SN} · ${opt.answer === 'mc' ? '4 Antworten' : 'Suchen'} · ${opt.count} Songs`;
-  $('#subHelp').textContent = [opt.hintsOn === 'on' ? 'Tipps an' : 'Tipps aus', opt.auto ? 'Autoplay an' : '', opt.clean ? 'ohne Explicit' : ''].filter(Boolean).join(' · ');
-  $('#subDesign').textContent = (THEMES.find(x => x[0] === opt.theme) || THEMES[0])[1];
-  $('#subPoints').textContent = '600 bis 100 je Stufe, Tipps kosten Punkte';
-  $('#subData').textContent = 'Alles bleibt auf diesem Gerät';
-  $('#appVersion').innerHTML = `Needle Drop · Version ${APP_VERSION} · ${APP_DATE}<span>Neuerungen ansehen ›</span>`;
+  const LN = tx({ easy: 'Entspannt', classic: 'Klassisch', pro: 'Profi' }[opt.ladder]);
+  const SN = tx({ start: 'Am Anfang', hook: 'Hook', random: 'Zufällig' }[opt.startMode]);
+  $('#subRules').textContent = `${LN} · ${SN} · ${tx(opt.answer === 'mc' ? '4 Antworten' : 'Suchen')} · ${tx('{n} Songs', { n: opt.count })}`;
+  $('#subHelp').textContent = [opt.hintsOn === 'on' ? 'Tipps an' : 'Tipps aus', opt.auto ? 'Autoplay an' : '', opt.clean ? 'ohne Explicit' : '', opt.sfx ? '' : 'Töne aus'].filter(Boolean).map(s => tx(s)).join(' · ');
+  $('#subDesign').textContent = tx((THEMES.find(x => x[0] === opt.theme) || THEMES[0])[1]);
+  $('#subPoints').textContent = tx('600 bis 100 je Stufe, Tipps kosten Punkte');
+  $('#subData').textContent = tx('Alles bleibt auf diesem Gerät');
+  $('#langSel').innerHTML = langOptions();
+  const st = LS.get('stats', null);
+  $('#subStats').textContent = st?.games ? tx(st.games === 1 ? '{n} Spiel' : '{n} Spiele', { n: st.games }) + ' · ' + tx('{p} % erkannt', { p: st.songs ? Math.round(st.found / st.songs * 100) : 0 }) : tx('Noch keine Spiele');
+  $('#appVersion').innerHTML = `Needle Drop · ${tx('Version')} ${APP_VERSION} · ${APP_DATE}<span>${tx('Neuerungen ansehen')} ›</span>`;
   applyTheme();
 }
 
@@ -595,16 +741,16 @@ async function renderChanges() {
       if (!r.ok) throw new Error('HTTP ' + r.status);
       changesCache = parseChanges(await r.text());
     } catch {
-      box.innerHTML = '<div class="cell muted">Die Neuerungen konnten nicht geladen werden.</div>';
+      box.innerHTML = `<div class="cell muted">${tx('Die Neuerungen konnten nicht geladen werden.')}</div>`;
       return;
     }
   }
   const list = changesAll ? changesCache : changesCache.slice(0, 6);
   const fmt = s => esc(s).replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
   box.innerHTML = list.map(v => `<div class="chg">
-      <div class="chg-h"><b>${esc(v.ver)}</b>${v.ver === APP_VERSION ? '<span class="chg-now">aktuell</span>' : ''}<span class="chg-d">${esc(v.date)}</span></div>
+      <div class="chg-h"><b>${esc(v.ver)}</b>${v.ver === APP_VERSION ? `<span class="chg-now">${tx('aktuell')}</span>` : ''}<span class="chg-d">${esc(v.date)}</span></div>
       <ul>${v.items.map(i => `<li>${fmt(i)}</li>`).join('')}</ul></div>`).join('')
-    + (!changesAll && changesCache.length > list.length ? '<button class="ghost" id="btnChangesAll" style="width:100%;margin-top:6px">Ältere Versionen anzeigen</button>' : '');
+    + (!changesAll && changesCache.length > list.length ? `<button class="ghost" id="btnChangesAll" style="width:100%;margin-top:6px">${tx('Ältere Versionen anzeigen')}</button>` : '');
   const more = $('#btnChangesAll');
   if (more) more.onclick = () => { changesAll = true; renderChanges(); };
 }
@@ -631,6 +777,7 @@ function goPage(p, back = false) {
   $('#navBack').classList.toggle('invisible', page.dataset.page === 'main');
   $('#sheetSettings .sheet-body').scrollTop = 0;
   if (page.dataset.page === 'changes') renderChanges();
+  if (page.dataset.page === 'stats') renderStats();
 }
 
 /* ---------- Lautstärke (nur am PC sichtbar – am Handy regeln die Tasten) ---------- */
@@ -716,7 +863,7 @@ $('#disc').onclick = () => {
 };
 $('#skipBtn').onclick = skip;
 $('#hintBtn').onclick = () => { $('#hintPanel').classList.toggle('hidden'); renderHints(); };
-$('#giveupBtn').onclick = () => { if (!R().done && confirm('Song auflösen? Du bekommst nur Punkte, falls der Interpret schon stimmte.')) finishRound(false); };
+$('#giveupBtn').onclick = () => { if (!R().done && confirm(tx('Song auflösen? Du bekommst nur Punkte, falls der Interpret schon stimmte.'))) finishRound(false); };
 $('#nextBtn').onclick = nextRound;
 $$('.hint-b').forEach(b => b.onclick = () => useHint(+b.dataset.h));
 $('#againBtn').onclick = startGame;
@@ -726,23 +873,16 @@ function leave() {
   const inGame = G && !$('#game').classList.contains('hidden');
   if (inGame && G.daily) {
     // Tages-Challenge: Abbrechen zählt als gespielt (sonst könnte man sie beliebig oft neu versuchen)
-    if (!confirm('Challenge abbrechen? Sie zählt dann mit den bisherigen Punkten – heute geht es nicht nochmal.')) return;
+    if (!confirm(tx('Challenge abbrechen? Sie zählt dann mit den bisherigen Punkten – heute geht es nicht nochmal.'))) return;
     return Daily.finish(true);
   }
-  if (inGame && !confirm('Spiel beenden? Der bisherige Punktestand geht verloren.')) return;
+  if (inGame && !confirm(tx('Spiel beenden? Der bisherige Punktestand geht verloren.'))) return;
   goHome();
 }
 $('#homeBtn').onclick = goHome;
 $('#btnQuit').onclick = leave;
 $('#logoBtn').onclick = leave;
-$('#shareBtn').onclick = async () => {
-  const d = $('#shareBtn').dataset.daily;
-  const text = d ? Daily.shareText(d) : shareText();
-  try {
-    if (navigator.share && matchMedia('(pointer:coarse)').matches) await navigator.share({ text });
-    else { await navigator.clipboard.writeText(text); toast('Ergebnis kopiert'); }
-  } catch {}
-};
+$('#shareBtn').onclick = shareResult;
 
 // Einstellungen
 const sheet = $('#sheetSettings');
@@ -768,6 +908,7 @@ segPick('setCount', v => { opt.count = +v; LS.set('count', opt.count); });
 segPick('setAnswer', v => { opt.answer = v; LS.set('answer', opt.answer); });
 $('#setAuto').onchange = e => { opt.auto = e.target.checked; LS.set('auto', opt.auto); renderSettings(); };
 $('#setHints').onchange = e => { opt.hintsOn = e.target.checked ? 'on' : 'off'; LS.set('hintsOn', opt.hintsOn); renderSettings(); };
+$('#setSfx').onchange = e => { opt.sfx = e.target.checked; LS.set('sfx', opt.sfx); renderSettings(); if (opt.sfx) sound('ok'); };
 $('#setClean').onchange = e => { opt.clean = e.target.checked; LS.set('clean', opt.clean); renderSettings(); };
 $('#setStart').onclick = e => {
   const b = e.target.closest('button'); if (!b) return;
@@ -776,17 +917,25 @@ $('#setStart').onclick = e => {
 $('#setLadder').onclick = e => {
   const b = e.target.closest('button'); if (!b) return;
   opt.ladder = b.dataset.v; LS.set('ladder', opt.ladder); renderSettings();
-  if (G && !$('#game').classList.contains('hidden')) toast('Gilt ab dem nächsten Spiel');
+  if (G && !$('#game').classList.contains('hidden')) toast(tx('Gilt ab dem nächsten Spiel'));
 };
 $('#btnResetAll').onclick = () => {
-  if (!confirm('Alles löschen, was Needle Drop auf diesem Gerät gespeichert hat?')) return;
+  if (!confirm(tx('Alles löschen, was Needle Drop auf diesem Gerät gespeichert hat?'))) return;
   try { Object.keys(localStorage).filter(k => k.startsWith('mq.')).forEach(k => localStorage.removeItem(k)); } catch {}
   location.reload();
 };
 $('#btnResetBest').onclick = () => {
-  if (!confirm('Alle Rekorde auf diesem Gerät löschen?')) return;
+  if (!confirm(tx('Alle Rekorde auf diesem Gerät löschen?'))) return;
   try { Object.keys(localStorage).filter(k => k.startsWith('mq.best')).forEach(k => localStorage.removeItem(k)); } catch {}
-  toast('Rekorde gelöscht');
+  toast(tx('Rekorde gelöscht'));
+};
+
+// Sprache: Auswahl in den Einstellungen, Wechsel ohne Neuladen
+$('#langSel').onchange = e => setLang(e.target.value);
+self.liveLang = () => {
+  renderHome();
+  if (sheet.open) { renderSettings(); goPage($('#sheetSettings .page.active')?.dataset.page || 'main'); }
+  if (G && R() && !$('#game').classList.contains('hidden')) { renderRound(); if (R().done) $('#nextBtn').textContent = G.i + 1 >= G.n ? tx('Zum Ergebnis') : tx('Nächster Song'); }
 };
 
 // Lautstärke

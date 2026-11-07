@@ -48,6 +48,8 @@ async function deezer(q) {
 
   const seen = new Set();
   const list = out.filter(t => !seen.has(t.id) && seen.add(t.id));
+  // Sicherung: Ist kworb.net/Deezer gestört, lieber abbrechen als eine halbe Liste speichern
+  if (list.length < 1000) { console.error(`Nur ${list.length} Songs zugeordnet – Liste wird NICHT überschrieben.`); process.exit(1); }
   const file = path.join(__dirname, '..', 'data', 'billions.json');
   fs.mkdirSync(path.dirname(file), { recursive: true });
   fs.writeFileSync(file, JSON.stringify({ source: 'kworb.net/spotify/songs.html', built: new Date().toISOString().slice(0, 10), tracks: list }));

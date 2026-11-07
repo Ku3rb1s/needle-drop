@@ -6,6 +6,7 @@ const Daily = (() => {
   const N = 5;
   const START = '2026-11-07';                     // Challenge #1
   const CAT = { id: 'daily', group: 'special', name: 'Tägliche Challenge', icon: 'calendar', color: '#f59e0b' };
+  trProps(CAT, ['name']);
   const TZ = 'Europe/Berlin';                     // Tageswechsel um Mitternacht deutscher Zeit – für alle gleich
 
   const today = () => new Date().toLocaleDateString('sv-SE', { timeZone: TZ }); // „2026-11-07“
@@ -50,7 +51,7 @@ const Daily = (() => {
     if (result(d)) return showResult(d);
     if (busy) return;
     busy = true;
-    loading(true, 'Lade die heutige Challenge…');
+    loading(true, tx('Lade die heutige Challenge…'));
     Snip.ac();
     try {
       const pool = await loadPool(CATS.find(c => c.id === 'billion'));
@@ -66,9 +67,9 @@ const Daily = (() => {
       show('game');
       busy = false;
       await nextRound();
-      if (G && !G.rounds.length) throw new Error('Die Challenge konnte nicht geladen werden. Prüf die Verbindung und versuch es nochmal.');
+      if (G && !G.rounds.length) throw new Error(tx('Die Challenge konnte nicht geladen werden. Prüf die Verbindung und versuch es nochmal.'));
     } catch (e) {
-      toast(e.message || 'Challenge konnte nicht geladen werden');
+      toast(e.message || tx('Challenge konnte nicht geladen werden'));
       G = null; show('home');
     } finally { busy = false; loading(false); }
   }
@@ -99,24 +100,25 @@ const Daily = (() => {
     const res = result(d);
     if (!res) return;
     setCat(CAT.color);
-    $('#endCat').textContent = `Tägliche Challenge #${dayNo(d)}`;
-    $('#endFound').textContent = `${res.found} von ${N} erkannt`;
+    $('#endCat').textContent = `${tx('Tägliche Challenge')} #${dayNo(d)}`;
+    $('#endFound').textContent = tx('{a} von {b} erkannt', { a: res.found, b: N });
     $('#endScore').textContent = fmtN(res.score);
     const st = streak();
-    $('#endSub').textContent = `von ${fmtN(N * PTS[0])} möglichen` + (st ? ` · 🔥 Serie ${st}` : '') + (res.aborted ? ' · abgebrochen' : '');
+    $('#endSub').textContent = tx('von {n} möglichen', { n: fmtN(N * PTS[0]) }) + (st ? ' · 🔥 ' + tx('Serie {n}', { n: st }) : '') + (res.aborted ? ' · ' + tx('abgebrochen') : '');
     $('#endList').innerHTML = res.items.map(x => `
       <div class="cell"><img class="pl-cover" src="${x.c}" alt="">
-        <span class="grow">${esc(x.t)}<span class="sub">${esc(x.a)}</span><span class="emo">${x.e}</span></span>
+        <span class="grow">${esc(x.t)}<span class="sub">${esc(x.t === '–' ? tx(x.a) : x.a)}</span><span class="emo">${x.e}</span></span>
         <span class="trail ${x.p ? '' : 'zero'}">${x.p ? '+' + fmtN(x.p) : '0'}</span></div>`).join('');
     $('#dailyNext').classList.remove('hidden');
     renderStats(d);
     $('#againBtn').classList.add('hidden');
     $('#shareBtn').classList.replace('ghost', 'big');
     $('#shareBtn').dataset.daily = d;
+    lastResult = { title: `${tx('Tägliche Challenge')} #${dayNo(d)}`, sub: '', score: res.score, found: res.found, n: N, max: N * PTS[0], items: res.items, text: shareText(d) };
     clearInterval(timer);
     const tick = () => {
       if ($('#end').classList.contains('hidden')) return clearInterval(timer);
-      $('#dailyNext').innerHTML = `Nächste Challenge in <b>${fmtLeft(msToMidnight())}</b>`;
+      $('#dailyNext').innerHTML = tx('Nächste Challenge in {t}', { t: `<b>${fmtLeft(msToMidnight())}</b>` });
     };
     show('end');
     tick(); timer = setInterval(tick, 1000);
@@ -164,8 +166,8 @@ const Daily = (() => {
   function shareText(d) {
     const res = result(d);
     const st = streak();
-    return `🎵 Needle Drop #${dayNo(d)} · ${fmtN(res.score)} Punkte\n${res.items.map(x => x.e).join('\n')}` +
-      (st > 1 ? `\n🔥 Serie: ${st} Tage` : '') + `\nhttps://ku3rb1s.github.io/needle-drop/`;
+    return `🎵 Needle Drop #${dayNo(d)} · ${tx('{n} Punkte', { n: fmtN(res.score) })}\n${res.items.map(x => x.e).join('\n')}` +
+      (st > 1 ? '\n🔥 ' + tx('Serie: {n} Tage', { n: st }) : '') + `\nhttps://ku3rb1s.github.io/needle-drop/`;
   }
 
   /* ---------- Karte auf der Startseite ---------- */
@@ -173,9 +175,9 @@ const Daily = (() => {
     const d = today(), res = result(d), st = streak();
     $('#dailyNo').textContent = '#' + dayNo(d);
     $('#dailySub').textContent = res
-      ? `Heute: ${fmtN(res.score)} Punkte · ${res.found}/${N} erkannt`
-      : `5 Songs · für alle gleich · ${st ? `🔥 Serie ${st}` : 'jeden Tag neu'}`;
-    $('#dailyRight').innerHTML = res ? `<svg class="ic"><use href="#i-check"/></svg>Ergebnis` : `Spielen<svg class="ic chev"><use href="#i-chev"/></svg>`;
+      ? tx('Heute: {n} Punkte · {a}/{b} erkannt', { n: fmtN(res.score), a: res.found, b: N })
+      : tx('5 Songs · für alle gleich') + ' · ' + (st ? '🔥 ' + tx('Serie {n}', { n: st }) : tx('jeden Tag neu'));
+    $('#dailyRight').innerHTML = res ? `<svg class="ic"><use href="#i-check"/></svg>${tx('Ergebnis')}` : `${tx('Spielen')}<svg class="ic chev"><use href="#i-chev"/></svg>`;
     $('#dailyCard').classList.toggle('done', !!res);
   }
 

@@ -16,12 +16,12 @@ const Spot = (() => {
 
   /** Songliste holen → Platzhalter-Einträge, die erst beim Spielen zu Deezer-Songs werden */
   async function tracks({ kind, id }) {
-    if (!ready()) throw new Error('Spotify-Import ist noch nicht eingerichtet.');
+    if (!ready()) throw new Error(tx('Spotify-Import ist noch nicht eingerichtet.'));
     let r;
     try { r = await fetch(`${PROXY}/?type=${kind}&id=${id}`); }
-    catch { throw new Error('Spotify-Import gerade nicht erreichbar.'); }
+    catch { throw new Error(tx('Spotify-Import gerade nicht erreichbar.')); }
     const d = await r.json().catch(() => ({}));
-    if (!r.ok || d.error) throw new Error(d.error || 'Spotify-Playlist konnte nicht geladen werden.');
+    if (!r.ok || d.error) throw new Error(tx(d.error || 'Spotify-Playlist konnte nicht geladen werden.'));
     return d.tracks.map((x, i) => ({
       id: null, sp: true, stub: true, title: x.t, artist: { name: x.a.split(',')[0].trim() }, allArtists: x.a,
       explicit_lyrics: !!x.e, rank: 0, spIndex: i,

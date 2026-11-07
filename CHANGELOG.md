@@ -2,6 +2,16 @@
 
 Die Versionsnummer steht in `js/quiz.js` (`APP_VERSION`) und unten in den Einstellungen. In `index.html` bei jedem Update auch `?v=` an CSS/JS-Dateien erhöhen.
 
+## 1.7.0 – 07.11.2026
+- Neu: **Sprachen** wie bei Musik-Bingo – Englisch, Französisch, Spanisch, Norwegisch (Einstellungen → Sprache, Voreinstellung: Sprache des Geräts). Zahlen und Sekunden im Format der Sprache
+- Prüfskript `node scripts/check-lang.js` zeigt fehlende Übersetzungen
+
+## 1.6.0 – 07.11.2026
+- Neu: **Töne & Konfetti** – kurze Töne bei Treffer und Fehler, Konfetti bei Treffern in der ersten Stufe (abschaltbar unter Hilfen & Wiedergabe)
+- Neu: **Deine Statistik** in den Einstellungen – Spiele, Trefferquote, Ø Stufe, Stärke, Werte je Kategorie, schnellste Treffer
+- Neu: **Ergebnis als Bild teilen** (Story-Format mit Covern, Punkten und Emoji-Raster); am Handy direkt teilen, am PC als Bild speichern
+- Billionärs Club aktualisiert sich jetzt monatlich automatisch (GitHub-Action)
+
 ## 1.5.1 – 07.11.2026
 - Billionärs Club wieder in Gold
 - Film & Serien: Kinosaal-Rot und Filmklappe als Icon; TikTok-Hits jetzt in TikTok-Cyan
