@@ -1,5 +1,5 @@
 /* Needle Drop – Spielablauf und Anzeige */
-const APP_VERSION = '1.15.1', APP_DATE = '07.11.2026'; // bei jedem Update erhöhen + CHANGELOG.md ergänzen
+const APP_VERSION = '1.16.0', APP_DATE = '07.11.2026'; // bei jedem Update erhöhen + CHANGELOG.md ergänzen
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 
@@ -185,12 +185,79 @@ function prepare(r) {
     try { r.buf = await Snip.load(t.preview); }
     catch { t = r.track = await DZ.track(t.id); r.buf = await Snip.load(t.preview); }
     r.offset = Snip.findStart(r.buf, rule("startMode"), STEPS[STEPS.length - 1]);
-    DZ.album(t.album.id).then(a => {
+    const showAlbum = a => {
       r.album = a;
       if (G && R() === r && !r.done && r.hints.length) renderHints(); // Tipp schon offen? Jahr/Genre nachtragen
-      if (G && R() === r && r.done) { const y = a.release_date?.slice(0, 4); $('#rvMeta').textContent = [t.album?.title, y].filter(Boolean).join(' · '); }
+      if (G && R() === r && r.done) {
+        const y = a.release_date?.slice(0, 4); $('#rvMeta').textContent = [t.album?.title, y].filter(Boolean).join(' · ');
+        if (t.album?.cover_big) $('#discCover').innerHTML = `<img src="${esc(t.album.cover_big)}" alt="">`;
+      }
+    };
+    DZ.album(t.album.id).then(async a => {
+      showAlbum(a);
+      // Liegt der Song bei Deezer nur auf einem Sampler („Sommer Hits“ …)? Dann Cover, Album und Jahr vom Original
+      const o = await originalAlbum(t, a);
+      if (!o) return;
+      t.album = { ...t.album, id: typeof o.id === 'number' ? o.id : t.album.id, title: o.title, md5_image: o.md5_image || t.album.md5_image,
+        cover: o.cover, cover_small: o.cover_small, cover_medium: o.cover_medium, cover_big: o.cover_big, cover_xl: o.cover_xl };
+      showAlbum(o);
     }).catch(() => {});
   })();
+}
+
+/* ---------- Original-Cover statt Sampler-Cover ----------
+   Deezer liefert das Album, auf dem der Track in der Playlist liegt – oft ein Sampler (Various Artists, „Bravo Hits“,
+   späte Soundtracks). Dann wird das Album des Interpreten selbst gesucht: gleicher Titel, keine Remix/Live/Cover-Fassung,
+   echte Alben/Singles vor Best-ofs. Gleiche Regeln wie Spiele-Hub/scripts/check-covers.js für Gold Record. */
+const SAMPLER_ARTIST = /various|verschiedene|varios|divers|vari artisti|compilation|soundtrack|motion picture|cast|karaoke/i;
+const OTHER_VERSION = /\b(live|karaoke|instrumental|acoustic|unplugged|tribute|cover|covers|remix|remixes|mix|edit|relift|rework|remake|re-?recorded|sped up|slowed|8-bit|lullaby|orchestral|piano|originally|performed by|made famous|in the style|version|a cappella|demo|en directo)\b/i;
+const normCv = s => String(s || '').toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '').replace(/\(.*?\)|\[.*?\]/g, '')
+  .replace(/\s+-\s+.*$/, '').replace(/\b(feat|ft|featuring)\b.*$/, '').replace(/[^a-z0-9]+/g, ' ').trim();
+const firstArtistCv = a => normCv(String(a).split(/,|&| x | und | and | feat\.? | ft\.? | with /i)[0]);
+const sameArtistCv = (x, y) => { const a = normCv(x), b = normCv(y), fa = firstArtistCv(x), fb = firstArtistCv(y);
+  return !!a && !!b && (a === b || fa === fb || a.includes(fb) || b.includes(fa)); };
+const ownAlbumCv = (al, artist) => !!al?.artist?.name && sameArtistCv(al.artist.name, artist) && !SAMPLER_ARTIST.test(al.artist.name);
+const originals = new Map();   // „Interpret|Titel“ → Promise<Album|null>
+// Bild laden und erst dann zusagen (archive.org ist manchmal langsam – nach 5 s bleibt das bisherige Cover)
+const imgOk = src => new Promise(res => { const i = new Image(); const to = setTimeout(() => res(false), 5000);
+  i.onload = () => { clearTimeout(to); res(i.naturalWidth > 0); }; i.onerror = () => { clearTimeout(to); res(false); }; i.src = src; });
+/** MusicBrainz: früheste Single/Album/EP mit dem Songtitel (keine Compilation, kein Live/Soundtrack), Cover aus dem Cover Art Archive */
+async function mbOriginal(artist, title) {
+  const base = String(title).replace(/\s*[([].*?[)\]]/g, '').replace(/\s+-\s+.*$/, '').trim(), a0 = artist.split(/ & | x | feat\.? | with |, /i)[0].trim();
+  const q = `releasegroup:"${base.replace(/"/g, '')}" AND (artist:"${artist.replace(/"/g, '')}" OR artist:"${a0.replace(/"/g, '')}") AND (primarytype:single OR primarytype:album OR primarytype:ep)`;
+  const r = await fetch('https://musicbrainz.org/ws/2/release-group?fmt=json&limit=25&query=' + encodeURIComponent(q), { headers: { Accept: 'application/json' } });
+  if (!r.ok) return null;
+  const T = base.toLowerCase().replace(/[’']/g, "'");
+  const list = ((await r.json())['release-groups'] || []).filter(x => {
+    const tt = String(x.title || '').toLowerCase().replace(/[’']/g, "'");
+    const credit = (x['artist-credit'] || []).map(c => c.name || c.artist?.name).join(' ');
+    return !(x['secondary-types'] || []).length && /^\d{4}/.test(x['first-release-date'] || '') && !OTHER_VERSION.test(x.title || '')
+      && (tt === T || (tt.startsWith(T) && /^[\s/(:,–-]/.test(tt.slice(T.length)))) && sameArtistCv(credit, artist);
+  }).sort((a, b) => a['first-release-date'].localeCompare(b['first-release-date']));
+  for (const x of list.slice(0, 3)) {
+    const u = s => `https://coverartarchive.org/release-group/${x.id}/front-${s}`;
+    if (await imgOk(u(250))) return { id: 'mb:' + x.id, title: x.title, release_date: x['first-release-date'], cover: u(250), cover_small: u(250), cover_medium: u(250), cover_big: u(500), cover_xl: u(500), md5_image: '' };
+  }
+  return null;
+}
+function originalAlbum(t, al) {
+  const artist = t.artist?.name || '', title = t.title_short || t.title || '';
+  if (!al || !artist || ownAlbumCv(al, artist)) return Promise.resolve(null);   // Album vom Interpreten selbst → passt
+  // Filmsong, der als solcher veröffentlicht wurde („Let It Go (From "Frozen")“): der Soundtrack IS das Original
+  if (/\bfrom ["“'«]|soundtrack|motion picture/i.test(t.title || '')) return Promise.resolve(null);
+  const key = artist + '|' + title;
+  if (!originals.has(key)) originals.set(key, (async () => {
+    const mb = await mbOriginal(artist, title).catch(() => null);
+    if (mb) return mb;
+    const found = await DZ.search(`${artist} ${title}`, 25);
+    const ids = [...new Set(found.filter(x => x.album?.id && sameArtistCv(x.artist?.name, artist) && normCv(x.title_short || x.title) === normCv(title)
+      && !OTHER_VERSION.test(x.title || '') && !OTHER_VERSION.test(x.album.title || '')).map(x => x.album.id))].slice(0, 4);
+    const own = [];
+    for (const id of ids) { try { const a = await DZ.album(id); if (ownAlbumCv(a, artist) && !OTHER_VERSION.test(a.title || '')) own.push(a); } catch {} }
+    own.sort((x, y) => (x.record_type === 'compile') - (y.record_type === 'compile'));   // sonst Deezer-Reihenfolge (bekannteste zuerst)
+    return own[0] || null;
+  })().catch(() => null));
+  return originals.get(key);
 }
 
 /* ---------- Spiel ---------- */
