@@ -1,5 +1,5 @@
 /* Needle Drop – Spielablauf und Anzeige */
-const APP_VERSION = '1.12.2', APP_DATE = '07.11.2026'; // bei jedem Update erhöhen + CHANGELOG.md ergänzen
+const APP_VERSION = '1.12.3', APP_DATE = '07.11.2026'; // bei jedem Update erhöhen + CHANGELOG.md ergänzen
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 
@@ -894,7 +894,10 @@ function mark(text, q) {
 }
 function renderSuggest(q = '') {
   const ul = $('#suggest');
+  const wasHidden = ul.classList.contains('hidden');
   ul.classList.toggle('hidden', !sugg.length);
+  if (wasHidden) ul.scrollTop = 0;
+  requestAnimationFrame(fitSuggest);
   ul.innerHTML = sugg.map((t, i) => `<li class="${i === sel ? 'sel' : ''}" data-i="${i}">
     <img src="${t.album?.cover_small || ''}" alt="" loading="lazy">
     <span>${t.isArtist ? `<b>${mark(t.artist.name, q)}</b><small>${tx('Interpret')}</small>` : `<b>${mark(showTitle(t), q)}</b><small>${mark(t.artist?.name || '', q)}</small>`}</span></li>`).join('');
@@ -1073,7 +1076,45 @@ gi.addEventListener('keydown', e => {
   }
   else if (e.key === 'Escape') closeSuggest();
 });
-$('#suggest').addEventListener('pointerdown', e => { const li = e.target.closest('li'); if (li) { e.preventDefault(); pick(+li.dataset.i); } });
+/* Vorschläge antippen: erst beim Loslassen auswählen und nur, wenn der Finger nicht gewischt hat – so lässt sich die Liste scrollen.
+   Mit der Maus verhindert mousedown, dass das Suchfeld den Fokus verliert. */
+{
+  const ul = $('#suggest');
+  let down = null;
+  ul.addEventListener('mousedown', e => e.preventDefault());
+  ul.addEventListener('pointerdown', e => { down = { x: e.clientX, y: e.clientY, top: ul.scrollTop }; });
+  ul.addEventListener('pointerup', e => {
+    const li = e.target.closest('li'), d = down; down = null;
+    if (!li || !d) return;
+    if (Math.abs(e.clientX - d.x) > 10 || Math.abs(e.clientY - d.y) > 10 || Math.abs(ul.scrollTop - d.top) > 4) return; // gewischt
+    e.preventDefault(); pick(+li.dataset.i);
+  });
+  ul.addEventListener('pointercancel', () => { down = null; });
+}
+/* Liste nur so hoch, wie über der Tastatur Platz ist (visualViewport = sichtbarer Bereich ohne Tastatur) */
+function fitSuggest() {
+  const ul = $('#suggest');
+  if (ul.classList.contains('hidden')) return;
+  const vv = window.visualViewport, bottom = vv ? vv.offsetTop + vv.height : innerHeight;
+  const room = bottom - ul.getBoundingClientRect().top - 12;
+  ul.style.maxHeight = Math.max(150, Math.min(room, 460)) + 'px';
+}
+window.visualViewport?.addEventListener('resize', fitSuggest);
+window.visualViewport?.addEventListener('scroll', fitSuggest);
+addEventListener('resize', fitSuggest);
+/* Am Handy: beim Tippen ins Suchfeld das Feld nach oben holen, damit die Vorschläge darunter Platz haben */
+const touchUI = matchMedia('(pointer: coarse)').matches;
+gi.addEventListener('focus', () => {
+  if (!touchUI) return;
+  document.body.classList.add('typing');
+  setTimeout(() => {                                               // warten, bis die Tastatur da ist
+    const top = gi.closest('.guess').getBoundingClientRect().top;
+    const sat = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--sat')) || 0;
+    window.scrollBy(0, top - sat - 14);
+    setTimeout(fitSuggest, 350);
+  }, 280);
+});
+gi.addEventListener('blur', () => setTimeout(() => { if (document.activeElement !== gi) document.body.classList.remove('typing'); }, 200));
 gi.addEventListener('blur', () => setTimeout(closeSuggest, 150));
 document.addEventListener('keydown', e => {
   if ($('#game').classList.contains('hidden') || e.target === gi || sheet.open || $('#dlgAsk').open) return;

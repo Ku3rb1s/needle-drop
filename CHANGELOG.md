@@ -2,6 +2,9 @@
 
 Die Versionsnummer steht in `js/quiz.js` (`APP_VERSION`) und unten in den Einstellungen. In `index.html` bei jedem Update auch `?v=` an CSS/JS-Dateien erhöhen.
 
+## 1.12.3 – 07.11.2026
+- Suche am Handy: Die Vorschläge lassen sich jetzt scrollen und passen über die Tastatur. Beim Antippen des Suchfelds rutscht es nach oben, damit die Liste Platz hat. Wischen wählt keinen Song mehr aus Versehen aus
+
 ## 1.12.2 – 07.11.2026
 - Rückfragen (Auflösen, Spiel beenden, Löschen) erscheinen jetzt im Stil des Spiels statt als graues Browser-Fenster – mit klaren Knöpfen wie „Auflösen“ oder „Weiterspielen“
 
