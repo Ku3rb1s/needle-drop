@@ -1,4 +1,5 @@
 /* Needle Drop – Spielablauf und Anzeige */
+const APP_VERSION = '1.5.0', APP_DATE = '07.11.2026'; // bei jedem Update erhöhen + CHANGELOG.md ergänzen
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 
@@ -80,6 +81,7 @@ const rule = k => (G && G.daily && k in DAILY_RULES) ? DAILY_RULES[k] : opt[k];
 const bestKey = (cat = opt.cat) => `best2.${cat}.${opt.diff}.${opt.count}.${opt.ladder}.${opt.answer}`;
 const pools = {};
 let G = null;
+let catTab = null; // gerade offener Kategorie-Reiter auf der Startseite
 
 /* ---------- Antworten vergleichen ---------- */
 const norm = s => (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
@@ -382,13 +384,15 @@ function catCell(c) {
 function renderHome() {
   const c = CATS.find(x => x.id === opt.cat);
   setCat(c.color);
-  $('#catGroups').innerHTML = GROUPS.map(([g, title]) => {
-    const list = CATS.filter(x => x.group === g);
-    const body = g === 'decades'
-      ? `<div class="seg decades">${list.map(x => `<button class="${x.id === opt.cat ? 'on' : ''}" data-id="${x.id}" style="--c:${x.color}">${x.big}<small>${x.name}</small></button>`).join('')}</div>`
-      : `<div class="group icons two">${list.map(catCell).join('')}</div>`;
-    return `<div class="group-h">${title}</div>${body}`;
-  }).join('');
+  // Reiter: zeigt immer nur eine Gruppe (Standard: die Gruppe der gewählten Kategorie)
+  if (!catTab) catTab = c.group === 'genres' ? 'intl' : c.group;
+  $('#catTabs').innerHTML = GROUPS.map(([g, title]) => `<button data-tab="${g}" class="${g === catTab ? 'on' : ''}">${title}</button>`).join('');
+  $('#catTiles').className = 'tiles' + (catTab === 'decades' ? ' dec' : '');
+  $('#catTiles').innerHTML = CATS.filter(x => x.group === catTab).map(x => `
+    <button class="tile${x.id === opt.cat ? ' on' : ''}" data-id="${x.id}" style="--c:${x.color};--ci:${ink(x.color)}">
+      <span class="tile-ic">${x.group === 'decades' ? x.big : `<svg class="ic"><use href="#i-${x.icon}"/></svg>`}</span>
+      <span class="tile-t">${x.group === 'decades' ? x.name : x.name}</span></button>`).join('');
+  $('#homeCatSub').textContent = c.sub || `Die größten Hits der ${c.name}`;
   $('#customBox').classList.toggle('hidden', opt.cat !== 'custom');
   $('#customNote').classList.toggle('hidden', opt.cat !== 'custom');
   $$('#diff button').forEach(b => b.classList.toggle('on', b.dataset.v === opt.diff));
@@ -576,7 +580,46 @@ function renderSettings() {
   $('#subDesign').textContent = (THEMES.find(x => x[0] === opt.theme) || THEMES[0])[1];
   $('#subPoints').textContent = '600 bis 100 je Stufe, Tipps kosten Punkte';
   $('#subData').textContent = 'Alles bleibt auf diesem Gerät';
+  $('#appVersion').innerHTML = `Needle Drop · Version ${APP_VERSION} · ${APP_DATE}<span>Neuerungen ansehen ›</span>`;
   applyTheme();
+}
+
+/* Neuerungen (Einstellungen → Versionsnummer): CHANGELOG.md, einmal geladen – wie bei Musik-Bingo */
+let changesCache = null, changesAll = false;
+async function renderChanges() {
+  const box = $('#changesList');
+  if (!changesCache) {
+    box.innerHTML = '<div class="cell muted"><span class="loader"></span></div>';
+    try {
+      const r = await fetch('CHANGELOG.md?v=' + APP_VERSION);
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      changesCache = parseChanges(await r.text());
+    } catch {
+      box.innerHTML = '<div class="cell muted">Die Neuerungen konnten nicht geladen werden.</div>';
+      return;
+    }
+  }
+  const list = changesAll ? changesCache : changesCache.slice(0, 6);
+  const fmt = s => esc(s).replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
+  box.innerHTML = list.map(v => `<div class="chg">
+      <div class="chg-h"><b>${esc(v.ver)}</b>${v.ver === APP_VERSION ? '<span class="chg-now">aktuell</span>' : ''}<span class="chg-d">${esc(v.date)}</span></div>
+      <ul>${v.items.map(i => `<li>${fmt(i)}</li>`).join('')}</ul></div>`).join('')
+    + (!changesAll && changesCache.length > list.length ? '<button class="ghost" id="btnChangesAll" style="width:100%;margin-top:6px">Ältere Versionen anzeigen</button>' : '');
+  const more = $('#btnChangesAll');
+  if (more) more.onclick = () => { changesAll = true; renderChanges(); };
+}
+// „## 1.2.0 – 07.11.2026“ + Spiegelstriche → [{ ver, date, items }]
+function parseChanges(text) {
+  const out = [];
+  let cur = null;
+  for (const line of text.split(/\r?\n/)) {
+    const hd = line.match(/^##\s+(\S+)(?:\s+[–-]\s+(.+))?$/);
+    if (hd) { cur = { ver: hd[1], date: hd[2] || '', items: [] }; out.push(cur); continue; }
+    const li = line.match(/^\s*[-*]\s+(.*)$/);
+    if (li && cur) cur.items.push(li[1]);
+    else if (cur?.items.length && line.trim()) cur.items[cur.items.length - 1] += ' ' + line.trim();
+  }
+  return out;
 }
 
 /* Seiten im Einstellungsmenü (Übersicht → Unterseite → zurück) */
@@ -587,6 +630,7 @@ function goPage(p, back = false) {
   $('#navTitle').textContent = page.dataset.title;
   $('#navBack').classList.toggle('invisible', page.dataset.page === 'main');
   $('#sheetSettings .sheet-body').scrollTop = 0;
+  if (page.dataset.page === 'changes') renderChanges();
 }
 
 /* ---------- Lautstärke (nur am PC sichtbar – am Handy regeln die Tasten) ---------- */
@@ -648,6 +692,10 @@ function toast(msg, ms = 3500) { const t = $('#toast'); t.textContent = msg; t.c
 function shake(sel = '.guess') { const c = $(sel); c.classList.remove('shake'); void c.offsetWidth; c.classList.add('shake'); }
 
 /* ---------- Ereignisse ---------- */
+$('#catTabs').addEventListener('click', e => {
+  const b = e.target.closest('[data-tab]'); if (!b) return;
+  catTab = b.dataset.tab; renderHome();
+});
 $('#home').addEventListener('click', e => {
   const b = e.target.closest('[data-id]'); if (!b) return;
   opt.cat = b.dataset.id; LS.set('cat', opt.cat); renderHome();

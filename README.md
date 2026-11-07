@@ -47,6 +47,11 @@ npx wrangler deploy     # gibt die Adresse aus, z. B. https://needle-drop-spotif
 ```
 Die Adresse dann in `js/spotify.js` bei `PROXY` eintragen. Lokal testen: `npx wrangler dev --port 8787` (die App nutzt lokal automatisch Port 8787).
 
+## Versionen
+
+Änderungen stehen in [CHANGELOG.md](CHANGELOG.md) und in der App unter Einstellungen → Versionsnummer → „Neuerungen“.
+Bei jedem Update `APP_VERSION`/`APP_DATE` in `js/quiz.js` erhöhen, einen Eintrag in `CHANGELOG.md` ergänzen und `?v=` in `index.html` hochzählen.
+
 ## Aufbau
 
 | Datei | Inhalt |

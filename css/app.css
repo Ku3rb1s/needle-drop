@@ -203,3 +203,40 @@ header{max-width:720px}
 
 /* Icon im Kategorie-Abzeichen: dunkel auf hellen Kategoriefarben */
 .cat-icon,.cat-icon .ic,.cat-icon.dec{color:var(--cat-ink,#fff)}
+
+/* Versionsnummer → Neuerungen (wie Musik-Bingo) */
+.app-version{display:flex;flex-direction:column;align-items:center;gap:3px;width:100%;margin-top:28px;padding:10px;background:none;box-shadow:none;
+  color:var(--muted);font-size:.8rem;font-weight:500;opacity:.75;white-space:normal;text-align:center}
+.app-version span{font-size:.78rem;font-weight:700;color:var(--accent)}
+.app-version:active{opacity:1}
+.changes{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+.chg{background:var(--cell);border:1px solid var(--line);border-radius:16px;padding:12px 14px}
+.chg-h{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.chg-h b{font-size:1rem}
+.chg-d{margin-left:auto;font-size:.78rem;color:var(--muted)}
+.chg-now{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--accent);
+  border:1px solid color-mix(in srgb,var(--accent) 50%,transparent);border-radius:99px;padding:.1em .55em}
+.chg ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:5px}
+.chg li{font-size:.85rem;line-height:1.45;color:var(--text)}
+.chg code{font-size:.85em;background:rgba(255,255,255,.08);border-radius:5px;padding:0 .3em}
+
+/* Kategorien: Reiter + kompakte Kacheln */
+.cat-sub{font-size:.85rem;color:var(--muted);margin-top:2px}
+.cat-tabs{margin-top:0}
+.cat-tabs button{font-size:.88rem;padding:.6em .3em}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.tiles.dec{grid-template-columns:repeat(6,1fr)}
+.tile{flex-direction:row;justify-content:flex-start;gap:10px;padding:10px 12px;border-radius:14px;white-space:normal;text-align:left;
+  background:rgba(255,255,255,.06);border:1px solid var(--line);color:var(--text);font-weight:600;font-size:.92rem;line-height:1.2;min-height:54px}
+.tile-ic{width:32px;height:32px;flex:none;border-radius:9px;display:grid;place-items:center;background:var(--c);color:var(--ci,#fff);
+  font-family:Outfit,system-ui,sans-serif;font-weight:900;font-size:.82rem;box-shadow:inset 0 1px 0 rgba(255,255,255,.35)}
+.tile-ic .ic{width:18px;height:18px}
+.tile.on{border-color:var(--c);background:color-mix(in srgb,var(--c) 16%,rgba(255,255,255,.04));box-shadow:0 0 0 1px var(--c) inset}
+.tiles.dec .tile{flex-direction:column;justify-content:center;gap:5px;padding:10px 4px;text-align:center;font-size:.78rem;color:var(--muted)}
+.tiles.dec .tile.on{color:var(--text)}
+.tiles.dec .tile-ic{width:40px;height:40px;border-radius:11px;font-size:.95rem}
+@media (max-width:640px){
+  .tiles{grid-template-columns:repeat(2,1fr)}
+  .tiles.dec{grid-template-columns:repeat(3,1fr)}
+  .cat-tabs button{font-size:.8rem;padding:.6em .1em}
+}
