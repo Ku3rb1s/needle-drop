@@ -26,7 +26,8 @@ Lokal starten: `node server.js` → http://127.0.0.1:8890/
 |---|---|
 | `index.html` | Markup (Start, Spiel, Auflösung, Ende) und Icons |
 | `logo.svg` | Logo (Vorlage für die PNG-Icons): Platte wie bei Musik-Bingo, Label = Snippet-Leiter |
-| `css/app.css` | Aussehen (Farben aus Musik-Bingo) |
+| `css/base.css` | Basis-Look 1:1 aus Musik-Bingo (Farbthemen, Glas, Platte, Menüs) – Änderungen am besten in beiden Projekten |
+| `css/app.css` | Quiz-eigene Teile (Leiter, Suche, Tipps, Ergebnis) |
 | `js/deezer.js` | JSONP, Playlists laden, Suche, Link-Erkennung |
 | `js/audio.js` | Web-Audio-Snippets, Startpunkt-Erkennung |
 | `js/quiz.js` | Kategorien, Spielablauf, Wertung, Hinweise, Anzeige |

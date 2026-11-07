@@ -18,22 +18,24 @@ const P = id => ({ type: 'playlist', id });
 const CATS = [
   { id: '80s', group: 'decades', name: '80er', big: '80s', color: '#ff4fa3', src: [P(867825522)], decade: 1980 },
   { id: '90s', group: 'decades', name: '90er', big: '90s', color: '#8b6bff', src: [P(878989033), P(3829647662)], decade: 1990 },
-  { id: '00s', group: 'decades', name: '2000er', big: '00s', color: '#00b8ff', src: [P(1977689462), P(11153531204)], decade: 2000 },
+  { id: '00s', group: 'decades', name: '2000er', big: '00s', color: '#0ea5e9', src: [P(1977689462), P(11153531204)], decade: 2000 },
   { id: '10s', group: 'decades', name: '2010er', big: '10s', color: '#1ed760', src: [P(14917741483)], decade: 2010 },
-  { id: '20s', group: 'decades', name: '2020er', big: '20s', color: '#ffb020', src: [P(13650084141)], decade: 2020 },
-  { id: 'pop', group: 'genres', name: 'Pop', icon: 'star', sub: 'Chart-Pop von früher bis heute', color: '#ff8ad8', src: [P(1282483245), P(8282573142)] },
+  { id: '20s', group: 'decades', name: '2020er', big: '20s', color: '#ffa03c', src: [P(13650084141)], decade: 2020 },
+  { id: 'pop', group: 'genres', name: 'Pop', icon: 'star', sub: 'Chart-Pop von früher bis heute', color: '#ff4fa3', src: [P(1282483245), P(8282573142)] },
   { id: 'rap', group: 'genres', name: 'Hip-Hop & Rap', icon: 'mic', sub: 'US-Rap & Deutschrap', color: '#ff7a3c', src: [P(7662551722), P(12547421383), P(10578289242)] },
-  { id: 'edm', group: 'genres', name: 'EDM', icon: 'wave', sub: 'Dance, Mainstage, Electronic', color: '#00e5c3', src: [P(1902101402), P(1495242491)] },
+  { id: 'edm', group: 'genres', name: 'EDM', icon: 'wave', sub: 'Dance, Mainstage, Electronic', color: '#14b8a6', src: [P(1902101402), P(1495242491)] },
   { id: 'now', group: 'special', name: 'Aktuelle Hits', icon: 'trend', sub: 'Charts Deutschland & weltweit', color: '#ff5a6a', src: [P(1111143121), P(3155776842)] },
-  { id: 'billion', group: 'special', name: 'Billionärs Club', icon: 'diamond', sub: 'Über 1 Mrd. Spotify-Streams', color: '#ffd54a', src: [{ type: 'static', url: 'data/billions.json' }] },
-  { id: 'custom', group: 'special', name: 'Eigene Playlist', icon: 'link', sub: 'Deezer-Link einfügen', color: '#a1a1ad', src: null },
+  { id: 'billion', group: 'special', name: 'Billionärs Club', icon: 'diamond', sub: 'Über 1 Mrd. Spotify-Streams', color: '#e5a50a', src: [{ type: 'static', url: 'data/billions.json' }] },
+  { id: 'custom', group: 'special', name: 'Eigene Playlist', icon: 'link', sub: 'Deezer-Link einfügen', color: '#6b7280', src: null },
 ];
 const DIFF = {
-  easy: { top: 0.35, label: 'Leicht', info: 'Es kommen nur die bekanntesten 35 % der Kategorie dran – Songs, die fast jeder kennt.' },
-  normal: { top: 0.7, label: 'Normal', info: 'Die bekannteren 70 % der Kategorie: viele Hits, dazu ein paar Songs, an die man sich erst erinnern muss.' },
+  easy: { top: 0.35, label: 'Leicht', info: 'Nur die bekanntesten 35 % der Kategorie – Songs, die fast jeder kennt.' },
+  normal: { top: 0.7, label: 'Normal', info: 'Die bekannteren 70 % der Kategorie: viele Hits, dazu Songs, an die man sich erst erinnern muss.' },
   hard: { top: 1, label: 'Schwer', info: 'Die komplette Kategorie – auch Album-Tracks und Songs, die nicht jeder kennt.' },
 };
-const START_INFO = { start: 'Beginn des Ausschnitts', random: 'irgendwo im Ausschnitt' };
+// Farbthemen wie in Musik-Bingo
+const THEMES = [['graphit', 'Graphit', '#3a4252', '#1f3a32'], ['ozean', 'Ozean', '#0b4f75', '#0d6e66'], ['wald', 'Wald', '#1d5a3a', '#4c5b1a'],
+  ['abend', 'Abend', '#7a2e1c', '#7d1f4a'], ['lila', 'Lila', '#4a22a0', '#8a1458'], ['oled', 'OLED', '#000', '#000']];
 
 const LS = {
   get(k, d) { try { const v = localStorage.getItem('mq.' + k); return v == null ? d : JSON.parse(v); } catch { return d; } },
@@ -42,7 +44,7 @@ const LS = {
 
 const opt = {
   cat: LS.get('cat', '80s'), diff: LS.get('diff', 'normal'), count: LS.get('count', 10),
-  startMode: LS.get('startMode2', 'start'), hintsOn: LS.get('hintsOn', 'on'),
+  startMode: LS.get('startMode2', 'start'), hintsOn: LS.get('hintsOn', 'on'), theme: LS.get('theme', 'graphit'),
 };
 const pools = {};
 let G = null;
@@ -115,7 +117,7 @@ async function startGame() {
   let c = cat;
   if (cat.id === 'custom') {
     const src = DZ.parseLink($('#customUrl').value);
-    if (src.error) return toast(src.error);
+    if (src.error) { toast(src.error); $('#customUrl').focus(); return; }
     LS.set('customUrl', $('#customUrl').value.trim());
     c = { ...cat, src: [src] };
   }
@@ -126,11 +128,12 @@ async function startGame() {
     if (pool.length < 3) throw new Error('Zu wenige abspielbare Songs in dieser Quelle.');
     const cand = pickTracks(pool, opt.diff, opt.count);
     G = { cat, cand, next: 0, rounds: [], i: -1, score: 0, n: Math.min(opt.count, cand.length) };
-    document.documentElement.style.setProperty('--cat', cat.color);
-    await nextRound();
+    setCat(cat.color);
     show('game');
+    await nextRound();
   } catch (e) {
     toast(e.message || 'Fehler beim Laden');
+    if (!G?.rounds.length) show('home');
   } finally { loading(false); }
 }
 
@@ -141,7 +144,6 @@ function newRound() {
 
 async function nextRound() {
   Snip.stop();
-  $('#reveal').classList.add('hidden');
   G.i++;
   if (G.i >= G.n) return endGame();
   loading(true, 'Lade Song…');
@@ -160,26 +162,28 @@ async function nextRound() {
 const R = () => G.rounds[G.i];
 const possible = r => Math.max(0, PTS[r.stage] - r.hintCost);
 
+/* Platte antippen = Ausschnitt abspielen (nach der Auflösung: bis zu 30 s) */
 function playSnippet() {
   const r = R();
   if (!r?.buf) return;
   const dur = r.done ? Math.min(30, r.buf.duration - r.offset) : STEPS[r.stage];
-  const wrap = $('.play-wrap');
-  $('#playBtn').classList.add('playing'); wrap.classList.add('playing-wrap');
-  Snip.play(r.buf, r.offset, dur, () => { $('#playBtn').classList.remove('playing'); wrap.classList.remove('playing-wrap'); });
-  if (!r.done) animate(dur);
+  const disc = $('#disc');
+  disc.classList.add('playing', 'counting'); disc.classList.remove('paused');
+  Snip.play(r.buf, r.offset, dur, () => { disc.classList.remove('playing', 'counting'); disc.classList.add('paused'); });
+  animate(dur, !r.done);
 }
 
 let raf = 0;
 const RING = 2 * Math.PI * 56;
-function animate(dur) {
+function setRing(p) { const s = $('#disc .ring-svg').style; s.setProperty('--len', RING); s.setProperty('--off', RING * (1 - p)); }
+function animate(dur, ladder) {
   cancelAnimationFrame(raf);
-  const segs = $$('#ladder .bar-fill'), ring = $('#ringFg');
+  const segs = $$('#ladder .bar-fill');
   const tick = () => {
     const t = Snip.elapsed();
-    if (t < 0) { segs.forEach(s => s.style.transform = 'scaleY(0)'); ring.style.strokeDashoffset = RING; return; }
-    ring.style.strokeDashoffset = RING * (1 - Math.min(1, t / dur));
-    STEPS.forEach((d, k) => {
+    if (t < 0) { segs.forEach(s => s.style.transform = 'scaleY(0)'); setRing(0); return; }
+    setRing(Math.min(1, t / dur));
+    if (ladder) STEPS.forEach((d, k) => {
       const prev = k ? STEPS[k - 1] : 0;
       segs[k].style.transform = `scaleY(${Math.max(0, Math.min(1, (t - prev) / (d - prev)))})`;
     });
@@ -230,50 +234,53 @@ function useHint(h) {
 function finishRound(won) {
   const r = R();
   r.done = true; r.won = won;
-  let calc;
+  let calc = '';
   if (won) {
     r.pts = possible(r);
-    calc = `${fmtS(STEPS[r.stage])} = ${PTS[r.stage]}` + (r.hintCost ? ` − ${r.hintCost} Tipps` : '');
+    calc = `Erkannt bei ${fmtS(STEPS[r.stage])}: ${PTS[r.stage]}` + (r.hintCost ? ` − ${r.hintCost} für Tipps` : '');
   } else if (r.artistAt != null) {
     const half = PTS[r.artistAt] / 2;
     r.pts = Math.max(0, half - r.hintCost);
-    calc = `Nur Interpret (bei ${fmtS(STEPS[r.artistAt])}): ${PTS[r.artistAt]} ÷ 2 = ${half}` + (r.hintCost ? ` − ${r.hintCost} Tipps` : '');
-  } else { r.pts = 0; calc = ''; }
+    calc = `Nur Interpret (bei ${fmtS(STEPS[r.artistAt])}): ${PTS[r.artistAt]} ÷ 2` + (r.hintCost ? ` − ${r.hintCost} für Tipps` : '');
+  } else { r.pts = 0; calc = 'Diesmal leider nicht erkannt'; }
   G.score += r.pts;
   const t = r.track;
-  $('#rvCover').src = t.album?.cover_big || t.album?.cover_medium || '';
+  // Platte dreht sich um und zeigt das Cover (wie bei Musik-Bingo)
+  $('#discCover').innerHTML = t.album?.cover_big ? `<img src="${t.album.cover_big}" alt="">` : '🎵';
+  $('#disc').classList.add('flipped');
+  const ans = $('#rvA').parentElement;
+  ans.className = 'rv-answer ' + (won ? '' : r.pts ? 'half' : 'bad');
+  $('#rvQ').textContent = calc;
+  $('#rvA').textContent = r.pts ? `+${fmtN(r.pts)} Punkte` : '0 Punkte';
   $('#rvTitle').textContent = showTitle(t);
   $('#rvArtist').textContent = t.artist?.name || '';
   const y = r.album?.release_date?.slice(0, 4);
   $('#rvMeta').textContent = [t.album?.title, y].filter(Boolean).join(' · ');
-  const res = $('#rvResult');
-  if (won) { res.textContent = `+${fmtN(r.pts)} Punkte`; res.className = 'rv-result ok'; }
-  else if (r.pts) { res.textContent = `+${fmtN(r.pts)} Punkte`; res.className = 'rv-result half'; }
-  else { res.textContent = 'Leider nicht erkannt'; res.className = 'rv-result bad'; }
-  $('#rvCalc').textContent = calc;
   $('#nextBtn').textContent = G.i + 1 >= G.n ? 'Zum Ergebnis' : 'Nächster Song';
-  $('#scoreNo').textContent = fmtN(G.score);
-  renderProgress();
+  $('#playArea').classList.add('hidden');
+  $('#possibleLine').textContent = r.won ? 'Erkannt!' : 'Auflösung';
   $('#reveal').classList.remove('hidden');
-  playSnippet(); // Auflösung: bis zu 30 s ab dem Startpunkt
+  renderMeta();
+  renderTries();
+  playSnippet();
 }
 
 function endGame() {
   Snip.stop();
-  $('#reveal').classList.add('hidden');
   const max = G.n * PTS[0];
-  $('#endScore').textContent = fmtN(G.score);
-  $('#endCat').textContent = `${G.cat.name} · ${DIFF[opt.diff].label}`;
   const key = `best.${G.cat.id}.${opt.diff}.${opt.count}`;
   const best = LS.get(key, 0);
   const isBest = G.cat.id !== 'custom' && G.score > best;
   if (isBest) LS.set(key, G.score);
   const found = G.rounds.filter(r => r.won).length;
-  $('#endSub').textContent = `${found} von ${G.n} Songs erkannt · max. ${fmtN(max)}` + (isBest ? ' · 🏆 Neuer Rekord!' : best ? ` · Rekord ${fmtN(best)}` : '');
+  $('#endCat').textContent = `${G.cat.name} · ${DIFF[opt.diff].label}`;
+  $('#endFound').textContent = `${found} von ${G.n} erkannt`;
+  $('#endScore').textContent = fmtN(G.score);
+  $('#endSub').textContent = `von ${fmtN(max)} möglichen` + (isBest ? ' · 🏆 Neuer Rekord!' : best ? ` · Rekord ${fmtN(best)}` : '');
   $('#endList').innerHTML = G.rounds.map(r => `
-    <li><img src="${r.track.album?.cover_small || ''}" alt="">
-      <span class="t"><b>${esc(showTitle(r.track))}</b><small>${esc(r.track.artist?.name || '')}</small><span class="emo">${emojiRow(r)}</span></span>
-      <span class="p ${r.pts ? '' : 'zero'}">${r.pts ? '+' + fmtN(r.pts) : '0'}</span></li>`).join('');
+    <div class="cell"><img class="pl-cover" src="${r.track.album?.cover_small || ''}" alt="">
+      <span class="grow">${esc(showTitle(r.track))}<span class="sub">${esc(r.track.artist?.name || '')}</span><span class="emo">${emojiRow(r)}</span></span>
+      <span class="trail ${r.pts ? '' : 'zero'}">${r.pts ? '+' + fmtN(r.pts) : '0'}</span></div>`).join('');
   show('end');
 }
 
@@ -286,38 +293,51 @@ function emojiRow(r) {
   }).join('');
 }
 
-const shareText = () => `🎵 Musik-Quiz – ${G.cat.name} (${DIFF[opt.diff].label})\n${fmtN(G.score)} Punkte\n${G.rounds.map(emojiRow).join('\n')}`;
+const shareText = () => `🎵 Musik-Quiz – ${G.cat.name} (${DIFF[opt.diff].label})\n${fmtN(G.score)} Punkte\n${G.rounds.map(emojiRow).join('\n')}\nhttps://ku3rb1s.github.io/musik-quiz/`;
 
 /* ---------- Anzeige ---------- */
 function show(id) {
-  ['home', 'game', 'end'].forEach(s => $('#' + s).classList.toggle('hidden', s !== id));
+  $('#home').classList.toggle('hidden', id !== 'home');
+  $('#game').classList.toggle('hidden', id !== 'game');
+  $('#end').classList.toggle('hidden', id !== 'end');
+  $('#btnHome').classList.toggle('hidden', id === 'home');
   window.scrollTo(0, 0);
 }
 
-function catBtn(c) {
-  const on = c.id === opt.cat ? ' on' : '';
-  if (c.group === 'decades') return `<button class="cat dec${on}" data-id="${c.id}" style="--c:${c.color}"><span class="big">${c.big}</span><small>${c.name}</small></button>`;
-  return `<button class="cat${on}" data-id="${c.id}" style="--c:${c.color}">
-    <span class="cat-ic"><svg class="ic"><use href="#i-${c.icon}"/></svg></span>
-    <span class="cat-t"><b>${c.name}</b><small>${c.sub}</small></span></button>`;
+function setCat(color) { document.documentElement.style.setProperty('--cat', color); }
+const catIcon = c => c.group === 'decades' ? c.big : `<svg class="ic"><use href="#i-${c.icon}"/></svg>`;
+
+function catCell(c) {
+  const on = c.id === opt.cat;
+  return `<button class="cell tap${on ? ' sel' : ''}" data-id="${c.id}">
+    <span class="cell-ic" style="background:${c.color}"><svg class="ic"><use href="#i-${c.icon}"/></svg></span>
+    <span class="grow">${c.name}<span class="sub">${c.sub}</span></span>
+    <span class="trail">${on ? '<svg class="ic"><use href="#i-check"/></svg>' : ''}</span></button>`;
 }
 
 function renderHome() {
-  for (const [g, el] of [['decades', '#catsDecades'], ['genres', '#catsGenres'], ['special', '#catsSpecial']])
-    $(el).innerHTML = CATS.filter(c => c.group === g).map(catBtn).join('');
-  $('#customBox').classList.toggle('hidden', opt.cat !== 'custom');
-  $$('#diff button').forEach(b => b.classList.toggle('on', b.dataset.v === opt.diff));
-  for (const k of ['count', 'startMode', 'hintsOn']) $$(`#${k} button`).forEach(b => b.classList.toggle('on', b.dataset.v == opt[k]));
-  $('#diffInfo').textContent = DIFF[opt.diff].info;
-  $('#startInfo').textContent = START_INFO[opt.startMode];
   const c = CATS.find(x => x.id === opt.cat);
-  document.documentElement.style.setProperty('--cat', c.color);
-  $('#startBtn').textContent = `${c.name} spielen`;
+  setCat(c.color);
+  $('#catsDecades').innerHTML = CATS.filter(x => x.group === 'decades').map(x =>
+    `<button class="${x.id === opt.cat ? 'on' : ''}" data-id="${x.id}" style="--c:${x.color}">${x.big}<small>${x.name}</small></button>`).join('');
+  $('#catsGenres').innerHTML = CATS.filter(x => x.group === 'genres').map(catCell).join('');
+  $('#catsSpecial').innerHTML = CATS.filter(x => x.group === 'special').map(catCell).join('');
+  $('#customBox').classList.toggle('hidden', opt.cat !== 'custom');
+  $('#customNote').classList.toggle('hidden', opt.cat !== 'custom');
+  $$('#diff button').forEach(b => b.classList.toggle('on', b.dataset.v === opt.diff));
+  $('#diffInfo').textContent = DIFF[opt.diff].info;
+  const icon = $('#homeCatIcon');
+  icon.className = 'cat-icon' + (c.group === 'decades' ? ' dec' : '');
+  icon.innerHTML = catIcon(c);
+  $('#homeCatName').textContent = c.name;
+  $('#startLbl').textContent = `${c.name} spielen`;
   const best = LS.get(`best.${opt.cat}.${opt.diff}.${opt.count}`, 0);
-  $('#best').textContent = best ? `🏆 Dein Rekord: ${fmtN(best)}` : '';
+  $('#bestPill').textContent = best ? `🏆 Rekord ${fmtN(best)}` : `${DIFF[opt.diff].label} · ${opt.count} Songs`;
 }
 
-function renderProgress() {
+function renderMeta() {
+  $('#roundNo').textContent = `Song ${G.i + 1} / ${G.n}`;
+  $('#scorePill').textContent = `${fmtN(G.score)} Punkte`;
   $('#progress').innerHTML = Array.from({ length: G.n }, (_, k) => {
     const r = G.rounds[k];
     const cls = k === G.i && !r?.done ? 'cur' : r?.done ? (r.won ? 'ok' : r.pts ? 'half' : 'bad') : '';
@@ -325,46 +345,60 @@ function renderProgress() {
   }).join('');
 }
 
-function renderRound() {
+function renderTries() {
   const r = R();
-  $('#catChip').textContent = G.cat.name;
-  $('#roundNo').textContent = `Song ${G.i + 1} von ${G.n}`;
-  $('#scoreNo').textContent = fmtN(G.score);
-  renderProgress();
-  $('#ladder').innerHTML = STEPS.map((s, k) => `
-    <div class="step ${k < r.stage ? 'past' : k === r.stage ? 'cur' : ''}">
-      <div class="bar" style="--h:${14 + k * 9}px"><div class="bar-fill"></div></div>
-      <span class="s">${fmtS(s)}</span><span class="p">${PTS[k]}</span>
-    </div>`).join('');
-  $('#ringFg').style.strokeDashoffset = RING;
-  $('#playLbl').textContent = fmtS(STEPS[r.stage]);
-  $('#possible').textContent = fmtN(possible(r));
-  const nx = STEPS[r.stage + 1];
-  $('#skipLbl').textContent = nx ? `${fmtS(nx)} hören` : 'Mehr hören';
-  $('#skipBtn').disabled = !nx;
-  $('#status').innerHTML = r.artistAt != null ? `<span class="pill ok">✓ Interpret richtig – jetzt noch der Song</span>` : '';
+  $('#triesBox').classList.toggle('has', r.guesses.length > 0);
+  $('#triesN').textContent = r.guesses.length ? `(${r.guesses.length})` : '';
   $('#guesses').innerHTML = r.guesses.slice().reverse().map(g => {
     const ic = { ok: '✅', half: '🟨', bad: '❌', skip: '⏭' }[g.kind];
     return `<li class="${g.kind}"><span>${ic}</span><span>${esc(g.text)}${g.note ? `<small>${esc(g.note)}</small>` : ''}</span></li>`;
   }).join('');
+}
+
+function renderRound() {
+  const r = R();
+  const disc = $('#disc');
+  if (!r.done) {
+    disc.classList.remove('flipped', 'playing', 'counting'); disc.classList.add('paused');
+    $('#reveal').classList.add('hidden');
+    $('#playArea').classList.remove('hidden');
+  }
+  renderMeta();
+  $('#gameKicker').textContent = G.cat.name;
+  const icon = $('#gameCatIcon');
+  icon.className = 'cat-icon' + (G.cat.group === 'decades' ? ' dec' : '');
+  icon.innerHTML = catIcon(G.cat);
+  $('#stageName').textContent = fmtS(STEPS[r.stage]);
+  $('#possibleLine').innerHTML = `Jetzt möglich: <b>${fmtN(possible(r))}</b> Punkte`;
+  $('#ladder').innerHTML = STEPS.map((s, k) => `
+    <div class="step ${k < r.stage ? 'past' : k === r.stage ? 'cur' : ''}">
+      <div class="bar" style="--h:${12 + k * 8}px"><div class="bar-fill"></div></div>
+      <span class="s">${fmtS(s)}</span><span class="p">${PTS[k]}</span>
+    </div>`).join('');
+  setRing(0);
+  const nx = STEPS[r.stage + 1];
+  $('#skipLbl').textContent = nx ? `${fmtS(nx)} hören` : 'Mehr hören';
+  $('#skipBtn').disabled = !nx;
+  $('#status').innerHTML = r.artistAt != null ? `<span class="badge warn-b">✓ Interpret richtig – jetzt noch der Song</span>` : '';
   $('#guessInput').value = '';
   closeSuggest();
+  renderTries();
   renderHints();
 }
 
 function renderHints() {
   const r = R(), t = r.track, a = r.album;
-  const enabled = opt.hintsOn === 'on';
-  const unlocked = r.stage >= HINT_FROM;
+  const enabled = opt.hintsOn === 'on', unlocked = r.stage >= HINT_FROM;
   const btn = $('#hintBtn');
   btn.classList.toggle('hidden', !enabled);
   btn.disabled = !unlocked;
   btn.title = unlocked ? '' : 'Tipps gibt es ab 0,5 s';
   if (!enabled || !unlocked) $('#hintPanel').classList.add('hidden');
   btn.classList.toggle('active', !$('#hintPanel').classList.contains('hidden'));
-
   // „Stark“ enthält die Titel-Lücken schon – danach ist „Mittel“ überflüssig
-  $$('.hint').forEach(b => b.classList.toggle('used', r.hints.includes(+b.dataset.h) || (+b.dataset.h === 1 && r.hints.includes(2))));
+  $$('.hint-b').forEach(b => b.classList.toggle('used', r.hints.includes(+b.dataset.h) || (+b.dataset.h === 1 && r.hints.includes(2))));
+
+  const row = (k, v) => `<div class="cell"><span class="grow muted">${k}</span><b>${v}</b></div>`;
   const out = [];
   const words = showTitle(t).replace(/\s*[([].*?[)\]]/g, '').trim().split(/\s+/);
   if (r.hints.includes(0)) {
@@ -372,14 +406,14 @@ function renderHints() {
     const genre = a?.genres?.data?.map(g => g.name).slice(0, 2).join(', ');
     let when = y ? `${Math.floor(y / 10) * 10}er` : '';
     if (G.cat.decade && y && Math.floor(y / 10) * 10 !== G.cat.decade) when = `${G.cat.decade}er`; // Best-of-Alben haben oft falsche Jahre
-    out.push(`<div><span>Jahrzehnt</span><b>${when || 'unbekannt'}</b></div>` + (genre ? `<div><span>Genre</span><b>${esc(genre)}</b></div>` : ''));
+    out.push(row('Jahrzehnt', when || 'unbekannt'));
+    if (genre) out.push(row('Genre', esc(genre)));
   }
-  if (r.hints.includes(1) && !r.hints.includes(2)) {
-    out.push(`<div><span>Titel</span><b class="gaps">${esc(words.map(w => w.replace(/[\p{L}\p{N}]/gu, '_')).join('  '))}</b></div>`);
-  }
+  if (r.hints.includes(1) && !r.hints.includes(2))
+    out.push(row('Titel', `<span class="gaps">${esc(words.map(w => w.replace(/[\p{L}\p{N}]/gu, '_')).join('  '))}</span>`));
   if (r.hints.includes(2)) {
-    out.push(`<div><span>Titel</span><b class="gaps">${esc(words.map(w => w.replace(/^([\p{L}\p{N}])|[\p{L}\p{N}]/gu, (m, f) => f || '_')).join('  '))}</b></div>`);
-    out.push(`<div><span>Interpret</span><b>${esc((t.artist?.name || '?')[0])}…</b></div>`);
+    out.push(row('Titel', `<span class="gaps">${esc(words.map(w => w.replace(/^([\p{L}\p{N}])|[\p{L}\p{N}]/gu, (m, f) => f || '_')).join('  '))}</span>`));
+    out.push(row('Interpret', esc((t.artist?.name || '?')[0]) + '…'));
   }
   $('#hintOut').innerHTML = out.join('');
   const cv = $('#pixel');
@@ -398,6 +432,22 @@ function pixelate(src, cv, n) {
     c.drawImage(tiny, 0, 0, cv.width, cv.height);
   };
   img.src = src;
+}
+
+/* ---------- Einstellungen ---------- */
+function applyTheme() {
+  const th = THEMES.find(x => x[0] === opt.theme) ? opt.theme : 'graphit';
+  document.documentElement.dataset.theme = th;
+  const bg = { graphit: '#0c0c0f', lila: '#0d0a1a', ozean: '#05111a', abend: '#130a0b', wald: '#08110c', oled: '#000000' }[th];
+  $('meta[name=theme-color]').content = bg;
+  $('#themeRow').innerHTML = THEMES.map(([id, name, a, b]) =>
+    `<button class="theme-pick ${th === id ? 'on' : ''}" data-theme-pick="${id}"><i style="background:linear-gradient(135deg,${a},${b})"></i>${name}</button>`).join('');
+}
+function renderSettings() {
+  $('#setCount').value = String(opt.count);
+  $('#setStart').value = opt.startMode;
+  $('#setHints').checked = opt.hintsOn === 'on';
+  applyTheme();
 }
 
 /* ---------- Suche mit Vorschlägen ---------- */
@@ -448,7 +498,7 @@ function shake() { const c = $('.guess'); c.classList.remove('shake'); void c.of
 
 /* ---------- Ereignisse ---------- */
 $('#home').addEventListener('click', e => {
-  const b = e.target.closest('.cat'); if (!b) return;
+  const b = e.target.closest('[data-id]'); if (!b) return;
   opt.cat = b.dataset.id; LS.set('cat', opt.cat); renderHome();
   if (opt.cat === 'custom') $('#customUrl').focus();
 });
@@ -456,28 +506,36 @@ $('#diff').addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
   opt.diff = b.dataset.v; LS.set('diff', opt.diff); renderHome();
 });
-for (const [k, key] of [['count', 'count'], ['startMode', 'startMode2'], ['hintsOn', 'hintsOn']]) {
-  $('#' + k).addEventListener('click', e => {
-    const b = e.target.closest('button'); if (!b) return;
-    opt[k] = k === 'count' ? +b.dataset.v : b.dataset.v; LS.set(key, opt[k]); renderHome();
-  });
-}
 $('#startBtn').onclick = startGame;
-$('#playBtn').onclick = playSnippet;
+$('#disc').onclick = playSnippet;
 $('#skipBtn').onclick = skip;
 $('#hintBtn').onclick = () => { $('#hintPanel').classList.toggle('hidden'); renderHints(); };
-$('#giveupBtn').onclick = () => { if (!R().done && confirm('Aufgeben und Song auflösen?')) finishRound(false); };
+$('#giveupBtn').onclick = () => { if (!R().done && confirm('Song auflösen? Du bekommst nur Punkte, falls der Interpret schon stimmte.')) finishRound(false); };
 $('#nextBtn').onclick = nextRound;
-$('#quitBtn').onclick = () => { if (confirm('Spiel beenden?')) { Snip.stop(); G = null; renderHome(); show('home'); } };
-$$('.hint').forEach(b => b.onclick = () => useHint(+b.dataset.h));
+$$('.hint-b').forEach(b => b.onclick = () => useHint(+b.dataset.h));
 $('#againBtn').onclick = startGame;
-$('#homeBtn').onclick = () => { renderHome(); show('home'); };
+const goHome = () => { Snip.stop(); renderHome(); show('home'); };
+$('#homeBtn').onclick = goHome;
+$('#btnHome').onclick = () => { if (!$('#game').classList.contains('hidden') && G && !confirm('Spiel beenden?')) return; G = null; goHome(); };
 $('#shareBtn').onclick = async () => {
   const text = shareText();
   try {
     if (navigator.share && matchMedia('(pointer:coarse)').matches) await navigator.share({ text });
     else { await navigator.clipboard.writeText(text); toast('Ergebnis kopiert'); }
   } catch {}
+};
+
+// Einstellungen
+const sheet = $('#sheetSettings');
+$('#btnSettings').onclick = () => { renderSettings(); sheet.showModal(); };
+sheet.addEventListener('click', e => { if (e.target === sheet || e.target.closest('[data-close]')) sheet.close(); });
+sheet.addEventListener('close', () => { if (!$('#home').classList.contains('hidden')) renderHome(); });
+$('#setCount').onchange = e => { opt.count = +e.target.value; LS.set('count', opt.count); };
+$('#setStart').onchange = e => { opt.startMode = e.target.value; LS.set('startMode2', opt.startMode); };
+$('#setHints').onchange = e => { opt.hintsOn = e.target.checked ? 'on' : 'off'; LS.set('hintsOn', opt.hintsOn); if (G && R()) renderHints(); };
+$('#themeRow').onclick = e => {
+  const b = e.target.closest('[data-theme-pick]'); if (!b) return;
+  opt.theme = b.dataset.themePick; LS.set('theme', opt.theme); applyTheme();
 };
 
 const gi = $('#guessInput');
@@ -491,9 +549,10 @@ gi.addEventListener('keydown', e => {
 $('#suggest').addEventListener('pointerdown', e => { const li = e.target.closest('li'); if (li) { e.preventDefault(); pick(+li.dataset.i); } });
 gi.addEventListener('blur', () => setTimeout(closeSuggest, 150));
 document.addEventListener('keydown', e => {
-  if ($('#game').classList.contains('hidden') || e.target === gi) return;
-  if (e.code === 'Space') { e.preventDefault(); $('#reveal').classList.contains('hidden') ? playSnippet() : nextRound(); }
+  if ($('#game').classList.contains('hidden') || e.target === gi || sheet.open) return;
+  if (e.code === 'Space') { e.preventDefault(); R()?.done ? nextRound() : playSnippet(); }
 });
 
 $('#customUrl').value = LS.get('customUrl', '');
+applyTheme();
 renderHome();
