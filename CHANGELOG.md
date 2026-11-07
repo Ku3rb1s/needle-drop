@@ -2,6 +2,10 @@
 
 Die Versionsnummer steht in `js/quiz.js` (`APP_VERSION`) und unten in den Einstellungen. In `index.html` bei jedem Update auch `?v=` an CSS/JS-Dateien erhöhen.
 
+## 1.16.8 – 08.11.2026
+- Archiv: Nach einem normalen Spiel ließen sich frühere Challenges nicht öffnen (Klick tat nichts) – behoben
+- Tipp-Knopf: Hinweis nennt die richtige Stufe der gewählten Leiter („ab 1 s“ bei Entspannt, „ab 0,2 s“ bei Profi) statt immer „ab 0,5 s“
+
 ## 1.16.7 – 07.11.2026
 - Suche: bis zu 30 Song-Treffer (Interpreten: 20) statt 6 – die Liste lässt sich mit dem Finger oder Mausrad scrollen, unten blendet sie leicht aus, solange weitere Treffer folgen
 - Pfeiltasten in der Trefferliste: der gewählte Treffer bleibt im Bild

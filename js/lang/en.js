@@ -295,7 +295,7 @@
     "Tipps": "Hints",
     "Tipps an": "Hints on",
     "Tipps aus": "Hints off",
-    "Tipps gibt es ab 0,5 s": "Hints are available from 0.5 s",
+    "Tipps gibt es ab {s}": "Hints are available from {s}",
     "Titel": "Title",
     "Titel stimmt, Interpret nicht": "Right title, wrong artist",
     "Titel-Lücken · −100": "Title blanks · −100",

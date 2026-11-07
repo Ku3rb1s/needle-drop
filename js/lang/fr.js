@@ -294,7 +294,7 @@
     "Tipps": "Indices",
     "Tipps an": "Indices activés",
     "Tipps aus": "Indices désactivés",
-    "Tipps gibt es ab 0,5 s": "Indices disponibles à partir de 0,5 s",
+    "Tipps gibt es ab {s}": "Indices disponibles à partir de {s}",
     "Titel": "Titre",
     "Titel stimmt, Interpret nicht": "Bon titre, mauvais artiste",
     "Titel-Lücken · −100": "Titre à trous · −100",

@@ -294,7 +294,7 @@
     "Tipps": "Hint",
     "Tipps an": "Hint på",
     "Tipps aus": "Hint av",
-    "Tipps gibt es ab 0,5 s": "Hint er tilgjengelig fra 0,5 s",
+    "Tipps gibt es ab {s}": "Hint er tilgjengelig fra {s}",
     "Titel": "Tittel",
     "Titel stimmt, Interpret nicht": "Riktig tittel, feil artist",
     "Titel-Lücken · −100": "Tittel med hull · −100",

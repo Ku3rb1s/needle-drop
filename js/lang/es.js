@@ -294,7 +294,7 @@
     "Tipps": "Pistas",
     "Tipps an": "Pistas activadas",
     "Tipps aus": "Pistas desactivadas",
-    "Tipps gibt es ab 0,5 s": "Las pistas están disponibles desde 0,5 s",
+    "Tipps gibt es ab {s}": "Las pistas están disponibles desde {s}",
     "Titel": "Título",
     "Titel stimmt, Interpret nicht": "Título correcto, artista no",
     "Titel-Lücken · −100": "Título con huecos · −100",

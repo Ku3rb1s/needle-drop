@@ -1,5 +1,5 @@
 /* Needle Drop – Spielablauf und Anzeige */
-const APP_VERSION = '1.16.7', APP_DATE = '07.11.2026'; // bei jedem Update erhöhen + CHANGELOG.md ergänzen
+const APP_VERSION = '1.16.8', APP_DATE = '08.11.2026'; // bei jedem Update erhöhen + CHANGELOG.md ergänzen
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 
@@ -28,7 +28,7 @@ const MODES = {
 const FX_NAMES = { random: 'Zufall', reverse: 'Rückwärts', underwater: 'Unterwasser', chipmunk: 'Chipmunk', slow: 'Zeitlupe' };
 const FX_LIST = ['reverse', 'underwater', 'chipmunk', 'slow'];
 const HINT_COST = [50, 100, 150];
-const HINT_FROM = 1; // Tipps erst ab Stufe 2 (0,5 s)
+const HINT_FROM = 1; // Tipps erst ab Stufe 2 (je nach Leiter 0,2 / 0,5 / 1 s)
 const LOC = () => ({ de: 'de-DE', en: 'en-GB', fr: 'fr-FR', es: 'es-ES', nb: 'nb-NO' }[curLang] || 'de-DE');
 const fmtS = s => s.toLocaleString(LOC()) + ' s';
 const fmtN = n => Math.round(n).toLocaleString(LOC());
@@ -495,6 +495,7 @@ function endGame() {
     <div class="cell"><img class="pl-cover" src="${r.track.album?.cover_small || ''}" alt="">
       <span class="grow">${esc(showTitle(r.track))}<span class="sub">${esc(r.track.artist?.name || '')}</span><span class="emo">${emojiRow(r)}</span></span>
       <span class="trail ${r.pts ? '' : 'zero'}">${r.pts ? '+' + fmtN(r.pts) : '0'}</span></div>`).join('');
+  G = null;                                                    // Spiel ist vorbei – Archiv & Challenge wieder frei
   show('end');
   showAch(freshAch);
 }
@@ -848,7 +849,7 @@ function renderHints() {
   const btn = $('#hintBtn');
   btn.classList.toggle('hidden', !enabled);
   btn.disabled = !unlocked;
-  btn.title = unlocked ? '' : tx('Tipps gibt es ab 0,5 s');
+  btn.title = unlocked ? '' : tx('Tipps gibt es ab {s}', { s: fmtS(STEPS[HINT_FROM]) });
   if (!enabled || !unlocked) $('#hintPanel').classList.add('hidden');
   btn.classList.toggle('active', !$('#hintPanel').classList.contains('hidden'));
   // „Stark“ enthält die Titel-Lücken schon – danach ist „Mittel“ überflüssig
