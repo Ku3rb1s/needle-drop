@@ -7,8 +7,9 @@ header{max-width:720px}
 .logo span{background:linear-gradient(90deg,#fff,#ffe2a8);-webkit-background-clip:text;background-clip:text;color:transparent}
 
 /* Platte: Quiz-Etikett (Grün-Blau mit Snippet-Balken) statt Bingo-Raster */
-.disc-label{background:radial-gradient(circle,var(--bg) 0 7%,transparent 7.5%),linear-gradient(135deg,var(--cat),var(--quiz2))}
-.disc-wrap.idle .disc-label{background:radial-gradient(circle,#111114 0 9%,transparent 9.5%),linear-gradient(135deg,var(--quiz1),var(--quiz2))}
+/* Etikett einfarbig in der Kategoriefarbe – wie bei Musik-Bingo eine Farbe pro Ansicht */
+.disc-label{background:radial-gradient(circle,#111114 0 8%,transparent 8.5%),linear-gradient(135deg,color-mix(in srgb,var(--cat) 88%,#fff),color-mix(in srgb,var(--cat) 70%,#000))}
+.disc-wrap.idle .disc-label{background:radial-gradient(circle,#111114 0 8%,transparent 8.5%),linear-gradient(135deg,color-mix(in srgb,var(--cat) 88%,#fff),color-mix(in srgb,var(--cat) 70%,#000))}
 .disc-wrap.counting svg.ring-svg{opacity:1}
 
 /* ---------- Start ---------- */

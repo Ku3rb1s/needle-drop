@@ -23,7 +23,7 @@ function logo([, a, b, la, lb, arm]) {
   <filter id="ss" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#000" flood-opacity=".3"/></filter>
 </defs>
 <rect width="512" height="512" fill="url(#bg)"/>
-<g transform="translate(-22 22)">
+<g transform="translate(256 256) scale(.9) translate(-256 -256)">
   <g filter="url(#sh)"><circle cx="256" cy="256" r="196" fill="#111114"/></g>
   <g fill="none" stroke="#fff" stroke-opacity=".08" stroke-width="2">${grooves}</g>
   <path d="M256 256 L118 117 A196 196 0 0 1 176 77 Z" fill="#fff" fill-opacity=".1"/>
@@ -31,9 +31,9 @@ function logo([, a, b, la, lb, arm]) {
   <circle cx="256" cy="256" r="92" fill="url(#lab)"/><circle cx="256" cy="256" r="12" fill="#111114"/>
 </g>
 <g filter="url(#ss)">
-  <circle cx="420" cy="92" r="34" fill="${arm}"/><circle cx="420" cy="92" r="14" fill="#9a9aa3"/>
-  <path d="M420 92 L404 250 L344 300" fill="none" stroke="${arm}" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
-  <rect x="318" y="288" width="44" height="30" rx="7" fill="#fff" transform="rotate(-40 340 303)"/>
+  <circle cx="440" cy="72" r="28" fill="${arm}"/><circle cx="440" cy="72" r="11" fill="#9a9aa3"/>
+  <path d="M440 72 L426 232 L372 280" fill="none" stroke="${arm}" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="348" y="270" width="40" height="27" rx="6" fill="#fff" transform="rotate(-42 368 283.5)"/>
 </g>
 </svg>
 `;
