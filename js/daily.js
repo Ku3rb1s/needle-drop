@@ -114,8 +114,10 @@ const Daily = (() => {
     L[date] = { score, found: rounds.filter(r => r.won).length, items, aborted: (aborted && !complete) || undefined, late: late || undefined };
     LS.set('daily', L);
     LS.set('dailyBest', Math.max(LS.get('dailyBest', 0), streak()));
+    const freshAch = checkAch(G);
     G = null;
     showResult(date);
+    showAch(freshAch);
   }
 
   /* ---------- Ergebnis-Ansicht (auch später am selben Tag wieder aufrufbar) ---------- */
@@ -123,6 +125,7 @@ const Daily = (() => {
   function showResult(d) {
     const res = result(d);
     if (!res) return;
+    $('#endAch').innerHTML = '';
     setCat(CAT.color);
     $('#endCat').textContent = `${tx('Tägliche Challenge')} #${dayNo(d)}`;
     $('#endFound').textContent = tx('{a} von {b} erkannt', { a: res.found, b: N });
@@ -237,5 +240,5 @@ const Daily = (() => {
   $('#dailyHdr').onclick = () => { if (busy || G) return; const d = today(); result(d) ? showResult(d) : start(); };
   tidy();
   renderCard();
-  return { start, finish, showResult, resetEnd, shareText, renderCard, renderArchive, today };
+  return { start, finish, showResult, resetEnd, shareText, renderCard, renderArchive, today, streak };
 })();

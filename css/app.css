@@ -325,3 +325,13 @@ a.cell{color:inherit;text-decoration:none}
 /* Links Abbrechen (weiß), rechts die Hauptaktion (gold bzw. rot) */
 .alert-btns button:first-child{font-weight:500;color:var(--text);border-right:1px solid var(--line)}
 .alert-btns button.danger{color:var(--danger)}
+
+/* Erfolge (gleicher Stil wie Gold Record) */
+.ach-ic{width:34px;height:34px;flex:none;border-radius:10px;display:grid;place-items:center;font-size:1.2rem;background:rgba(255,255,255,.07)}
+.ach.got .ach-ic{background:linear-gradient(135deg,rgba(253,230,138,.3),rgba(212,160,23,.18));box-shadow:inset 0 0 0 1px rgba(245,179,1,.45)}
+.ach.locked{opacity:.55}
+.ach.got .trail{color:var(--accent)}
+.end-ach{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-top:10px}
+.end-ach:empty{display:none}
+.ach-new{font-size:.85rem;font-weight:700;padding:.35em .8em;border-radius:99px;background:linear-gradient(135deg,rgba(253,230,138,.22),rgba(212,160,23,.1));
+  border:1px solid rgba(245,179,1,.5);color:#fcd34d;animation:pop .4s cubic-bezier(.3,1.6,.5,1)}

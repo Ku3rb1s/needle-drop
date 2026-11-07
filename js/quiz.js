@@ -1,5 +1,5 @@
 /* Needle Drop – Spielablauf und Anzeige */
-const APP_VERSION = '1.13.1', APP_DATE = '07.11.2026'; // bei jedem Update erhöhen + CHANGELOG.md ergänzen
+const APP_VERSION = '1.14.0', APP_DATE = '07.11.2026'; // bei jedem Update erhöhen + CHANGELOG.md ergänzen
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 
@@ -396,6 +396,7 @@ function endGame() {
   if (isBest) LS.set(key, G.score);
   const found = G.rounds.filter(r => r.won).length;
   recordStats(G);
+  const freshAch = checkAch(G);
   lastResult = {
     title: G.cat.name, sub: DIFF[opt.diff].label + modeSuffix(), score: G.score, found, n: G.n, max,
     items: G.rounds.map(r => ({ t: showTitle(r.track), a: r.track.artist?.name || '', c: r.track.album?.cover_medium || '', e: emojiRow(r), p: r.pts })),
@@ -411,6 +412,7 @@ function endGame() {
       <span class="grow">${esc(showTitle(r.track))}<span class="sub">${esc(r.track.artist?.name || '')}</span><span class="emo">${emojiRow(r)}</span></span>
       <span class="trail ${r.pts ? '' : 'zero'}">${r.pts ? '+' + fmtN(r.pts) : '0'}</span></div>`).join('');
   show('end');
+  showAch(freshAch);
 }
 
 function emojiRow(r) {
@@ -425,6 +427,60 @@ function emojiRow(r) {
 const modeLabel = () => opt.mode === 'crazy' ? FX_NAMES[opt.fx] : MODES[opt.mode].label;
 const modeSuffix = () => opt.mode === 'standard' ? '' : ` · ${MODES[opt.mode].icon} ${tx(modeLabel())}`;
 const shareText = () => `🎵 Needle Drop – ${G.cat.name} (${DIFF[opt.diff].label}${modeSuffix()})\n${tx('{n} Punkte', { n: fmtN(G.score) })}\n${G.rounds.map(emojiRow).join('\n')}${Profile.tag() ? '\n' + Profile.tag() : ''}\nhttps://ku3rb1s.github.io/needle-drop/`;
+
+/* ---------- Erfolge ---------- */
+// [id, Symbol, Name, Beschreibung] – gleicher Aufbau wie in Gold Record. Gespeichert unter mq.ach als { id: Datum },
+// mit dem persönlichen Code werden sie auf allen Geräten zusammengeführt (Regel „union“ in sync.js).
+const ACH = [
+  ['first', '🎵', 'Erste Runde', 'Ein Spiel gespielt'],
+  ['flash', '⚡', 'Blitzmerker', 'Einen Song in 0,1 Sekunden erkannt'],
+  ['flash3', '🎯', 'Absolutes Gehör', '3 Songs in einem Spiel in 0,1 Sekunden erkannt'],
+  ['strong', '💪', 'Starke Runde', 'Mindestens die Hälfte der möglichen Punkte geholt'],
+  ['perfect', '💯', 'Volltreffer', 'Alle Songs einer Runde erkannt (ab 5 Songs)'],
+  ['nohint', '🧠', 'Ohne Hilfe', '10 von 10 Songs erkannt, ohne einen Tipp'],
+  ['crazy', '🌀', 'Verrückt gut', 'Im Modus „Verrückt“ 5 Songs in einem Spiel erkannt'],
+  ['artist', '🎤', 'Kenner', 'Im Modus „Nur Interpret“ alle Songs erkannt'],
+  ['billion', '💰', 'Milliarden-Ohr', 'Im Billionärs Club alle Songs erkannt'],
+  ['custom', '🔗', 'Eigener Geschmack', 'Mit einer eigenen Playlist gespielt'],
+  ['explorer', '🧭', 'Weltenbummler', 'In 10 verschiedenen Kategorien gespielt'],
+  ['daily', '📅', 'Tagesgast', 'Die Tägliche Challenge gespielt'],
+  ['dailyPerfect', '🌟', 'Perfekter Tag', 'In der Täglichen Challenge 5 von 5 erkannt'],
+  ['daily3', '🔥', 'Dranbleiben', '3 Tage in Folge die Tägliche Challenge gespielt'],
+  ['daily7', '🗓️', 'Eine ganze Woche', '7 Tage in Folge die Tägliche Challenge gespielt'],
+  ['games25', '🎧', 'Stammgast', '25 Spiele gespielt'],
+];
+const achHave = () => LS.get('ach', {}) || {};
+/** Neue Erfolge nach einem Spiel (auch Tages-Challenge) – gibt die neu freigeschalteten ids zurück */
+function checkAch(g) {
+  const have = achHave(), rounds = g.rounds.filter(Boolean), won = rounds.filter(r => r.won);
+  const st = Sync.view('mq.stats', LS.get('stats', null)) || { games: 0, cats: {} };
+  const all = rounds.length >= g.n && won.length === g.n;
+  const flashes = won.filter(r => STEPS[r.stage] <= 0.1).length;
+  const normal = !g.daily, streak = typeof Daily !== 'undefined' ? Daily.streak() : 0;
+  const cond = {
+    first: true, flash: flashes >= 1, flash3: flashes >= 3,
+    strong: g.n >= 5 && g.score >= g.n * PTS[0] / 2,
+    perfect: all && g.n >= 5, nohint: all && g.n >= 10 && rounds.every(r => !r.hints.length),
+    crazy: normal && opt.mode === 'crazy' && won.length >= 5, artist: normal && opt.mode === 'artist' && all && g.n >= 5,
+    billion: normal && g.cat.id === 'billion' && all && g.n >= 5, custom: normal && g.cat.id === 'custom',
+    explorer: Object.keys(st.cats || {}).length >= 10,
+    daily: !!g.daily, dailyPerfect: !!g.daily && all, daily3: streak >= 3, daily7: streak >= 7, games25: (st.games || 0) >= 25,
+  };
+  const fresh = ACH.filter(([id]) => cond[id] && !have[id]).map(([id]) => id);
+  if (fresh.length) { fresh.forEach(id => { have[id] = Daily.today(); }); LS.set('ach', have); }
+  return fresh;
+}
+/** Neue Erfolge auf der Ergebnis-Seite als goldene Plaketten + kurze Meldung */
+function showAch(ids = []) {
+  const name = id => ACH.find(x => x[0] === id);
+  $('#endAch').innerHTML = ids.map(id => `<span class="ach-new">${name(id)[1]} ${esc(tx(name(id)[2]))}</span>`).join('');
+  if (ids.length) setTimeout(() => toast('🏅 ' + tx('Neuer Erfolg: {s}', { s: ids.map(id => tx(name(id)[2])).join(', ') }), 3200), 700);
+}
+function renderAch() {
+  const have = achHave();
+  $('#achList').innerHTML = ACH.map(([id, ic, name, sub]) => `<div class="cell ach ${have[id] ? 'got' : 'locked'}"><span class="ach-ic">${have[id] ? ic : '🔒'}</span>
+    <span class="grow">${tx(name)}<span class="sub">${tx(sub)}</span></span><span class="trail">${have[id] ? '✓' : ''}</span></div>`).join('');
+}
 
 /* ---------- Statistik (nur auf diesem Gerät) ---------- */
 let lastResult = null; // letztes Ergebnis – für „Teilen“ (Text + Bild)
@@ -781,7 +837,8 @@ function renderSettings() {
   $('#subPoints').textContent = tx('600 bis 100 je Stufe, Tipps kosten Punkte');
   $('#subData').textContent = tx('Alles bleibt auf diesem Gerät');
   $('#langSel').innerHTML = langOptions();
-  const st = LS.get('stats', null);
+  const st = Sync.view('mq.stats', LS.get('stats', null)); // alle verbundenen Geräte zusammen
+  $('#subAch').textContent = tx('{a} von {b}', { a: ACH.filter(([id]) => achHave()[id]).length, b: ACH.length });
   $('#subStats').textContent = st?.games ? tx(st.games === 1 ? '{n} Spiel' : '{n} Spiele', { n: st.games }) + ' · ' + tx('{p} % erkannt', { p: st.songs ? Math.round(st.found / st.songs * 100) : 0 }) : tx('Noch keine Spiele');
   $('#appVersion').innerHTML = `Needle Drop · ${tx('Version')} ${APP_VERSION} · ${APP_DATE}<span>${tx('Neuerungen ansehen')} ›</span>`;
   applyTheme();
@@ -853,6 +910,7 @@ function goPage(p, back = false) {
   $('#sheetSettings .sheet-body').scrollTop = 0;
   if (page.dataset.page === 'changes') renderChanges();
   if (page.dataset.page === 'stats') renderStats();
+  if (page.dataset.page === 'ach') renderAch();
   if (page.dataset.page === 'archive' && typeof Daily !== 'undefined') Daily.renderArchive();
 }
 
