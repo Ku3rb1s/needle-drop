@@ -1,6 +1,6 @@
 {
   "version": "0.0.1",
   "configurations": [
-    { "name": "musik-quiz", "runtimeExecutable": "node", "runtimeArgs": ["server.js"], "port": 8890 }
+    { "name": "needle-drop", "runtimeExecutable": "node", "runtimeArgs": ["server.js"], "port": 8890 }
   ]
 }

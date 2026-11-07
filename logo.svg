@@ -1,30 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
-  <!-- Musik-Blitz: gleiche Platte wie Musik-Bingo, Cyan-Violett, Blitz auf dem Etikett -->
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#22d3ee"/>
-      <stop offset="1" stop-color="#7c5cff"/>
-    </linearGradient>
-    <linearGradient id="lab" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#2fd9f5"/>
-      <stop offset="1" stop-color="#7457ff"/>
-    </linearGradient>
-    <filter id="sh" x="-30%" y="-30%" width="160%" height="160%">
-      <feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#241a6b" flood-opacity=".5"/>
-    </filter>
-    <filter id="bs" x="-30%" y="-30%" width="160%" height="160%">
-      <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#1b1060" flood-opacity=".45"/>
-    </filter>
-  </defs>
-  <rect width="512" height="512" fill="url(#bg)"/>
-  <g filter="url(#sh)"><circle cx="256" cy="256" r="196" fill="#111114"/></g>
-  <g fill="none" stroke="#fff" stroke-opacity=".08" stroke-width="2">
-    <circle cx="256" cy="256" r="182"/><circle cx="256" cy="256" r="166"/><circle cx="256" cy="256" r="150"/>
-    <circle cx="256" cy="256" r="134"/><circle cx="256" cy="256" r="118"/><circle cx="256" cy="256" r="104"/>
-  </g>
-  <path d="M256 256 L118 117 A196 196 0 0 1 176 77 Z" fill="#fff" fill-opacity=".1"/>
-  <path d="M256 256 L394 395 A196 196 0 0 1 336 435 Z" fill="#fff" fill-opacity=".1"/>
-  <circle cx="256" cy="256" r="92" fill="url(#lab)"/>
-  <path filter="url(#bs)" fill="#fff" stroke="#fff" stroke-width="6" stroke-linejoin="round"
-        d="M272 192 L220 266 H254 L240 320 L294 242 H260 Z"/>
-</svg>
+<!-- Needle Drop: gleiche Platte wie Musik-Bingo, dazu ein Tonarm, der die Nadel aufsetzt --><defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#14b8a6"/><stop offset="1" stop-color="#22c55e"/></linearGradient>
+  <linearGradient id="lab" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2dd4bf"/><stop offset="1" stop-color="#4ade80"/></linearGradient>
+  <filter id="sh" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#000" flood-opacity=".35"/></filter>
+  <filter id="ss" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#000" flood-opacity=".3"/></filter>
+</defs><rect width="512" height="512" fill="url(#bg)"/>
+    <g transform="translate(-22 22)"><g filter="url(#sh)"><circle cx="256" cy="256" r="196" fill="#111114"/></g>
+  <g fill="none" stroke="#fff" stroke-opacity=".08" stroke-width="2"><circle cx="256" cy="256" r="182"/><circle cx="256" cy="256" r="166"/><circle cx="256" cy="256" r="150"/><circle cx="256" cy="256" r="134"/><circle cx="256" cy="256" r="118"/><circle cx="256" cy="256" r="104"/></g><path d="M256 256 L118 117 A196 196 0 0 1 176 77 Z" fill="#fff" fill-opacity=".1"/><path d="M256 256 L394 395 A196 196 0 0 1 336 435 Z" fill="#fff" fill-opacity=".1"/>
+  <circle cx="256" cy="256" r="92" fill="url(#lab)"/><circle cx="256" cy="256" r="12" fill="#111114"/></g>
+    <g filter="url(#ss)">
+      <circle cx="420" cy="92" r="34" fill="#e7e7ea"/><circle cx="420" cy="92" r="14" fill="#9a9aa3"/>
+      <path d="M420 92 L404 250 L344 300" fill="none" stroke="#e7e7ea" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+      <rect x="318" y="288" width="44" height="30" rx="7" fill="#fff" transform="rotate(-40 340 303)"/>
+    </g></svg>

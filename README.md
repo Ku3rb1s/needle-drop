@@ -1,11 +1,11 @@
-# Musik-Blitz
+# Needle Drop
 
-Song-Quiz (Repo `musik-quiz`)
+Song-Quiz: Nadel drauf, Song erkennen.
 
 Erkenne Songs aus 0,1 s – 0,5 s – 1 s – 2 s – 5 s – 10 s langen Ausschnitten. Schwester-Projekt von
 [Musik-Bingo](https://github.com/Ku3rb1s/musik-bingo-lobby) (gleicher Look, eigene App).
 
-**Online:** https://ku3rb1s.github.io/musik-quiz/
+**Online:** https://ku3rb1s.github.io/needle-drop/
 
 Lokal starten: `node server.js` → http://127.0.0.1:8890/
 
@@ -28,7 +28,7 @@ Lokal starten: `node server.js` → http://127.0.0.1:8890/
 | Datei | Inhalt |
 |---|---|
 | `index.html` | Markup (Start, Spiel, Auflösung, Ende) und Icons |
-| `logo.svg` | Logo (Vorlage für die PNG-Icons): Platte wie bei Musik-Bingo, Label = Snippet-Leiter |
+| `logo.svg` | Logo (Vorlage für die PNG-Icons): Platte wie bei Musik-Bingo mit Tonarm |
 | `css/base.css` | Basis-Look 1:1 aus Musik-Bingo (Farbthemen, Glas, Platte, Menüs) – Änderungen am besten in beiden Projekten |
 | `css/app.css` | Quiz-eigene Teile (Leiter, Suche, Tipps, Ergebnis) |
 | `js/deezer.js` | JSONP, Playlists laden, Suche, Link-Erkennung |

@@ -1,4 +1,4 @@
-/* Musik-Blitz – Spielablauf und Anzeige */
+/* Needle Drop – Spielablauf und Anzeige */
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 
@@ -309,7 +309,7 @@ function emojiRow(r) {
   }).join('');
 }
 
-const shareText = () => `⚡ Musik-Blitz –${G.cat.name} (${DIFF[opt.diff].label})\n${fmtN(G.score)} Punkte\n${G.rounds.map(emojiRow).join('\n')}\nhttps://ku3rb1s.github.io/musik-quiz/`;
+const shareText = () => `🎵 Needle Drop – ${G.cat.name} (${DIFF[opt.diff].label})\n${fmtN(G.score)} Punkte\n${G.rounds.map(emojiRow).join('\n')}\nhttps://ku3rb1s.github.io/needle-drop/`;
 
 /* ---------- Anzeige ---------- */
 function show(id) {
