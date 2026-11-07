@@ -2,6 +2,9 @@
 
 Die Versionsnummer steht in `js/quiz.js` (`APP_VERSION`) und unten in den Einstellungen. In `index.html` bei jedem Update auch `?v=` an CSS/JS-Dateien erhöhen.
 
+## 1.16.6 – 07.11.2026
+- Einstellungen: Dein Code steht nicht mehr offen da („✓ Abgeglichen · verwalten in der Jukebox“) – den Code selbst gibt es nur im Fenster „Dein Code“ der Jukebox
+
 ## 1.16.5 – 07.11.2026
 - Original-Cover: auch bei Best-of-Alben des Interpreten („The Very Best Of · 2009“) jetzt Single/Album aus der Zeit des Songs – mit richtigem Jahr bei Tipp und Auflösung
 - Original-Cover: zuverlässiger gefunden (MusicBrainz-Abfragen mit Abstand, z. B. „The Boys of Summer“); Tipp „Genre“ bleibt erhalten
