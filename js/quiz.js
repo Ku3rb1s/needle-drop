@@ -26,31 +26,31 @@ const fmtN = n => Math.round(n).toLocaleString('de-DE');
 // Quellen: Deezer-Redaktions-Playlists; Billionärs Club als eigene Liste (scripts/build-billions.js)
 const P = id => ({ type: 'playlist', id });
 const CATS = [
-  { id: '70s', group: 'decades', name: '70er', big: '70s', color: '#e5a50a', src: [P(1470022445), P(8496467462)], decade: 1970 },
-  { id: '80s', group: 'decades', name: '80er', big: '80s', color: '#ff4fa3', src: [P(867825522)], decade: 1980 },
-  { id: '90s', group: 'decades', name: '90er', big: '90s', color: '#8b6bff', src: [P(878989033), P(3829647662)], decade: 1990 },
-  { id: '00s', group: 'decades', name: '2000er', big: '00s', color: '#0ea5e9', src: [P(1977689462), P(11153531204)], decade: 2000 },
-  { id: '10s', group: 'decades', name: '2010er', big: '10s', color: '#1ed760', src: [P(14917741483)], decade: 2010 },
-  { id: '20s', group: 'decades', name: '2020er', big: '20s', color: '#ffa03c', src: [P(13650084141)], decade: 2020 },
+  { id: '70s', group: 'decades', name: '70er', big: '70s', color: '#e08a1e', src: [P(1470022445), P(8496467462)], decade: 1970 },
+  { id: '80s', group: 'decades', name: '80er', big: '80s', color: '#e043f5', src: [P(867825522)], decade: 1980 },
+  { id: '90s', group: 'decades', name: '90er', big: '90s', color: '#7c4dff', src: [P(878989033), P(3829647662)], decade: 1990 },
+  { id: '00s', group: 'decades', name: '2000er', big: '00s', color: '#3b82f6', src: [P(1977689462), P(11153531204)], decade: 2000 },
+  { id: '10s', group: 'decades', name: '2010er', big: '10s', color: '#10b981', src: [P(14917741483)], decade: 2010 },
+  { id: '20s', group: 'decades', name: '2020er', big: '20s', color: '#8ace00', src: [P(13650084141)], decade: 2020 },
   // International
-  { id: 'pop', group: 'intl', name: 'Pop', icon: 'star', sub: 'Chart-Pop von früher bis heute', color: '#ff4fa3', src: [P(1282483245), P(8282573142)] },
-  { id: 'rap', group: 'intl', name: 'Hip-Hop & Rap', icon: 'mic', sub: 'US-Rap, East Coast bis heute', color: '#ff7a3c', src: [P(7662551722), P(12547421383), P(1976915302), P(1677006641)] },
-  { id: 'rnb', group: 'intl', name: 'R&B', icon: 'heart', sub: 'Von 2000er bis heute', color: '#c084fc', src: [P(1999466402), P(2021626162)] },
-  { id: 'rock', group: 'intl', name: 'Rock', icon: 'guitar', sub: 'Klassiker und große Hymnen', color: '#ef4444', src: [P(11242423484), P(1306931615)] },
-  { id: 'edm', group: 'intl', name: 'EDM', icon: 'wave', sub: 'Dance, Mainstage, Electronic', color: '#14b8a6', src: [P(1902101402), P(1495242491)] },
-  { id: 'latin', group: 'intl', name: 'Latin', icon: 'sun', sub: 'Reggaeton und Latin-Hits', color: '#f59e0b', src: [P(178699142), P(1273315391)] },
+  { id: 'pop', group: 'intl', name: 'Pop', icon: 'star', sub: 'Chart-Pop von früher bis heute', color: '#ff6eb4', src: [P(1282483245), P(8282573142)] },
+  { id: 'rap', group: 'intl', name: 'Hip-Hop & Rap', icon: 'mic', sub: 'US-Rap, East Coast bis heute', color: '#f5b301', src: [P(7662551722), P(12547421383), P(1976915302), P(1677006641)] },
+  { id: 'rnb', group: 'intl', name: 'R&B', icon: 'heart', sub: 'Von 2000er bis heute', color: '#a855f7', src: [P(1999466402), P(2021626162)] },
+  { id: 'rock', group: 'intl', name: 'Rock', icon: 'guitar', sub: 'Klassiker und große Hymnen', color: '#e11d1d', src: [P(11242423484), P(1306931615)] },
+  { id: 'edm', group: 'intl', name: 'EDM', icon: 'wave', sub: 'Dance, Mainstage, Electronic', color: '#5b5cf6', src: [P(1902101402), P(1495242491)] },
+  { id: 'latin', group: 'intl', name: 'Latin', icon: 'sun', sub: 'Reggaeton und Latin-Hits', color: '#ff7a1a', src: [P(178699142), P(1273315391)] },
   // Deutsch
-  { id: 'derap', group: 'de', name: 'Deutschrap', icon: 'mic', sub: 'Von den Klassikern bis heute', color: '#f97316', src: [P(10578289242), P(146820791)] },
-  { id: 'depop', group: 'de', name: 'Deutsch-Pop', icon: 'star', sub: 'Deutschsprachige Pop-Hits', color: '#ec4899', src: [P(11242422704)] },
-  { id: 'schlager', group: 'de', name: 'Schlager & Party', icon: 'party', sub: 'Schlager, Malle, Après-Ski', color: '#eab308', src: [P(8699026122), P(10328601542), P(12244014291)] },
-  { id: 'ndw', group: 'de', name: 'Neue Deutsche Welle', icon: 'bolt', sub: 'Die 80er auf Deutsch', color: '#06b6d4', src: [P(6758361584)] },
+  { id: 'derap', group: 'de', name: 'Deutschrap', icon: 'mic', sub: 'Von den Klassikern bis heute', color: '#c81e4a', src: [P(10578289242), P(146820791)] },
+  { id: 'depop', group: 'de', name: 'Deutsch-Pop', icon: 'star', sub: 'Deutschsprachige Pop-Hits', color: '#38bdf8', src: [P(11242422704)] },
+  { id: 'schlager', group: 'de', name: 'Schlager & Party', icon: 'party', sub: 'Schlager, Malle, Après-Ski', color: '#ff4fa3', src: [P(8699026122), P(10328601542), P(12244014291)] },
+  { id: 'ndw', group: 'de', name: 'Neue Deutsche Welle', icon: 'bolt', sub: 'Die 80er auf Deutsch', color: '#f7e400', src: [P(6758361584)] },
   // Spezial
-  { id: 'now', group: 'special', name: 'Aktuelle Hits', icon: 'trend', sub: 'Charts Deutschland & weltweit', color: '#ff5a6a', src: [P(1111143121), P(3155776842)] },
-  { id: 'billion', group: 'special', name: 'Billionärs Club', icon: 'diamond', sub: 'Über 1 Mrd. Spotify-Streams', color: '#e5a50a', src: [{ type: 'static', url: 'data/billions.json' }] },
-  { id: 'tiktok', group: 'special', name: 'TikTok-Hits', icon: 'phone', sub: 'Was gerade viral geht', color: '#22d3ee', src: [P(4403076402)] },
-  { id: 'film', group: 'special', name: 'Film & Serien', icon: 'film', sub: 'Soundtracks und Titelsongs', color: '#a3a3a3', src: [P(754776991), P(6238866284), P(13253799423)] },
-  { id: 'disney', group: 'special', name: 'Disney', icon: 'castle', sub: 'Die großen Disney-Songs (deutsch)', color: '#3b82f6', src: [P(970058271)] },
-  { id: 'esc', group: 'special', name: 'Eurovision', icon: 'globe', sub: 'Sieger und Fan-Lieblinge', color: '#8b5cf6', src: [P(9037748342), P(12593394863)] },
+  { id: 'now', group: 'special', name: 'Aktuelle Hits', icon: 'trend', sub: 'Charts Deutschland & weltweit', color: '#22c55e', src: [P(1111143121), P(3155776842)] },
+  { id: 'billion', group: 'special', name: 'Billionärs Club', icon: 'diamond', sub: 'Über 1 Mrd. Spotify-Streams', color: '#67e8f9', src: [{ type: 'static', url: 'data/billions.json' }] },
+  { id: 'tiktok', group: 'special', name: 'TikTok-Hits', icon: 'phone', sub: 'Was gerade viral geht', color: '#fe2c55', src: [P(4403076402)] },
+  { id: 'film', group: 'special', name: 'Film & Serien', icon: 'film', sub: 'Soundtracks und Titelsongs', color: '#d9a520', src: [P(754776991), P(6238866284), P(13253799423)] },
+  { id: 'disney', group: 'special', name: 'Disney', icon: 'castle', sub: 'Die großen Disney-Songs (deutsch)', color: '#2f6bff', src: [P(970058271)] },
+  { id: 'esc', group: 'special', name: 'Eurovision', icon: 'globe', sub: 'Sieger und Fan-Lieblinge', color: '#9b5cf6', src: [P(9037748342), P(12593394863)] },
   { id: 'custom', group: 'special', name: 'Eigene Playlist', icon: 'link', sub: 'Spotify- oder Deezer-Link', color: '#6b7280', src: null },
 ];
 const GROUPS = [['decades', 'Jahrzehnte'], ['intl', 'International'], ['de', 'Deutsch'], ['special', 'Spezial']];
@@ -359,13 +359,22 @@ function show(id) {
   window.scrollTo(0, 0);
 }
 
-function setCat(color) { document.documentElement.style.setProperty('--cat', color); }
+function setCat(color) {
+  document.documentElement.style.setProperty('--cat', color);
+  document.documentElement.style.setProperty('--cat-ink', ink(color));
+}
+/** Schriftfarbe auf einer Kategoriefarbe: dunkel auf hellen Farben (Gelb, Limette, Eisblau), sonst weiß */
+function ink(hex) {
+  const n = parseInt(hex.slice(1), 16), [r, g, b] = [n >> 16, (n >> 8) & 255, n & 255].map(v => v / 255);
+  const L = 0.2126 * r ** 2.2 + 0.7152 * g ** 2.2 + 0.0722 * b ** 2.2;
+  return L > 0.4 ? '#16130a' : '#fff';
+}
 const catIcon = c => c.group === 'decades' ? c.big : `<svg class="ic"><use href="#i-${c.icon}"/></svg>`;
 
 function catCell(c) {
   const on = c.id === opt.cat;
   return `<button class="cell tap${on ? ' sel' : ''}" data-id="${c.id}">
-    <span class="cell-ic" style="background:${c.color}"><svg class="ic"><use href="#i-${c.icon}"/></svg></span>
+    <span class="cell-ic" style="background:${c.color};color:${ink(c.color)}"><svg class="ic"><use href="#i-${c.icon}"/></svg></span>
     <span class="grow">${c.name}<span class="sub">${c.sub}</span></span>
     <span class="trail">${on ? '<svg class="ic"><use href="#i-check"/></svg>' : ''}</span></button>`;
 }

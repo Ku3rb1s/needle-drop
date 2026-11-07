@@ -200,3 +200,6 @@ header{max-width:720px}
 
 /* Einstellungen: Seitenwechsel-Animation darf keinen waagerechten Scrollbalken erzeugen */
 #sheetSettings .sheet-body{overflow-x:hidden}
+
+/* Icon im Kategorie-Abzeichen: dunkel auf hellen Kategoriefarben */
+.cat-icon,.cat-icon .ic,.cat-icon.dec{color:var(--cat-ink,#fff)}
