@@ -39,7 +39,6 @@
     "7 Tage in Folge die Tägliche Challenge gespielt": "Spilte dagens utfordring 7 dager på rad",
     "Stammgast": "Stamgjest",
     "25 Spiele gespielt": "Spilte 25 spill",
-    "Dein Profil gilt für alle Spiele: Musik-Bingo, Needle Drop und die Jukebox.": "Profilen din gjelder i alle spill: Musik-Bingo, Needle Drop og Jukebox.",
     "Weiterspielen": "Spill videre",
     "Löschen": "Slett",
     "OK": "OK",
@@ -362,5 +361,6 @@
     "Sonstiges": "Annet",
     "Zur Jukebox": "Til Jukebox",
     "<b>Tipp:</b> Logo gedrückt halten – zur Jukebox und zu den anderen Spielen.": "<b>Tips:</b> Hold inne logoen – til Jukebox og de andre spillene.",
+    "Dein Profil gilt für alle Spiele der Jukebox.": "Profilen din gjelder for alle spillene i Jukebox.",
   },
 };

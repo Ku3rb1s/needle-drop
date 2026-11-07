@@ -1,5 +1,5 @@
 /* Needle Drop – Spielablauf und Anzeige */
-const APP_VERSION = '1.16.4', APP_DATE = '07.11.2026'; // bei jedem Update erhöhen + CHANGELOG.md ergänzen
+const APP_VERSION = '1.16.5', APP_DATE = '07.11.2026'; // bei jedem Update erhöhen + CHANGELOG.md ergänzen
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 
@@ -200,7 +200,8 @@ function prepare(r) {
       if (!o) return;
       t.album = { ...t.album, id: typeof o.id === 'number' ? o.id : t.album.id, title: o.title, md5_image: o.md5_image || t.album.md5_image,
         cover: o.cover, cover_small: o.cover_small, cover_medium: o.cover_medium, cover_big: o.cover_big, cover_xl: o.cover_xl };
-      showAlbum(o);
+      // Jahr vom Original; Genre aus Deezer behalten, falls das Original keins hat (MusicBrainz liefert keine Genres)
+      showAlbum({ ...a, ...o, genres: o.genres?.data?.length ? o.genres : a.genres });
     }).catch(() => {});
   })();
 }
@@ -222,16 +223,24 @@ const originals = new Map();   // „Interpret|Titel“ → Promise<Album|null>
 const imgOk = src => new Promise(res => { const i = new Image(); const to = setTimeout(() => res(false), 5000);
   i.onload = () => { clearTimeout(to); res(i.naturalWidth > 0); }; i.onerror = () => { clearTimeout(to); res(false); }; i.src = src; });
 /** MusicBrainz: früheste Single/Album/EP mit dem Songtitel (keine Compilation, kein Live/Soundtrack), Cover aus dem Cover Art Archive */
-async function mbOriginal(artist, title) {
+let mbQueue = Promise.resolve();   // MusicBrainz erlaubt etwa 1 Abfrage pro Sekunde – Abfragen nacheinander mit Abstand
+function mbOriginal(artist, title) {
+  const run = mbQueue.then(() => mbLookup(artist, title));
+  mbQueue = run.catch(() => null).then(() => new Promise(r => setTimeout(r, 1100)));
+  return run;
+}
+async function mbLookup(artist, title) {
   const base = String(title).replace(/\s*[([].*?[)\]]/g, '').replace(/\s+-\s+.*$/, '').trim(), a0 = artist.split(/ & | x | feat\.? | with |, /i)[0].trim();
-  const q = `releasegroup:"${base.replace(/"/g, '')}" AND (artist:"${artist.replace(/"/g, '')}" OR artist:"${a0.replace(/"/g, '')}") AND (primarytype:single OR primarytype:album OR primarytype:ep)`;
+  // Ohne Typ-Bedingung in der Suche (die lässt MusicBrainz manchmal leer zurückkommen) – der Typ wird unten geprüft
+  const q = `releasegroup:"${base.replace(/"/g, '')}" AND (artist:"${artist.replace(/"/g, '')}" OR artist:"${a0.replace(/"/g, '')}")`;
   const r = await fetch('https://musicbrainz.org/ws/2/release-group?fmt=json&limit=25&query=' + encodeURIComponent(q), { headers: { Accept: 'application/json' } });
   if (!r.ok) return null;
   const T = base.toLowerCase().replace(/[’']/g, "'");
   const list = ((await r.json())['release-groups'] || []).filter(x => {
     const tt = String(x.title || '').toLowerCase().replace(/[’']/g, "'");
     const credit = (x['artist-credit'] || []).map(c => c.name || c.artist?.name).join(' ');
-    return !(x['secondary-types'] || []).length && /^\d{4}/.test(x['first-release-date'] || '') && !OTHER_VERSION.test(x.title || '')
+    return /^(single|album|ep)$/i.test(x['primary-type'] || '') && !(x['secondary-types'] || []).length
+      && /^\d{4}/.test(x['first-release-date'] || '') && !OTHER_VERSION.test(x.title || '')
       && (tt === T || (tt.startsWith(T) && /^[\s/(:,–-]/.test(tt.slice(T.length)))) && sameArtistCv(credit, artist);
   }).sort((a, b) => a['first-release-date'].localeCompare(b['first-release-date']));
   for (const x of list.slice(0, 3)) {
@@ -242,13 +251,19 @@ async function mbOriginal(artist, title) {
 }
 function originalAlbum(t, al) {
   const artist = t.artist?.name || '', title = t.title_short || t.title || '';
-  if (!al || !artist || ownAlbumCv(al, artist)) return Promise.resolve(null);   // Album vom Interpreten selbst → passt
-  // Filmsong, der als solcher veröffentlicht wurde („Let It Go (From "Frozen")“): der Soundtrack IS das Original
+  if (!al || !artist) return Promise.resolve(null);
+  // Album vom Interpreten selbst: passt – außer es ist sein Best-of („The Very Best Of · 2009“ für einen Song von 1984).
+  // Dann nur bei MusicBrainz nach dem Original schauen (richtiges Jahr für Tipp und Auflösung); sonst bleibt es.
+  // Deezer führt Best-ofs oft als normales Album – darum auch am Titel erkennen
+  const bestOf = ownAlbumCv(al, artist) && (al.record_type === 'compile'
+    || /\b(best of|greatest hits|the hits|hits collection|collection|anthology|essential|essentials|gold|platinum|definitive|ultimate|singles|number ones|#1'?s)\b/i.test(al.title || ''));
+  if (ownAlbumCv(al, artist) && !bestOf) return Promise.resolve(null);
+  // Filmsong, der als solcher veröffentlicht wurde („Let It Go (From "Frozen")“): der Soundtrack ist das Original
   if (/\bfrom ["“'«]|soundtrack|motion picture/i.test(t.title || '')) return Promise.resolve(null);
   const key = artist + '|' + title;
   if (!originals.has(key)) originals.set(key, (async () => {
     const mb = await mbOriginal(artist, title).catch(() => null);
-    if (mb) return mb;
+    if (mb || bestOf) return mb;
     const found = await DZ.search(`${artist} ${title}`, 25);
     const ids = [...new Set(found.filter(x => x.album?.id && sameArtistCv(x.artist?.name, artist) && normCv(x.title_short || x.title) === normCv(title)
       && !OTHER_VERSION.test(x.title || '') && !OTHER_VERSION.test(x.album.title || '')).map(x => x.album.id))].slice(0, 4);

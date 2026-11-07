@@ -39,7 +39,6 @@
     "7 Tage in Folge die Tägliche Challenge gespielt": "Jugaste el reto diario 7 días seguidos",
     "Stammgast": "Habitual",
     "25 Spiele gespielt": "Jugaste 25 partidas",
-    "Dein Profil gilt für alle Spiele: Musik-Bingo, Needle Drop und die Jukebox.": "Tu perfil vale para todos los juegos: Musik-Bingo, Needle Drop y el Jukebox.",
     "Weiterspielen": "Seguir jugando",
     "Löschen": "Borrar",
     "OK": "Aceptar",
@@ -362,5 +361,6 @@
     "Sonstiges": "Otros",
     "Zur Jukebox": "A la Jukebox",
     "<b>Tipp:</b> Logo gedrückt halten – zur Jukebox und zu den anderen Spielen.": "<b>Consejo:</b> mantén pulsado el logo para ir a la Jukebox y a los demás juegos.",
+    "Dein Profil gilt für alle Spiele der Jukebox.": "Tu perfil vale para todos los juegos de la Jukebox.",
   },
 };
