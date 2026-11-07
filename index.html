@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0c0c0f">
+<title>Musik-Quiz</title>
+<meta name="description" content="Erkennst du den Song in 0,1 Sekunden? Musik-Quiz mit Kategorien, Tipps und Snippet-Leiter.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Musik-Quiz">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=1">
+<link rel="apple-touch-icon" sizes="167x167" href="apple-touch-icon-167.png?v=1">
+<link rel="apple-touch-icon" sizes="152x152" href="apple-touch-icon-152.png?v=1">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=1">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=1">
+<link rel="manifest" href="manifest.json?v=1">
+<link rel="stylesheet" href="css/app.css?v=2">
+</head>
+<body>
+<div class="bg"><i></i><i></i><i></i></div>
+
+<!-- Icons (werden per <use href="#i-…"> eingebunden) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M19 10v1a7 7 0 0 1-14 0v-1M12 18v4M8 22h8"/></symbol>
+  <symbol id="i-wave" viewBox="0 0 24 24"><path d="M3 10v4M7 6v12M11 3v18M15 7v10M19 10v4"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.6 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z"/></symbol>
+  <symbol id="i-trend" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></symbol>
+  <symbol id="i-diamond" viewBox="0 0 24 24"><path d="M6 3h12l4 6-10 12L2 9zM2 9h20M9.5 3 8 9l4 12 4-12-1.5-6"/></symbol>
+  <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+  <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></symbol>
+  <symbol id="i-skip" viewBox="0 0 24 24"><path d="M5 5l10 7-10 7zM19 5v14"/></symbol>
+  <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+</svg>
+
+<main class="wrap">
+  <!-- ---------- Start ---------- -->
+  <section id="home" class="screen">
+    <header class="brand">
+      <img src="icon-192.png?v=1" alt="" class="brand-logo">
+      <div>
+        <h1>Musik-Quiz</h1>
+        <p class="muted">Erkennst du den Song in 0,1 Sekunden?</p>
+      </div>
+    </header>
+
+    <div class="howto">
+      <div><b>1</b>Ausschnitt hören – erst 0,1 s</div>
+      <div><b>2</b>Song suchen &amp; auswählen</div>
+      <div><b>3</b>Je kürzer, desto mehr Punkte</div>
+    </div>
+
+    <h2 class="label">Jahrzehnte</h2>
+    <div class="cats decades" id="catsDecades"></div>
+    <h2 class="label">Genres</h2>
+    <div class="cats" id="catsGenres"></div>
+    <h2 class="label">Spezial</h2>
+    <div class="cats" id="catsSpecial"></div>
+
+    <div id="customBox" class="glass custom hidden">
+      <label for="customUrl" class="small">Deezer-Link zu einer Playlist oder einem Interpreten</label>
+      <input id="customUrl" placeholder="https://www.deezer.com/de/playlist/1234567" autocomplete="off">
+      <p class="small muted">Spotify-Links folgen später.</p>
+    </div>
+
+    <h2 class="label">Schwierigkeit</h2>
+    <div class="diffs" id="diff">
+      <button data-v="easy"><span class="dots"><i></i></span><b>Leicht</b><small>Nur die großen Hits</small></button>
+      <button data-v="normal"><span class="dots"><i></i><i></i></span><b>Normal</b><small>Bekannte Songs + Überraschungen</small></button>
+      <button data-v="hard"><span class="dots"><i></i><i></i><i></i></span><b>Schwer</b><small>Alles, auch Album-Tracks</small></button>
+    </div>
+    <p class="small muted explain" id="diffInfo"></p>
+
+    <div class="glass settings">
+      <div class="set">
+        <div><b>Songs pro Runde</b></div>
+        <div class="seg" id="count"><button data-v="5">5</button><button data-v="10">10</button><button data-v="15">15</button></div>
+      </div>
+      <div class="set">
+        <div><b>Startpunkt</b><small class="muted" id="startInfo"></small></div>
+        <div class="seg" id="startMode"><button data-v="start">Anfang</button><button data-v="random">Zufall</button></div>
+      </div>
+      <div class="set">
+        <div><b>Tipps</b><small class="muted">kosten Punkte, ab 0,5 s</small></div>
+        <div class="seg" id="hintsOn"><button data-v="on">An</button><button data-v="off">Aus</button></div>
+      </div>
+    </div>
+
+    <div class="sticky-start">
+      <button id="startBtn" class="big full">Spielen</button>
+      <p id="best" class="small muted center"></p>
+    </div>
+  </section>
+
+  <!-- ---------- Spiel ---------- -->
+  <section id="game" class="screen hidden">
+    <div class="topbar">
+      <button class="ghost icon" id="quitBtn" aria-label="Beenden"><svg class="ic"><use href="#i-x"/></svg></button>
+      <div class="progress" id="progress"></div>
+      <div class="score"><b id="scoreNo">0</b><small>Punkte</small></div>
+    </div>
+
+    <div class="glass card stage">
+      <div class="stage-head"><span id="catChip" class="chip"></span><span id="roundNo" class="muted small"></span></div>
+
+      <div class="play-wrap">
+        <svg class="ring" viewBox="0 0 120 120"><circle cx="60" cy="60" r="56" class="ring-bg"/><circle cx="60" cy="60" r="56" class="ring-fg" id="ringFg"/></svg>
+        <button id="playBtn" class="play" aria-label="Abspielen">
+          <svg viewBox="0 0 24 24" class="ic-play"><path d="M8 5v14l11-7z"/></svg>
+          <span id="playLbl">0,1 s</span>
+        </button>
+      </div>
+      <div class="possible"><span>Jetzt möglich</span> <b id="possible">600</b></div>
+
+      <div id="ladder" class="ladder"></div>
+      <div id="status" class="status"></div>
+
+      <div class="guess">
+        <svg class="ic search-ic"><use href="#i-search"/></svg>
+        <input id="guessInput" placeholder="Song oder Interpret suchen…" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search">
+        <ul id="suggest" class="suggest hidden"></ul>
+      </div>
+
+      <div class="actions">
+        <button class="ghost" id="skipBtn"><svg class="ic"><use href="#i-skip"/></svg><span id="skipLbl">Mehr hören</span></button>
+        <button class="ghost" id="hintBtn"><svg class="ic"><use href="#i-bulb"/></svg>Tipp</button>
+        <button class="ghost" id="giveupBtn" aria-label="Aufgeben"><svg class="ic"><use href="#i-flag"/></svg></button>
+      </div>
+
+      <div id="hintPanel" class="hint-panel hidden">
+        <div class="hints">
+          <button class="hint" data-h="0"><b>Leicht</b><small>Jahrzehnt &amp; Genre</small><em>−50</em></button>
+          <button class="hint" data-h="1"><b>Mittel</b><small>Titel-Lücken</small><em>−100</em></button>
+          <button class="hint" data-h="2"><b>Stark</b><small>Buchstaben &amp; Cover</small><em>−150</em></button>
+        </div>
+        <div id="hintOut" class="hint-out"></div>
+        <canvas id="pixel" width="160" height="160" class="pixel hidden"></canvas>
+      </div>
+
+      <ul id="guesses" class="guesses"></ul>
+    </div>
+  </section>
+
+  <!-- ---------- Auflösung ---------- -->
+  <div id="reveal" class="overlay hidden">
+    <div class="glass sheet">
+      <img id="rvCover" alt="" class="cover">
+      <div id="rvResult" class="rv-result"></div>
+      <h2 id="rvTitle"></h2>
+      <p id="rvArtist" class="muted"></p>
+      <p id="rvMeta" class="small muted"></p>
+      <p id="rvCalc" class="calc"></p>
+      <button id="nextBtn" class="big full">Weiter</button>
+    </div>
+  </div>
+
+  <!-- ---------- Ende ---------- -->
+  <section id="end" class="screen hidden">
+    <header class="end-head">
+      <p class="muted" id="endCat"></p>
+      <h1 id="endScore">0</h1>
+      <p class="muted" id="endSub"></p>
+    </header>
+    <div class="glass card"><ul id="endList" class="endlist"></ul></div>
+    <div class="actions">
+      <button id="shareBtn" class="pink">Ergebnis teilen</button>
+      <button id="againBtn">Nochmal</button>
+    </div>
+    <button id="homeBtn" class="ghost full" style="margin-top:8px">Andere Kategorie</button>
+  </section>
+
+  <div id="loading" class="overlay hidden"><div class="spinner"></div><p id="loadingTxt">Lade Songs…</p></div>
+  <div id="toast" class="toast hidden"></div>
+</main>
+
+<script src="js/deezer.js?v=2"></script>
+<script src="js/audio.js?v=2"></script>
+<script src="js/quiz.js?v=2"></script>
+</body>
+</html>
