@@ -1,10 +1,10 @@
 /* Needle Drop – nur das, was es in Musik-Bingo nicht gibt (Basis: css/base.css) */
-:root{--quiz1:#14b8a6;--quiz2:#22c55e;--cat:#14b8a6}
+:root{--quiz1:#fbbf24;--quiz2:#ea580c;--cat:#f59e0b}
 .center{text-align:center}
 main{max-width:720px}
 header{max-width:720px}
 .logo img{box-shadow:0 6px 20px -6px var(--quiz2)}
-.logo span{background:linear-gradient(90deg,#fff,#d2f7e6);-webkit-background-clip:text;background-clip:text;color:transparent}
+.logo span{background:linear-gradient(90deg,#fff,#ffe2a8);-webkit-background-clip:text;background-clip:text;color:transparent}
 
 /* Platte: Quiz-Etikett (Grün-Blau mit Snippet-Balken) statt Bingo-Raster */
 .disc-label{background:radial-gradient(circle,var(--bg) 0 7%,transparent 7.5%),linear-gradient(135deg,var(--cat),var(--quiz2))}
