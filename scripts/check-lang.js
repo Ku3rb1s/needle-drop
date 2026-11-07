@@ -22,7 +22,7 @@ for (const m of body.matchAll(/\s(?:placeholder|aria-label|title|data-title)="([
 ['Needle Drop', 'M'].forEach(k => keys.delete(k)); // Eigennamen/Tasten
 
 // 2) Code: alle Text-Literale innerhalb von tx( … ) – auch in Ternären und Objekt-Tabellen
-const code = fs.readdirSync(path.join(root, 'js')).filter(f => f.endsWith('.js') && f !== 'i18n.js')
+const code = fs.readdirSync(path.join(root, 'js')).filter(f => f.endsWith('.js') && f !== 'i18n.js' && f !== 'sync.js') // sync.js: gemeinsame Datei aller Spiele, ohne eigene Texte
   .map(f => fs.readFileSync(path.join(root, 'js', f), 'utf8')).join('\n');
 for (const m of code.matchAll(/\btx\(/g)) {
   // bis zur passenden schließenden Klammer

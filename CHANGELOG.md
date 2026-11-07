@@ -2,6 +2,9 @@
 
 Die Versionsnummer steht in `js/quiz.js` (`APP_VERSION`) und unten in den Einstellungen. In `index.html` bei jedem Update auch `?v=` an CSS/JS-Dateien erhöhen.
 
+## 1.13.0 – 07.11.2026
+- Neu: **Auf allen Geräten spielen** – mit einem persönlichen Code aus der Jukebox werden Rekorde, Statistik, Tages-Challenge und Profil zwischen Handy, Tablet und PC abgeglichen. Ohne Konto, verschlüsselt mit deinem Code
+
 ## 1.12.4 – 07.11.2026
 - Kein ungewolltes Zoomen mehr am Handy (Doppeltippen oder Spreizen) – fühlt sich an wie eine App
 - Suche am Handy: Das Suchfeld gleitet beim Antippen weich nach oben, statt zu springen

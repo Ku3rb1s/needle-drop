@@ -1,5 +1,5 @@
 /* Needle Drop – Spielablauf und Anzeige */
-const APP_VERSION = '1.12.4', APP_DATE = '07.11.2026'; // bei jedem Update erhöhen + CHANGELOG.md ergänzen
+const APP_VERSION = '1.13.0', APP_DATE = '07.11.2026'; // bei jedem Update erhöhen + CHANGELOG.md ergänzen
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 
@@ -445,7 +445,7 @@ function recordStats(g) {
   LS.set('stats', S);
 }
 function renderStats() {
-  const S = LS.get('stats', null);
+  const S = Sync.view('mq.stats', LS.get('stats', null)); // alle verbundenen Geräte zusammen
   const box = $('#statsBox');
   if (!S || !S.games) { box.innerHTML = `<div class="group-f center" style="margin-top:20px">${tx('Noch keine Spiele – spiel eine Runde, dann erscheint hier deine Statistik.')}</div>`; return; }
   const pct = S.songs ? Math.round(S.found / S.songs * 100) : 0;
@@ -468,7 +468,7 @@ function renderStats() {
     ${S.best.length ? `<div class="group-h">${tx('Schnellste Treffer')}</div>
     <div class="group">${S.best.map(b => `<div class="cell"><span class="grow">${esc(b.t)}<span class="sub">${esc(b.a)} · ${esc(CATS.find(c => c.id === b.cat)?.name || b.cat)}</span></span><b>${fmtS(b.s)}</b></div>`).join('')}</div>` : ''}
     <div class="group" style="margin-top:22px"><button class="cell tap danger" id="btnResetStats"><span class="grow">${tx('Statistik zurücksetzen')}</span></button></div>`;
-  $('#btnResetStats').onclick = async () => { if (await ask(tx('Statistik auf diesem Gerät löschen?'), { ok: tx('Löschen'), danger: true })) { LS.set('stats', null); renderStats(); } };
+  $('#btnResetStats').onclick = async () => { if (await ask(tx('Statistik auf diesem Gerät löschen?'), { ok: tx('Löschen'), danger: true })) { LS.set('stats', null); Sync.reset('mq.stats'); renderStats(); } };
 }
 
 /* ---------- Ergebnis als Bild (Instagram-Story-Format) ---------- */
@@ -827,7 +827,10 @@ function parseChanges(text) {
 
 /* Spielerprofil (geteilt mit Bingo und Jukebox) */
 function renderProfile() {
-  const p = Profile.get();
+  const p = Profile.get(), s = Sync.status();
+  $('#syncTitle').textContent = s.connected ? tx('Auf allen Geräten verbunden') : tx('Auf allen Geräten spielen');
+  $('#syncSub').textContent = s.connected ? tx('Code {c} · ändern in der Jukebox', { c: s.code }) : tx('Rekorde, Serie und Profil mit einem Code mitnehmen');
+  $('#syncIc').style.background = s.connected ? 'linear-gradient(135deg,#10b981,#0ea5e9)' : 'linear-gradient(135deg,#ff4f86,#fbbf24)';
   $('#profEmoji').textContent = p.emoji;
   if (document.activeElement !== $('#profName')) $('#profName').value = p.name;
   $('#profName').placeholder = tx('Dein Name');
@@ -1039,11 +1042,13 @@ $('#setLadder').onclick = e => {
 $('#btnResetAll').onclick = async () => {
   if (!await ask(tx('Alles löschen, was Needle Drop auf diesem Gerät gespeichert hat?'), { ok: tx('Löschen'), danger: true })) return;
   try { Object.keys(localStorage).filter(k => k.startsWith('mq.')).forEach(k => localStorage.removeItem(k)); } catch {}
+  Sync.leave(); // vom persönlichen Code trennen, sonst käme beim nächsten Abgleich alles zurück
   location.reload();
 };
 $('#btnResetBest').onclick = async () => {
   if (!await ask(tx('Alle Rekorde auf diesem Gerät löschen?'), { ok: tx('Löschen'), danger: true })) return;
   try { Object.keys(localStorage).filter(k => k.startsWith('mq.best')).forEach(k => localStorage.removeItem(k)); } catch {}
+  Sync.reset('mq.best2.'); // auch auf den anderen verbundenen Geräten
   toast(tx('Rekorde gelöscht'));
 };
 
@@ -1144,3 +1149,10 @@ $('#customUrl').value = LS.get('customUrl', '');
 applyTheme();
 applyVol();
 renderHome();
+
+// Neue Spielstände von anderen Geräten (js/sync.js, Code in der Jukebox): Startseite, Challenge und Einstellungen neu zeichnen
+addEventListener('jukebox-sync', () => {
+  if (!G && !$('#home').classList.contains('hidden')) renderHome();
+  if (typeof Daily !== 'undefined') Daily.renderCard();
+  if (sheet.open) { renderSettings(); renderProfile(); const p = $('#sheetSettings .page.active')?.dataset.page; if (p === 'stats') renderStats(); if (p === 'archive') Daily.renderArchive(); }
+});
