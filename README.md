@@ -1,4 +1,6 @@
-# Musik-Quiz (Prototyp)
+# Musik-Blitz
+
+Song-Quiz (Repo `musik-quiz`)
 
 Erkenne Songs aus 0,1 s – 0,5 s – 1 s – 2 s – 5 s – 10 s langen Ausschnitten. Schwester-Projekt von
 [Musik-Bingo](https://github.com/Ku3rb1s/musik-bingo-lobby) (gleicher Look, eigene App).
@@ -12,8 +14,9 @@ Lokal starten: `node server.js` → http://127.0.0.1:8890/
 - **Audio:** 30-s-Vorschauen von Deezer. Die API wird per **JSONP** abgefragt (sie hat keine CORS-Header),
   die MP3s selbst erlauben CORS und werden mit der **Web Audio API** dekodiert – nur so sind 0,1 s exakt abspielbar.
   Kein Login, kein Server, kein Proxy nötig.
-- **Startpunkt:** „Anfang“ = Beginn der Vorschau (nur Stille/Einblendung wird übersprungen), „Zufall“ = zufällige laute Stelle.
-  Hinweis: Deezer-Vorschauen sind 30 s aus dem Song – nicht immer der echte Song-Anfang.
+- **Startpunkt:** „Am Anfang“ (Beginn der Vorschau, Stille wird übersprungen), „Hook“ (lauteste ~3-s-Passage, Start beim Einsatz davor), „Zufällig“.
+  Deezer-Vorschauen sind 30 s aus dem Song – nicht immer der echte Song-Anfang.
+- **Snippet-Leiter:** Entspannt 0,5–15 s, Klassisch 0,1–10 s, Profi 0,1–3 s. **Antworten:** Suchen oder 4 Vorschläge.
 - **Punkte:** 600 / 500 / 400 / 300 / 200 / 100 je Stufe. Falscher Tipp oder „Mehr hören“ → nächste Stufe.
   Nur der Interpret stimmt (Song nicht erraten): halbe Punkte der Stufe, auf der er stimmte.
 - **Tipps** (abschaltbar, erst ab 0,5 s, eingeklappt): Leicht −50 (Jahrzehnt, Genre), Mittel −100 (Titel-Lücken),

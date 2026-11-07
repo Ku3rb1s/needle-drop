@@ -1,4 +1,4 @@
-/* Musik-Quiz – Spielablauf und Anzeige */
+/* Musik-Blitz – Spielablauf und Anzeige */
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 
@@ -6,7 +6,17 @@ const $$ = s => [...document.querySelectorAll(s)];
    Punkte je Stufe: 600 / 500 / 400 / 300 / 200 / 100.
    Nur Interpret erkannt (Song nicht): halbe Punkte der Stufe, auf der der Interpret stimmte.
    Tipps ziehen feste Punkte ab (50 / 100 / 150), nie unter 0. */
-const STEPS = [0.1, 0.5, 1, 2, 5, 10];
+const LADDERS = {
+  easy: [0.5, 1, 2, 4, 8, 15],
+  classic: [0.1, 0.5, 1, 2, 5, 10],
+  pro: [0.1, 0.2, 0.4, 0.8, 1.5, 3],
+};
+let STEPS = LADDERS.classic; // wird beim Spielstart aus den Einstellungen gesetzt
+const START_INFO = {
+  start: 'Der Ausschnitt beginnt dort, wo die 30-s-Vorschau anfängt (Stille wird übersprungen). Deezer-Vorschauen sind nicht immer der echte Song-Anfang.',
+  hook: 'Sucht die lauteste Passage der Vorschau – meist Refrain oder Drop – und startet beim Einsatz davor.',
+  random: 'Irgendeine laute Stelle der Vorschau – am schwersten.',
+};
 const PTS = [600, 500, 400, 300, 200, 100];
 const HINT_COST = [50, 100, 150];
 const HINT_FROM = 1; // Tipps erst ab Stufe 2 (0,5 s)
@@ -45,7 +55,10 @@ const LS = {
 const opt = {
   cat: LS.get('cat', '80s'), diff: LS.get('diff', 'normal'), count: LS.get('count', 10),
   startMode: LS.get('startMode2', 'start'), hintsOn: LS.get('hintsOn', 'on'), theme: LS.get('theme', 'graphit'),
+  ladder: LS.get('ladder', 'classic'), answer: LS.get('answer', 'search'), auto: LS.get('auto', false),
+  clean: LS.get('clean', false), vol: LS.get('vol', 80), muted: false,
 };
+const bestKey = (cat = opt.cat) => `best2.${cat}.${opt.diff}.${opt.count}.${opt.ladder}.${opt.answer}`;
 const pools = {};
 let G = null;
 
@@ -93,7 +106,7 @@ async function loadPool(cat) {
 }
 
 function pickTracks(pool, diff, n) {
-  const sorted = [...pool].sort((a, b) => (b.rank || 0) - (a.rank || 0));
+  const sorted = pool.filter(t => !opt.clean || !t.explicit_lyrics).sort((a, b) => (b.rank || 0) - (a.rank || 0));
   const top = sorted.slice(0, Math.max(n, Math.ceil(sorted.length * DIFF[diff].top)));
   for (let i = top.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [top[i], top[j]] = [top[j], top[i]]; }
   return top;
@@ -104,9 +117,10 @@ function prepare(r) {
   return r.ready ||= (async () => {
     let t = r.track;
     if (t.stub || !t.preview) t = r.track = await DZ.track(t.id);
+    if (opt.clean && t.explicit_lyrics) throw new Error('explizit'); // Billionärs-Liste kennt das erst hier
     try { r.buf = await Snip.load(t.preview); }
     catch { t = r.track = await DZ.track(t.id); r.buf = await Snip.load(t.preview); }
-    r.offset = Snip.findStart(r.buf, opt.startMode);
+    r.offset = Snip.findStart(r.buf, opt.startMode, STEPS[STEPS.length - 1]);
     DZ.album(t.album.id).then(a => r.album = a).catch(() => {});
   })();
 }
@@ -127,7 +141,8 @@ async function startGame() {
     const pool = await loadPool(c);
     if (pool.length < 3) throw new Error('Zu wenige abspielbare Songs in dieser Quelle.');
     const cand = pickTracks(pool, opt.diff, opt.count);
-    G = { cat, cand, next: 0, rounds: [], i: -1, score: 0, n: Math.min(opt.count, cand.length) };
+    STEPS = LADDERS[opt.ladder] || LADDERS.classic;
+    G = { cat, cand, pool, next: 0, rounds: [], i: -1, score: 0, n: Math.min(opt.count, cand.length) };
     setCat(cat.color);
     show('game');
     await nextRound();
@@ -157,6 +172,7 @@ async function nextRound() {
   } finally { loading(false); }
   if (G.i + 1 < G.n) { const p = G.pending = newRound(); p && prepare(p).catch(() => { if (G.pending === p) G.pending = null; }); }
   renderRound();
+  if (opt.auto) playSnippet();
 }
 
 const R = () => G.rounds[G.i];
@@ -268,7 +284,7 @@ function finishRound(won) {
 function endGame() {
   Snip.stop();
   const max = G.n * PTS[0];
-  const key = `best.${G.cat.id}.${opt.diff}.${opt.count}`;
+  const key = bestKey(G.cat.id);
   const best = LS.get(key, 0);
   const isBest = G.cat.id !== 'custom' && G.score > best;
   if (isBest) LS.set(key, G.score);
@@ -293,14 +309,14 @@ function emojiRow(r) {
   }).join('');
 }
 
-const shareText = () => `🎵 Musik-Quiz – ${G.cat.name} (${DIFF[opt.diff].label})\n${fmtN(G.score)} Punkte\n${G.rounds.map(emojiRow).join('\n')}\nhttps://ku3rb1s.github.io/musik-quiz/`;
+const shareText = () => `⚡ Musik-Blitz –${G.cat.name} (${DIFF[opt.diff].label})\n${fmtN(G.score)} Punkte\n${G.rounds.map(emojiRow).join('\n')}\nhttps://ku3rb1s.github.io/musik-quiz/`;
 
 /* ---------- Anzeige ---------- */
 function show(id) {
   $('#home').classList.toggle('hidden', id !== 'home');
   $('#game').classList.toggle('hidden', id !== 'game');
   $('#end').classList.toggle('hidden', id !== 'end');
-  $('#btnHome').classList.toggle('hidden', id === 'home');
+  $('#btnQuit').classList.toggle('hidden', id !== 'game');
   window.scrollTo(0, 0);
 }
 
@@ -331,7 +347,7 @@ function renderHome() {
   icon.innerHTML = catIcon(c);
   $('#homeCatName').textContent = c.name;
   $('#startLbl').textContent = `${c.name} spielen`;
-  const best = LS.get(`best.${opt.cat}.${opt.diff}.${opt.count}`, 0);
+  const best = LS.get(bestKey(), 0);
   $('#bestPill').textContent = best ? `🏆 Rekord ${fmtN(best)}` : `${DIFF[opt.diff].label} · ${opt.count} Songs`;
 }
 
@@ -382,8 +398,39 @@ function renderRound() {
   $('#status').innerHTML = r.artistAt != null ? `<span class="badge warn-b">✓ Interpret richtig – jetzt noch der Song</span>` : '';
   $('#guessInput').value = '';
   closeSuggest();
+  renderChoices();
   renderTries();
   renderHints();
+}
+
+/* ---------- 4 Antworten (Multiple Choice) ---------- */
+function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function renderChoices() {
+  const r = R(), mc = opt.answer === 'mc';
+  $('#choices').classList.toggle('hidden', !mc);
+  $('.guess').classList.toggle('hidden', mc);
+  if (!mc) return;
+  if (!r.choices) {
+    // Falsche Antworten aus derselben Kategorie, aber von anderen Interpreten
+    const ta = norm(r.track.artist?.name), seen = new Set([ta]);
+    const others = shuffle(G.pool.filter(t => t.id !== r.track.id)).filter(t => {
+      const a = norm(t.artist?.name); if (seen.has(a)) return false; seen.add(a); return true;
+    }).slice(0, 3);
+    r.choices = shuffle([r.track, ...others]);
+    r.wrong = [];
+  }
+  $('#choices').innerHTML = r.choices.map((t, i) => `<button class="choice${r.wrong.includes(i) ? ' wrong' : ''}" data-c="${i}" ${r.wrong.includes(i) ? 'disabled' : ''}>
+    <b>${esc(showTitle(t))}</b><small>${esc(t.artist?.name || '')}</small></button>`).join('');
+}
+function choose(i) {
+  const r = R();
+  if (r.done || r.wrong.includes(i)) return;
+  const t = r.choices[i];
+  if (t.id === r.track.id) { r.guesses.push({ text: `${showTitle(t)} – ${t.artist?.name || ''}`, kind: 'ok' }); return finishRound(true); }
+  r.wrong.push(i);
+  r.guesses.push({ text: `${showTitle(t)} – ${t.artist?.name || ''}`, kind: 'bad' });
+  shake('#choices');
+  advance(false);
 }
 
 function renderHints() {
@@ -445,10 +492,29 @@ function applyTheme() {
 }
 function renderSettings() {
   $('#setCount').value = String(opt.count);
-  $('#setStart').value = opt.startMode;
+  $('#setAnswer').value = opt.answer;
+  $('#setAuto').checked = !!opt.auto;
   $('#setHints').checked = opt.hintsOn === 'on';
+  $('#setClean').checked = !!opt.clean;
+  $$('#setStart button').forEach(b => b.classList.toggle('on', b.dataset.v === opt.startMode));
+  $$('#setLadder button').forEach(b => b.classList.toggle('on', b.dataset.v === opt.ladder));
+  $('#startInfo').textContent = START_INFO[opt.startMode];
+  const L = LADDERS[opt.ladder];
+  $('#pointsInfo').innerHTML = [0, 3].map(k => `<div class="cell"><span class="grow">Erkannt bei ${L.slice(k, k + 3).map(fmtS).join(' · ')}</span><b>${PTS.slice(k, k + 3).join(' · ')}</b></div>`).join('');
   applyTheme();
 }
+
+/* ---------- Lautstärke (nur am PC sichtbar – am Handy regeln die Tasten) ---------- */
+function applyVol() {
+  const v = opt.muted ? 0 : opt.vol;
+  Snip.setVolume(v / 100);
+  const r = $('#vol');
+  r.value = opt.vol; r.style.setProperty('--p', opt.vol + '%');
+  $('#volVal').textContent = opt.muted ? '–' : opt.vol;
+  $('#volMute use').setAttribute('href', opt.muted || !opt.vol ? '#i-mute' : '#i-vol');
+  $('#volBox').classList.toggle('off', opt.muted);
+}
+function setVol(v) { opt.vol = Math.max(0, Math.min(100, Math.round(v))); opt.muted = false; LS.set('vol', opt.vol); applyVol(); }
 
 /* ---------- Suche mit Vorschlägen ---------- */
 let sugg = [], sel = -1, seq = 0, deb = 0;
@@ -494,7 +560,7 @@ const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;'
 function loading(on, txt) { $('#loading').classList.toggle('hidden', !on); if (txt) $('#loadingTxt').textContent = txt; }
 let toastT = 0;
 function toast(msg, ms = 3500) { const t = $('#toast'); t.textContent = msg; t.classList.remove('hidden'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.add('hidden'), ms); }
-function shake() { const c = $('.guess'); c.classList.remove('shake'); void c.offsetWidth; c.classList.add('shake'); }
+function shake(sel = '.guess') { const c = $(sel); c.classList.remove('shake'); void c.offsetWidth; c.classList.add('shake'); }
 
 /* ---------- Ereignisse ---------- */
 $('#home').addEventListener('click', e => {
@@ -514,9 +580,16 @@ $('#giveupBtn').onclick = () => { if (!R().done && confirm('Song auflösen? Du b
 $('#nextBtn').onclick = nextRound;
 $$('.hint-b').forEach(b => b.onclick = () => useHint(+b.dataset.h));
 $('#againBtn').onclick = startGame;
-const goHome = () => { Snip.stop(); renderHome(); show('home'); };
+const goHome = () => { Snip.stop(); G = null; renderHome(); show('home'); };
+/** Zur Startseite – mitten im Spiel nur nach Rückfrage */
+function leave() {
+  const inGame = G && !$('#game').classList.contains('hidden');
+  if (inGame && !confirm('Spiel beenden? Der bisherige Punktestand geht verloren.')) return;
+  goHome();
+}
 $('#homeBtn').onclick = goHome;
-$('#btnHome').onclick = () => { if (!$('#game').classList.contains('hidden') && G && !confirm('Spiel beenden?')) return; G = null; goHome(); };
+$('#btnQuit').onclick = leave;
+$('#logoBtn').onclick = leave;
 $('#shareBtn').onclick = async () => {
   const text = shareText();
   try {
@@ -529,10 +602,34 @@ $('#shareBtn').onclick = async () => {
 const sheet = $('#sheetSettings');
 $('#btnSettings').onclick = () => { renderSettings(); sheet.showModal(); };
 sheet.addEventListener('click', e => { if (e.target === sheet || e.target.closest('[data-close]')) sheet.close(); });
-sheet.addEventListener('close', () => { if (!$('#home').classList.contains('hidden')) renderHome(); });
+sheet.addEventListener('close', () => {
+  if (!$('#home').classList.contains('hidden')) renderHome();
+  else if (G && R() && !R().done && !$('#game').classList.contains('hidden')) { renderChoices(); renderHints(); }
+});
 $('#setCount').onchange = e => { opt.count = +e.target.value; LS.set('count', opt.count); };
-$('#setStart').onchange = e => { opt.startMode = e.target.value; LS.set('startMode2', opt.startMode); };
-$('#setHints').onchange = e => { opt.hintsOn = e.target.checked ? 'on' : 'off'; LS.set('hintsOn', opt.hintsOn); if (G && R()) renderHints(); };
+$('#setAnswer').onchange = e => { opt.answer = e.target.value; LS.set('answer', opt.answer); };
+$('#setAuto').onchange = e => { opt.auto = e.target.checked; LS.set('auto', opt.auto); };
+$('#setHints').onchange = e => { opt.hintsOn = e.target.checked ? 'on' : 'off'; LS.set('hintsOn', opt.hintsOn); };
+$('#setClean').onchange = e => { opt.clean = e.target.checked; LS.set('clean', opt.clean); };
+$('#setStart').onclick = e => {
+  const b = e.target.closest('button'); if (!b) return;
+  opt.startMode = b.dataset.v; LS.set('startMode2', opt.startMode); renderSettings();
+};
+$('#setLadder').onclick = e => {
+  const b = e.target.closest('button'); if (!b) return;
+  opt.ladder = b.dataset.v; LS.set('ladder', opt.ladder); renderSettings();
+  if (G && !$('#game').classList.contains('hidden')) toast('Gilt ab dem nächsten Spiel');
+};
+$('#btnResetBest').onclick = () => {
+  if (!confirm('Alle Rekorde auf diesem Gerät löschen?')) return;
+  try { Object.keys(localStorage).filter(k => k.startsWith('mq.best')).forEach(k => localStorage.removeItem(k)); } catch {}
+  toast('Rekorde gelöscht');
+};
+
+// Lautstärke
+$('#vol').oninput = e => setVol(+e.target.value);
+$('#volMute').onclick = () => { opt.muted = !opt.muted; applyVol(); };
+$('#choices').onclick = e => { const b = e.target.closest('[data-c]'); if (b) choose(+b.dataset.c); };
 $('#themeRow').onclick = e => {
   const b = e.target.closest('[data-theme-pick]'); if (!b) return;
   opt.theme = b.dataset.themePick; LS.set('theme', opt.theme); applyTheme();
@@ -550,9 +647,15 @@ $('#suggest').addEventListener('pointerdown', e => { const li = e.target.closest
 gi.addEventListener('blur', () => setTimeout(closeSuggest, 150));
 document.addEventListener('keydown', e => {
   if ($('#game').classList.contains('hidden') || e.target === gi || sheet.open) return;
+  if (e.target.matches?.('input,select,textarea')) return;
   if (e.code === 'Space') { e.preventDefault(); R()?.done ? nextRound() : playSnippet(); }
+  else if (e.key === 'ArrowUp') { e.preventDefault(); setVol(opt.vol + 5); }
+  else if (e.key === 'ArrowDown') { e.preventDefault(); setVol(opt.vol - 5); }
+  else if (e.key === 'm' || e.key === 'M') { opt.muted = !opt.muted; applyVol(); }
+  else if (opt.answer === 'mc' && /^[1-4]$/.test(e.key) && !R()?.done) choose(+e.key - 1);
 });
 
 $('#customUrl').value = LS.get('customUrl', '');
 applyTheme();
+applyVol();
 renderHome();

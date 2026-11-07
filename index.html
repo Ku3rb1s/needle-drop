@@ -4,23 +4,23 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0c0c0f">
-<title>Musik-Quiz</title>
-<meta name="description" content="Erkennst du den Song in 0,1 Sekunden? Musik-Quiz mit Kategorien, Tipps und Snippet-Leiter.">
-<link rel="apple-touch-icon" href="https://ku3rb1s.github.io/musik-quiz/apple-touch-icon.png?v=1">
-<link rel="apple-touch-icon" sizes="167x167" href="https://ku3rb1s.github.io/musik-quiz/apple-touch-icon-167.png?v=1">
-<link rel="apple-touch-icon" sizes="152x152" href="https://ku3rb1s.github.io/musik-quiz/apple-touch-icon-152.png?v=1">
-<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=1">
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=1">
-<link rel="manifest" href="manifest.json?v=1">
+<title>Musik-Blitz</title>
+<meta name="description" content="Erkennst du den Song in 0,1 Sekunden? Musik-Blitz: Song-Quiz mit Kategorien, Tipps und Snippet-Leiter.">
+<link rel="apple-touch-icon" href="https://ku3rb1s.github.io/musik-quiz/apple-touch-icon.png?v=2">
+<link rel="apple-touch-icon" sizes="167x167" href="https://ku3rb1s.github.io/musik-quiz/apple-touch-icon-167.png?v=2">
+<link rel="apple-touch-icon" sizes="152x152" href="https://ku3rb1s.github.io/musik-quiz/apple-touch-icon-152.png?v=2">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=2">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=2">
+<link rel="manifest" href="manifest.json?v=2">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Musik-Quiz">
+<meta name="apple-mobile-web-app-title" content="Musik-Blitz">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/base.css?v=3">
-<link rel="stylesheet" href="css/app.css?v=3">
+<link rel="stylesheet" href="css/base.css?v=4">
+<link rel="stylesheet" href="css/app.css?v=4">
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -43,14 +43,17 @@
   <symbol id="i-diamond" viewBox="0 0 24 24"><path d="M6 3.5h12l3.5 5.5L12 20.5 2.5 9zM2.5 9h19M9.5 3.5 8 9l4 11.5L16 9l-1.5-5.5"/></symbol>
   <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></symbol>
   <symbol id="i-music" viewBox="0 0 24 24"><path d="M9 18V5l11-2v13"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-vol" viewBox="0 0 24 24"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5z" fill="currentColor"/><path d="M15.5 9a4 4 0 0 1 0 6M18.5 6a8 8 0 0 1 0 12"/></symbol>
+  <symbol id="i-mute" viewBox="0 0 24 24"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5z" fill="currentColor"/><path d="M16 9.5l5 5M21 9.5l-5 5"/></symbol>
   <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></symbol>
 </svg>
 <div class="bg"><i></i><i></i><i></i></div>
 
 <header>
-  <div class="logo"><img src="icon-192.png?v=1" alt=""><span>Musik-Quiz</span></div>
+  <button class="logo logo-btn" id="logoBtn" aria-label="Zur Startseite"><img src="icon-192.png?v=2" alt=""><span>Musik-Blitz</span></button>
   <div class="hdr-r">
-    <button class="hbtn hidden" id="btnHome" aria-label="Kategorien"><svg class="ic"><use href="#i-grid"/></svg><span class="lbl">Kategorien</span></button>
+    <button class="hbtn hidden" id="btnQuit" aria-label="Spiel beenden"><svg class="ic"><use href="#i-x"/></svg><span class="lbl">Beenden</span></button>
     <button class="hbtn" id="btnSettings" aria-label="Einstellungen"><svg class="ic"><use href="#i-sliders"/></svg><span class="lbl">Einstellungen</span></button>
   </div>
 </header>
@@ -59,14 +62,14 @@
   <!-- ============ Start ============ -->
   <div id="home">
     <section class="stage glass">
-      <div class="round-meta"><span class="pill">Snippet-Quiz</span><span class="pill" id="bestPill">Noch kein Rekord</span></div>
+      <div class="round-meta"><span class="pill">Song-Quiz</span><span class="pill" id="bestPill">Noch kein Rekord</span></div>
       <div class="cat" id="homeCat">
         <div class="cat-kicker">Erkennst du ihn in 0,1 Sekunden?</div>
         <div class="cat-badge"><div class="cat-icon" id="homeCatIcon"></div><div class="cat-name" id="homeCatName"></div></div>
       </div>
       <div class="disc-wrap idle" id="homeDisc">
         <div class="flipper"><div class="face front">
-          <div class="disc"><div class="disc-label"><svg class="label-bars" viewBox="0 0 30 30" aria-hidden="true"><g fill="#fff"><rect x="3.2" y="13.5" width="2.4" height="3" rx="1.2" opacity="0.6"/><rect x="7.4" y="12.3" width="2.4" height="5.4" rx="1.2" opacity="0.7"/><rect x="11.6" y="11.1" width="2.4" height="7.8" rx="1.2" opacity="0.8"/><rect x="15.8" y="9.9" width="2.4" height="10.2" rx="1.2" opacity="0.88"/><rect x="20.0" y="8.7" width="2.4" height="12.6" rx="1.2" opacity="0.95"/><rect x="24.2" y="7.5" width="2.4" height="15" rx="1.2" opacity="1"/></g></svg></div></div>
+          <div class="disc"><div class="disc-label"><svg class="label-bolt" viewBox="0 0 30 30" aria-hidden="true"><path fill="#fff" stroke="#fff" stroke-width=".7" stroke-linejoin="round" d="M16.6 4.8 10.4 15.2h4.4L13 25.4l7-11h-4.3z"/></svg></div></div>
         </div></div>
       </div>
       <div class="controls">
@@ -112,7 +115,7 @@
       <div class="flipper">
         <div class="face front">
           <svg class="ring-svg" viewBox="0 0 120 120"><defs><filter id="ringBlur" x="-25%" y="-25%" width="150%" height="150%"><feGaussianBlur stdDeviation="2.6"/></filter></defs><circle class="trk" cx="60" cy="60" r="56"/><circle class="ring-glow" cx="60" cy="60" r="56" filter="url(#ringBlur)"/><circle class="ring" cx="60" cy="60" r="56"/></svg>
-          <div class="disc"><div class="disc-label"><svg class="label-bars" viewBox="0 0 30 30" aria-hidden="true"><g fill="#fff"><rect x="3.2" y="13.5" width="2.4" height="3" rx="1.2" opacity="0.6"/><rect x="7.4" y="12.3" width="2.4" height="5.4" rx="1.2" opacity="0.7"/><rect x="11.6" y="11.1" width="2.4" height="7.8" rx="1.2" opacity="0.8"/><rect x="15.8" y="9.9" width="2.4" height="10.2" rx="1.2" opacity="0.88"/><rect x="20.0" y="8.7" width="2.4" height="12.6" rx="1.2" opacity="0.95"/><rect x="24.2" y="7.5" width="2.4" height="15" rx="1.2" opacity="1"/></g></svg></div></div>
+          <div class="disc"><div class="disc-label"><svg class="label-bolt" viewBox="0 0 30 30" aria-hidden="true"><path fill="#fff" stroke="#fff" stroke-width=".7" stroke-linejoin="round" d="M16.6 4.8 10.4 15.2h4.4L13 25.4l7-11h-4.3z"/></svg></div></div>
         </div>
         <div class="face back"><div class="disc-cover" id="discCover"></div></div>
       </div>
@@ -128,6 +131,7 @@
         <button class="pill-btn" id="giveupBtn"><svg class="ic"><use href="#i-flag"/></svg>Auflösen</button>
       </div>
       <div id="status" class="status"></div>
+      <div id="choices" class="choices hidden"></div>
       <div class="guess">
         <div class="group">
           <div class="cell"><svg class="ic muted"><use href="#i-search"/></svg>
@@ -152,6 +156,13 @@
       <div class="rv-song"><div class="rv-title" id="rvTitle"></div><div class="rv-artist" id="rvArtist"></div><div class="rv-meta" id="rvMeta"></div></div>
       <div class="controls" style="margin-top:16px"><button class="big" id="nextBtn">Weiter</button></div>
     </div>
+
+    <div id="volBox" class="volume">
+      <button id="volMute" aria-label="Stumm"><svg class="ic"><use href="#i-vol"/></svg></button>
+      <input type="range" id="vol" min="0" max="100" step="1" aria-label="Lautstärke">
+      <span id="volVal" style="min-width:3ch;text-align:right"></span>
+    </div>
+    <p class="hint"><kbd>Leertaste</kbd> abspielen · <kbd>↑</kbd><kbd>↓</kbd> Lautstärke · <kbd>M</kbd> stumm</p>
 
     <details class="tries" id="triesBox">
       <summary>Deine Versuche <span id="triesN"></span></summary>
@@ -181,33 +192,53 @@
     <button class="nav-done" data-close>Fertig</button>
   </div>
   <div class="sheet-body">
-    <div class="group-h">Design</div>
-    <div class="theme-row" id="themeRow"></div>
-
     <div class="group-h">Spiel</div>
     <div class="group">
       <label class="cell"><span class="grow">Songs pro Runde</span>
         <select id="setCount"><option value="5">5</option><option value="10">10</option><option value="15">15</option><option value="20">20</option></select></label>
-      <label class="cell"><span class="grow">Startpunkt<span class="sub">Wo im 30-s-Ausschnitt das Snippet beginnt</span></span>
-        <select id="setStart"><option value="start">Am Anfang</option><option value="random">Zufällige Stelle</option></select></label>
-      <label class="cell"><span class="grow">Tipps<span class="sub">Ab 0,5 s – kosten 50 / 100 / 150 Punkte</span></span><span class="switch"><input type="checkbox" id="setHints"><span></span></span></label>
+      <label class="cell"><span class="grow">Antworten<span class="sub">Song suchen oder aus 4 Vorschlägen wählen</span></span>
+        <select id="setAnswer"><option value="search">Suchen</option><option value="mc">4 Antworten</option></select></label>
+      <label class="cell"><span class="grow">Automatisch abspielen<span class="sub">Jeder neue Song startet sofort mit dem ersten Ausschnitt</span></span><span class="switch"><input type="checkbox" id="setAuto"><span></span></span></label>
     </div>
 
-    <div class="group-h">So zählen die Punkte</div>
-    <div class="group">
-      <div class="cell"><span class="grow">Erkannt bei 0,1 s · 0,5 s · 1 s</span><b>600 · 500 · 400</b></div>
-      <div class="cell"><span class="grow">Erkannt bei 2 s · 5 s · 10 s</span><b>300 · 200 · 100</b></div>
-      <div class="cell"><span class="grow">Nur Interpret richtig<span class="sub">Halbe Punkte der Stufe, auf der er stimmte</span></span><b>½</b></div>
+    <div class="group-h">Startpunkt im Ausschnitt</div>
+    <div class="seg" id="setStart">
+      <button data-v="start">Am Anfang<small>leichter</small></button>
+      <button data-v="hook">Hook<small>lauteste Stelle</small></button>
+      <button data-v="random">Zufällig<small>schwerer</small></button>
     </div>
-    <div class="group-f">Falscher Tipp oder „Mehr hören“ schaltet die nächste Stufe frei. Die Musik kommt als 30-s-Vorschau von Deezer – ohne Anmeldung.</div>
+    <div class="group-f" id="startInfo"></div>
+
+    <div class="group-h">Snippet-Leiter</div>
+    <div class="seg" id="setLadder">
+      <button data-v="easy">Entspannt<small>0,5 – 15 s</small></button>
+      <button data-v="classic">Klassisch<small>0,1 – 10 s</small></button>
+      <button data-v="pro">Profi<small>0,1 – 3 s</small></button>
+    </div>
+
+    <div class="group-h">Hilfen &amp; Songs</div>
+    <div class="group">
+      <label class="cell"><span class="grow">Tipps<span class="sub">Ab der 2. Stufe – kosten 50 / 100 / 150 Punkte</span></span><span class="switch"><input type="checkbox" id="setHints"><span></span></span></label>
+      <label class="cell"><span class="grow">Explizite Songs ausblenden<span class="sub">Keine Songs mit „Explicit“-Kennzeichnung</span></span><span class="switch"><input type="checkbox" id="setClean"><span></span></span></label>
+    </div>
+
+    <div class="group-h">Design</div>
+    <div class="theme-row" id="themeRow"></div>
+
+    <div class="group-h">So zählen die Punkte</div>
+    <div class="group" id="pointsInfo"></div>
+    <div class="group-f">Falscher Tipp oder „Mehr hören“ schaltet die nächste Stufe frei. Nur der Interpret richtig: halbe Punkte der Stufe, auf der er stimmte. Die Musik kommt als 30-s-Vorschau von Deezer – ohne Anmeldung.</div>
+    <div class="group" id="resetBox" style="margin-top:22px">
+      <button class="cell tap danger" id="btnResetBest"><span class="grow">Rekorde zurücksetzen</span></button>
+    </div>
   </div>
 </dialog>
 
 <div id="loading" class="loading hidden"><div class="loader"></div><p id="loadingTxt">Lade Songs…</p></div>
 <div id="toast" class="hidden"></div>
 
-<script src="js/deezer.js?v=3"></script>
-<script src="js/audio.js?v=3"></script>
-<script src="js/quiz.js?v=3"></script>
+<script src="js/deezer.js?v=4"></script>
+<script src="js/audio.js?v=4"></script>
+<script src="js/quiz.js?v=4"></script>
 </body>
 </html>
