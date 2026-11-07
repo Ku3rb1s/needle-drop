@@ -2,6 +2,10 @@
 
 Die Versionsnummer steht in `js/quiz.js` (`APP_VERSION`) und unten in den Einstellungen. In `index.html` bei jedem Update auch `?v=` an CSS/JS-Dateien erhöhen.
 
+## 1.12.0 – 07.11.2026
+- **Als App installieren** (Einstellungen): Needle Drop lässt sich als App auf den Home-Bildschirm legen – am Android-Handy und am PC per Knopf, am iPhone/iPad mit kurzer Anleitung. Der Knopf erscheint nur, wo es geht
+- Schnellerer Start: Dateien bleiben auf dem Gerät gespeichert, die Seite selbst kommt immer frisch aus dem Netz. Ohne Netz öffnet sich die App trotzdem (Songs brauchen Internet)
+
 ## 1.11.1 – 07.11.2026
 - Die Tägliche Challenge sitzt jetzt oben in der Kopfzeile statt als große Karte – die Startseite ist dadurch aufgeräumter
 - Challenge-Archiv zeigt die letzten 30 Tage (auch in den Einstellungen und nach dem Ergebnis erreichbar). Ältere Einträge behalten nur Punkte und Ergebnis-Raster für die Statistik – das hält den Speicher klein

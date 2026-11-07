@@ -307,5 +307,12 @@
     "Über 1 Mrd. Spotify-Streams": "Over 1 milliard Spotify-avspillinger",
     "Übersprungen bei {s}": "Hoppet over ved {s}",
     "− {n} für Tipps": "− {n} for hint",
+    "Als App installieren": "Installer som app",
+    "Startet schneller, im Vollbild und mit eigenem Symbol": "Starter raskere, i fullskjerm og med eget ikon",
+    "Tippe auf „Teilen“": "Trykk på «Del»",
+    "Wähle „Zum Home-Bildschirm“ – eventuell etwas nach unten scrollen.": "Velg «Legg til på Hjem-skjerm» – du må kanskje rulle litt ned.",
+    "Tippe auf „Hinzufügen“.": "Trykk på «Legg til».",
+    "Die App speichert getrennt vom Browser: Einstellungen und Anmeldungen gibst du dort einmal neu ein.": "Appen lagrer data separat fra nettleseren: der legger du inn innstillinger og innlogginger én gang til.",
+    "Verstanden": "Skjønner",
   },
 };

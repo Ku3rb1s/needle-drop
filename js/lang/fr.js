@@ -307,5 +307,12 @@
     "Über 1 Mrd. Spotify-Streams": "Plus d'1 milliard d'écoutes Spotify",
     "Übersprungen bei {s}": "Passé à {s}",
     "− {n} für Tipps": "− {n} pour les indices",
+    "Als App installieren": "Installer comme app",
+    "Startet schneller, im Vollbild und mit eigenem Symbol": "Démarre plus vite, en plein écran, avec sa propre icône",
+    "Tippe auf „Teilen“": "Touche « Partager »",
+    "Wähle „Zum Home-Bildschirm“ – eventuell etwas nach unten scrollen.": "Choisis « Sur l’écran d’accueil » – fais défiler un peu vers le bas si besoin.",
+    "Tippe auf „Hinzufügen“.": "Touche « Ajouter ».",
+    "Die App speichert getrennt vom Browser: Einstellungen und Anmeldungen gibst du dort einmal neu ein.": "L’app enregistre ses données séparément du navigateur : saisis-y une nouvelle fois tes réglages et connexions.",
+    "Verstanden": "Compris",
   },
 };
