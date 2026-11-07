@@ -30,6 +30,23 @@ Feste Regeln (klassische Leiter, Suchen, Start am Anfang, Tipps erlaubt), einmal
 
 **Datensparsam:** Außer Deezer (Suche + Vorschauen) ruft die Seite keine fremden Server auf; alles andere bleibt im Browser.
 
+## Spotify-Playlists
+
+Unter „Eigene Playlist“ kann man einen Spotify-Link (Playlist oder Album, `open.spotify.com/…`) einfügen:
+
+1. Die Songliste (Titel + Interpret, max. 100) holt ein kleiner **Cloudflare Worker** (`worker/spotify.js`) aus der öffentlichen
+   Spotify-Einbettungsseite – ohne Spotify-Login und ohne das 5-Nutzer-Limit der Spotify-API. Der Browser darf die Seite wegen CORS
+   nicht selbst abrufen, deshalb der Worker. Er speichert und protokolliert nichts (nur 1 h Cloudflare-Cache).
+2. Jeder Song wird erst kurz bevor er drankommt bei Deezer gesucht (`js/spotify.js`) – das Spiel startet sofort.
+
+**Worker einrichten (einmalig, kostenlos):**
+```
+cd worker
+npx wrangler login      # mit dem eigenen Cloudflare-Konto anmelden
+npx wrangler deploy     # gibt die Adresse aus, z. B. https://needle-drop-spotify.<name>.workers.dev
+```
+Die Adresse dann in `js/spotify.js` bei `PROXY` eintragen. Lokal testen: `npx wrangler dev --port 8787` (die App nutzt lokal automatisch Port 8787).
+
 ## Aufbau
 
 | Datei | Inhalt |
@@ -42,6 +59,8 @@ Feste Regeln (klassische Leiter, Suchen, Start am Anfang, Tipps erlaubt), einmal
 | `js/deezer.js` | JSONP, Playlists laden, Suche, Link-Erkennung |
 | `js/audio.js` | Web-Audio-Snippets, Startpunkt-Erkennung |
 | `js/daily.js` | Tägliche Challenge (Auswahl per Datum, Serie, Teilen) |
+| `js/spotify.js` | Spotify-Link erkennen, Songliste über den Worker holen, Songs bei Deezer zuordnen |
+| `worker/` | Cloudflare Worker für die Spotify-Songliste |
 | `js/quiz.js` | Kategorien, Spielablauf, Wertung, Hinweise, Anzeige |
 | `data/billions.json` | Billionärs Club: Songs mit ≥ 1 Mrd. Spotify-Streams |
 | `scripts/build-billions.js` | erzeugt `data/billions.json` neu (Quelle kworb.net → Deezer-Zuordnung) |

@@ -58,9 +58,13 @@ const DZ = (() => {
     let m = str.match(/deezer\.com\/(?:[a-z]{2}\/)?(playlist|artist)\/(\d+)/i);
     if (m) return { type: m[1].toLowerCase(), id: m[2] };
     if (/^\d{4,}$/.test(str)) return { type: 'playlist', id: str };
-    if (/spotify\.com|spotify:/.test(str)) return { error: 'Spotify-Links werden noch nicht unterstützt – bitte Deezer-Link nehmen.' };
+    if (/spotify\.link/.test(str)) return { error: 'Spotify-Kurzlinks gehen nicht – bitte den Link von open.spotify.com nehmen (Teilen → Link kopieren, am besten im Browser).' };
+    if (/spotify\.com|spotify:/.test(str)) {
+      const s = typeof Spot !== 'undefined' && Spot.parse(str);
+      return s ? { type: 'spotify', ...s } : { error: 'Das ist kein Spotify-Playlist- oder Album-Link.' };
+    }
     if (/link\.deezer\.com|deezer\.page\.link/.test(str)) return { error: 'Kurzlinks gehen nicht – bitte den Link aus der Adresszeile von deezer.com nehmen.' };
-    return { error: 'Kein gültiger Deezer-Link.' };
+    return { error: 'Kein gültiger Link – bitte einen Spotify- oder Deezer-Link einfügen.' };
   }
 
   return { jsonp, sourceTracks, search, track, album, parseLink };

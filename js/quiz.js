@@ -51,7 +51,7 @@ const CATS = [
   { id: 'film', group: 'special', name: 'Film & Serien', icon: 'film', sub: 'Soundtracks und Titelsongs', color: '#a3a3a3', src: [P(754776991), P(6238866284), P(13253799423)] },
   { id: 'disney', group: 'special', name: 'Disney', icon: 'castle', sub: 'Die großen Disney-Songs (deutsch)', color: '#3b82f6', src: [P(970058271)] },
   { id: 'esc', group: 'special', name: 'Eurovision', icon: 'globe', sub: 'Sieger und Fan-Lieblinge', color: '#8b5cf6', src: [P(9037748342), P(12593394863)] },
-  { id: 'custom', group: 'special', name: 'Eigene Playlist', icon: 'link', sub: 'Deezer-Link einfügen', color: '#6b7280', src: null },
+  { id: 'custom', group: 'special', name: 'Eigene Playlist', icon: 'link', sub: 'Spotify- oder Deezer-Link', color: '#6b7280', src: null },
 ];
 const GROUPS = [['decades', 'Jahrzehnte'], ['intl', 'International'], ['de', 'Deutsch'], ['special', 'Spezial']];
 const DIFF = {
@@ -110,14 +110,16 @@ async function loadPool(cat) {
       const d = await r.json();
       return d.tracks.map(t => ({ id: t.id, title: t.title, artist: { name: t.artist }, rank: t.streams, stub: true }));
     }
+    if (s.type === 'spotify') return Spot.tracks(s);
     return DZ.sourceTracks(s);
   }));
   const seen = new Set(), pool = [];
   for (const t of lists.flat()) {
     if (!t.stub && (!t.readable || !t.preview)) continue;
     const k1 = t.isrc || t.id, k2 = norm(t.title_short || t.title) + '|' + norm(t.artist?.name);
-    if (seen.has(k1) || seen.has(k2)) continue;
-    seen.add(k1); seen.add(k2);
+    if ((k1 != null && seen.has(k1)) || seen.has(k2)) continue; // Spotify-Platzhalter haben noch keine ID
+    if (k1 != null) seen.add(k1);
+    seen.add(k2);
     pool.push(t);
   }
   if (cat.id !== 'custom') pools[cat.id] = pool;
@@ -135,7 +137,8 @@ function pickTracks(pool, diff, n) {
 function prepare(r) {
   return r.ready ||= (async () => {
     let t = r.track;
-    if (t.stub || !t.preview) t = r.track = await DZ.track(t.id);
+    if (t.sp) t = r.track = await Spot.match(t);            // Spotify-Song → passender Deezer-Song
+    else if (t.stub || !t.preview) t = r.track = await DZ.track(t.id);
     if (opt.clean && t.explicit_lyrics) throw new Error('explizit'); // Billionärs-Liste kennt das erst hier
     try { r.buf = await Snip.load(t.preview); }
     catch { t = r.track = await DZ.track(t.id); r.buf = await Snip.load(t.preview); }
@@ -466,8 +469,8 @@ function renderChoices() {
   if (!mc) return;
   if (!r.choices) {
     // Falsche Antworten aus derselben Kategorie, aber von anderen Interpreten
-    const ta = norm(r.track.artist?.name), seen = new Set([ta]);
-    const others = shuffle(G.pool.filter(t => t.id !== r.track.id)).filter(t => {
+    const ta = norm(r.track.artist?.name), seen = new Set([ta]), tt = norm(showTitle(r.track));
+    const others = shuffle(G.pool.filter(t => t.id !== r.track.id && norm(showTitle(t)) !== tt)).filter(t => {
       const a = norm(t.artist?.name); if (seen.has(a)) return false; seen.add(a); return true;
     }).slice(0, 3);
     r.choices = shuffle([r.track, ...others]);

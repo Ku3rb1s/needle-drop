@@ -1,0 +1,7 @@
+name = "needle-drop-spotify"
+main = "spotify.js"
+compatibility_date = "2025-06-01"
+workers_dev = true
+# Keine Logs/Analysen nötig – der Worker reicht nur die Songliste durch
+[observability]
+enabled = false
