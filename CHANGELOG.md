@@ -2,6 +2,9 @@
 
 Die Versionsnummer steht in `js/quiz.js` (`APP_VERSION`) und unten in den Einstellungen. In `index.html` bei jedem Update auch `?v=` an CSS/JS-Dateien erhöhen.
 
+## 1.16.1 – 07.11.2026
+- Spiele-Menü: Logo oben lange gedrückt halten (am Computer Rechtsklick) – zurück zur Jukebox oder direkt in ein anderes Spiel
+
 ## 1.16.0 – 07.11.2026
 - Original-Cover statt Sampler-Cover: Liegt ein Song bei Deezer nur auf einem Sampler („Bravo Hits“, „Lieblings... 70er“, späte Soundtracks …), zeigt die Auflösung jetzt das Cover der Original-Single bzw. des Originalalbums (MusicBrainz/Cover Art Archive, sonst Deezer) – samt richtigem Album und Jahr bei den Tipps
 - Bestenliste: Machst du mit, landen Tagesergebnis, Serie und Rekorde jetzt direkt nach dem Spielen in der Bestenliste – ohne erst die Jukebox zu öffnen
