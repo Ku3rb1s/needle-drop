@@ -2,6 +2,9 @@
 
 Die Versionsnummer steht in `js/quiz.js` (`APP_VERSION`) und unten in den Einstellungen. In `index.html` bei jedem Update auch `?v=` an CSS/JS-Dateien erhöhen.
 
+## 1.14.2 – 07.11.2026
+- Ruhigerer Hintergrund: die großen farbigen Kreise hinter der Seite sind weg
+
 ## 1.14.1 – 07.11.2026
 - iPhone/Handy: Ist ein Fenster offen (z. B. Einstellungen), scrollt die Seite dahinter nicht mehr mit; nach dem Schließen steht sie wieder an derselben Stelle
 
