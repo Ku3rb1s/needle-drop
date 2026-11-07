@@ -2,6 +2,16 @@
 
 Die Versionsnummer steht in `js/quiz.js` (`APP_VERSION`) und unten in den Einstellungen. In `index.html` bei jedem Update auch `?v=` an CSS/JS-Dateien erhöhen.
 
+## 1.10.0 – 07.11.2026
+- Kategorien überarbeitet – alle nachgemessen nach Bekanntheit der Songs:
+  - **EDM**: Avicii, Guetta, Calvin Harris & Dance-Klassiker statt Underground-Tracks
+  - **Latin**: nur Latin-Hits mit über 1 Mrd. Streams (Despacito, Danza Kuduro, Mi Gente …) + Reggaeton-Klassiker
+  - **Hip-Hop & Rap**: 90er/2000er-Rap-Hits + 2010er/2020er statt seltener East-Coast-Tracks
+  - **R&B**: Klassiker der 90er und 2000er statt aktueller Nischen-Songs
+  - **Disney**: die Originale statt deutscher Cover-Versionen
+  - **Schlager & Party**: Schlager-Klassiker statt vieler unbekannter Malle-Titel
+- Mehr Abwechslung: Jeder Interpret kommt pro Spiel möglichst nur einmal vor
+
 ## 1.9.0 – 07.11.2026
 - Neu: Nach der Auflösung den Song direkt **auf Spotify oder Deezer anhören**
 - Platte lässt sich mit der Tastatur bedienen (Tab, dann Enter/Leertaste)
