@@ -5,6 +5,10 @@
   name: 'English',
   flag: '🇬🇧',
   dict: {
+    "Weiterspielen": "Keep playing",
+    "Löschen": "Delete",
+    "OK": "OK",
+    "Abbrechen": "Cancel",
     "Die letzten 30 Tage": "The last 30 days",
     "Die letzten 30 Tage. Verpasste kannst du nachspielen – sie zählen nicht zur Serie.": "The last 30 days. You can replay the ones you missed – they don’t count toward your streak.",
     "Modus": "Mode",

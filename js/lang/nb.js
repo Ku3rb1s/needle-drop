@@ -4,6 +4,10 @@
   name: 'Norsk',
   flag: '🇳🇴',
   dict: {
+    "Weiterspielen": "Spill videre",
+    "Löschen": "Slett",
+    "OK": "OK",
+    "Abbrechen": "Avbryt",
     "Die letzten 30 Tage": "De siste 30 dagene",
     "Die letzten 30 Tage. Verpasste kannst du nachspielen – sie zählen nicht zur Serie.": "De siste 30 dagene. Du kan spille dem du gikk glipp av – de teller ikke med i rekken.",
     "Modus": "Modus",

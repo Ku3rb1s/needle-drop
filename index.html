@@ -19,7 +19,7 @@
 <link rel="preload" href="fonts/outfit-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/fonts.css?v=1">
 <link rel="stylesheet" href="css/base.css?v=9">
-<link rel="stylesheet" href="css/app.css?v=21">
+<link rel="stylesheet" href="css/app.css?v=22">
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -375,6 +375,15 @@
 </dialog>
 
 <div id="loading" class="loading hidden"><div class="loader"></div><p id="loadingTxt">Lade Songs…</p></div>
+<dialog id="dlgAsk" class="alert">
+  <form method="dialog">
+    <p id="askMsg"></p>
+    <div class="alert-btns">
+      <button value="no" id="askNo">Abbrechen</button>
+      <button value="yes" id="askOk">OK</button>
+    </div>
+  </form>
+</dialog>
 <div id="toast" class="hidden"></div>
 
 <script src="js/lang/en.js?v=7"></script>
@@ -386,7 +395,7 @@
 <script src="js/deezer.js?v=9"></script>
 <script src="js/spotify.js?v=3"></script>
 <script src="js/audio.js?v=9"></script>
-<script src="js/quiz.js?v=24"></script>
+<script src="js/quiz.js?v=25"></script>
 <script src="js/daily.js?v=7"></script>
 <script src="js/pwa.js?v=1"></script>
 </body>

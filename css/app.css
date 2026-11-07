@@ -307,3 +307,17 @@ header{max-width:720px}
 
 /* Links, die wie Einstellungs-Zeilen aussehen (z. B. „Alle Spiele“): nicht unterstreichen */
 a.cell{color:inherit;text-decoration:none}
+
+/* Rückfrage im Stil des Spiels (wie Musik-Bingo); Glas-Hintergrund kommt aus base.css (.alert) */
+.alert{width:min(300px,calc(100vw - 48px));padding:0;text-align:center;color:var(--text);border:1px solid var(--line);box-shadow:0 30px 60px -10px #000;overflow:hidden}
+.alert[open]{animation:alertIn .22s ease}
+.alert::backdrop{background:rgba(0,0,0,.45)}
+@keyframes alertIn{from{opacity:0;transform:scale(1.12)}}
+.alert p{margin:0;padding:20px 18px 6px;white-space:pre-line;line-height:1.4;font-size:.95rem}
+.alert-btns{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--line);margin-top:16px}
+.alert-btns button{background:none;border:0;border-radius:0;box-shadow:none;color:var(--quiz1);padding:14px 10px;font:inherit;font-weight:700;font-size:1rem;transform:none!important;white-space:normal;line-height:1.25;cursor:pointer}
+.alert-btns button:hover{background:rgba(255,255,255,.05)}
+.alert-btns button:focus-visible{outline:2px solid var(--quiz1);outline-offset:-4px}
+/* Links Abbrechen (weiß), rechts die Hauptaktion (gold bzw. rot) */
+.alert-btns button:first-child{font-weight:500;color:var(--text);border-right:1px solid var(--line)}
+.alert-btns button.danger{color:var(--danger)}

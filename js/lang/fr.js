@@ -4,6 +4,10 @@
   name: 'Français',
   flag: '🇫🇷',
   dict: {
+    "Weiterspielen": "Continuer",
+    "Löschen": "Supprimer",
+    "OK": "OK",
+    "Abbrechen": "Annuler",
     "Die letzten 30 Tage": "Les 30 derniers jours",
     "Die letzten 30 Tage. Verpasste kannst du nachspielen – sie zählen nicht zur Serie.": "Les 30 derniers jours. Tu peux rejouer ceux que tu as manqués – ils ne comptent pas pour ta série.",
     "Modus": "Mode",

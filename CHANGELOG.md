@@ -2,11 +2,14 @@
 
 Die Versionsnummer steht in `js/quiz.js` (`APP_VERSION`) und unten in den Einstellungen. In `index.html` bei jedem Update auch `?v=` an CSS/JS-Dateien erhöhen.
 
+## 1.12.2 – 07.11.2026
+- Rückfragen (Auflösen, Spiel beenden, Löschen) erscheinen jetzt im Stil des Spiels statt als graues Browser-Fenster – mit klaren Knöpfen wie „Auflösen“ oder „Weiterspielen“
+
 ## 1.12.0 – 07.11.2026
 - **Als App installieren** (Einstellungen): Needle Drop lässt sich als App auf den Home-Bildschirm legen – am Android-Handy und am PC per Knopf, am iPhone/iPad mit kurzer Anleitung. Der Knopf erscheint nur, wo es geht
 - Schnellerer Start: Dateien bleiben auf dem Gerät gespeichert, die Seite selbst kommt immer frisch aus dem Netz. Ohne Netz öffnet sich die App trotzdem (Songs brauchen Internet)
 
-## 1.11.2 – 07.11.2026
+## 1.12.1 – 07.11.2026
 - Die Knöpfe im Spiel sind dezent eingefärbt: Weiterhören in der Kategoriefarbe, Tipp gold, Auflösen rot – so findet man sie schneller
 
 ## 1.11.1 – 07.11.2026

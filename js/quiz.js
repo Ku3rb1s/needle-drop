@@ -1,5 +1,5 @@
 /* Needle Drop – Spielablauf und Anzeige */
-const APP_VERSION = '1.12.0', APP_DATE = '07.11.2026'; // bei jedem Update erhöhen + CHANGELOG.md ergänzen
+const APP_VERSION = '1.12.2', APP_DATE = '07.11.2026'; // bei jedem Update erhöhen + CHANGELOG.md ergänzen
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 
@@ -468,7 +468,7 @@ function renderStats() {
     ${S.best.length ? `<div class="group-h">${tx('Schnellste Treffer')}</div>
     <div class="group">${S.best.map(b => `<div class="cell"><span class="grow">${esc(b.t)}<span class="sub">${esc(b.a)} · ${esc(CATS.find(c => c.id === b.cat)?.name || b.cat)}</span></span><b>${fmtS(b.s)}</b></div>`).join('')}</div>` : ''}
     <div class="group" style="margin-top:22px"><button class="cell tap danger" id="btnResetStats"><span class="grow">${tx('Statistik zurücksetzen')}</span></button></div>`;
-  $('#btnResetStats').onclick = () => { if (confirm(tx('Statistik auf diesem Gerät löschen?'))) { LS.set('stats', null); renderStats(); } };
+  $('#btnResetStats').onclick = async () => { if (await ask(tx('Statistik auf diesem Gerät löschen?'), { ok: tx('Löschen'), danger: true })) { LS.set('stats', null); renderStats(); } };
 }
 
 /* ---------- Ergebnis als Bild (Instagram-Story-Format) ---------- */
@@ -949,20 +949,48 @@ $('#disc').onclick = () => {
 $('#disc').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); $('#disc').click(); } });
 $('#skipBtn').onclick = skip;
 $('#hintBtn').onclick = () => { $('#hintPanel').classList.toggle('hidden'); renderHints(); };
-$('#giveupBtn').onclick = () => { if (!R().done && confirm(tx('Song auflösen? Du bekommst nur Punkte, falls der Interpret schon stimmte.'))) finishRound(false); };
+$('#giveupBtn').onclick = async () => {
+  const r = R();
+  if (!r || r.done) return;
+  if (await ask(tx('Song auflösen? Du bekommst nur Punkte, falls der Interpret schon stimmte.'), { ok: tx('Auflösen') }) && R() === r && !r.done) finishRound(false);
+};
 $('#nextBtn').onclick = nextRound;
 $$('.hint-b').forEach(b => b.onclick = () => useHint(+b.dataset.h));
 $('#againBtn').onclick = startGame;
+/** Eigene Rückfrage im Stil des Spiels (wie im Musik-Bingo) statt des grauen Browser-Fensters.
+    Liefert true (Hauptknopf) oder false (Abbrechen / daneben getippt / Esc). danger = Hauptknopf rot. */
+let askDone = null; // Antwort der gerade offenen Rückfrage
+function ask(msg, { ok = tx('OK'), cancel = tx('Abbrechen'), danger = false } = {}) {
+  const d = $('#dlgAsk');
+  answerAsk(false);                    // eine noch offene Frage gilt als „Abbrechen“
+  $('#askMsg').textContent = msg; $('#askOk').textContent = ok; $('#askNo').textContent = cancel;
+  $('#askOk').classList.toggle('danger', danger);
+  d.showModal(); $('#askOk').focus();
+  return new Promise(res => { askDone = res; });
+}
+// Antwort direkt über die Knöpfe weitergeben – nicht erst über das close-Ereignis, das manche Browser verzögert schicken
+function answerAsk(yes) {
+  const done = askDone; askDone = null;
+  if ($('#dlgAsk').open) $('#dlgAsk').close();
+  if (done) done(yes);
+}
+$('#askOk').onclick = e => { e.preventDefault(); answerAsk(true); };
+$('#askNo').onclick = e => { e.preventDefault(); answerAsk(false); };
+$('#dlgAsk').addEventListener('click', e => { if (e.target === $('#dlgAsk')) answerAsk(false); }); // daneben tippen = Abbrechen
+$('#dlgAsk').addEventListener('close', () => answerAsk(false));                                     // Esc
+
 const goHome = () => { Snip.stop(); G = null; renderHome(); show('home'); };
 /** Zur Startseite – mitten im Spiel nur nach Rückfrage */
-function leave() {
+async function leave() {
   const inGame = G && !$('#game').classList.contains('hidden');
   if (inGame && G.daily) {
     // Tages-Challenge: Abbrechen zählt als gespielt (sonst könnte man sie beliebig oft neu versuchen)
-    if (!confirm(tx('Challenge abbrechen? Sie zählt dann mit den bisherigen Punkten – heute geht es nicht nochmal.'))) return;
-    return Daily.finish(true);
+    const g = G;
+    if (!await ask(tx('Challenge abbrechen? Sie zählt dann mit den bisherigen Punkten – heute geht es nicht nochmal.'), { ok: tx('Abbrechen'), cancel: tx('Weiterspielen'), danger: true })) return;
+    if (G === g) Daily.finish(true);
+    return;
   }
-  if (inGame && !confirm(tx('Spiel beenden? Der bisherige Punktestand geht verloren.'))) return;
+  if (inGame && !await ask(tx('Spiel beenden? Der bisherige Punktestand geht verloren.'), { ok: tx('Beenden'), cancel: tx('Weiterspielen'), danger: true })) return;
   goHome();
 }
 $('#homeBtn').onclick = goHome;
@@ -1005,13 +1033,13 @@ $('#setLadder').onclick = e => {
   opt.ladder = b.dataset.v; LS.set('ladder', opt.ladder); renderSettings();
   if (G && !$('#game').classList.contains('hidden')) toast(tx('Gilt ab dem nächsten Spiel'));
 };
-$('#btnResetAll').onclick = () => {
-  if (!confirm(tx('Alles löschen, was Needle Drop auf diesem Gerät gespeichert hat?'))) return;
+$('#btnResetAll').onclick = async () => {
+  if (!await ask(tx('Alles löschen, was Needle Drop auf diesem Gerät gespeichert hat?'), { ok: tx('Löschen'), danger: true })) return;
   try { Object.keys(localStorage).filter(k => k.startsWith('mq.')).forEach(k => localStorage.removeItem(k)); } catch {}
   location.reload();
 };
-$('#btnResetBest').onclick = () => {
-  if (!confirm(tx('Alle Rekorde auf diesem Gerät löschen?'))) return;
+$('#btnResetBest').onclick = async () => {
+  if (!await ask(tx('Alle Rekorde auf diesem Gerät löschen?'), { ok: tx('Löschen'), danger: true })) return;
   try { Object.keys(localStorage).filter(k => k.startsWith('mq.best')).forEach(k => localStorage.removeItem(k)); } catch {}
   toast(tx('Rekorde gelöscht'));
 };
@@ -1048,7 +1076,7 @@ gi.addEventListener('keydown', e => {
 $('#suggest').addEventListener('pointerdown', e => { const li = e.target.closest('li'); if (li) { e.preventDefault(); pick(+li.dataset.i); } });
 gi.addEventListener('blur', () => setTimeout(closeSuggest, 150));
 document.addEventListener('keydown', e => {
-  if ($('#game').classList.contains('hidden') || e.target === gi || sheet.open) return;
+  if ($('#game').classList.contains('hidden') || e.target === gi || sheet.open || $('#dlgAsk').open) return;
   if (e.target.matches?.('input,select,textarea')) return;
   if (e.code === 'Space') { e.preventDefault(); R()?.done ? nextRound() : $('#disc').click(); }
   else if (e.key === 'ArrowUp') { e.preventDefault(); setVol(opt.vol + 5); }
