@@ -1,5 +1,5 @@
 /* Needle Drop – Spielablauf und Anzeige */
-const APP_VERSION = '1.5.0', APP_DATE = '07.11.2026'; // bei jedem Update erhöhen + CHANGELOG.md ergänzen
+const APP_VERSION = '1.5.1', APP_DATE = '07.11.2026'; // bei jedem Update erhöhen + CHANGELOG.md ergänzen
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 
@@ -44,12 +44,12 @@ const CATS = [
   { id: 'derap', group: 'de', name: 'Deutschrap', icon: 'mic', sub: 'Von den Klassikern bis heute', color: '#c81e4a', src: [P(10578289242), P(146820791)] },
   { id: 'depop', group: 'de', name: 'Deutsch-Pop', icon: 'star', sub: 'Deutschsprachige Pop-Hits', color: '#38bdf8', src: [P(11242422704)] },
   { id: 'schlager', group: 'de', name: 'Schlager & Party', icon: 'party', sub: 'Schlager, Malle, Après-Ski', color: '#ff4fa3', src: [P(8699026122), P(10328601542), P(12244014291)] },
-  { id: 'ndw', group: 'de', name: 'Neue Deutsche Welle', icon: 'bolt', sub: 'Die 80er auf Deutsch', color: '#f7e400', src: [P(6758361584)] },
+  { id: 'ndw', group: 'de', name: 'Neue Deutsche Welle', icon: 'sea', sub: 'Die 80er auf Deutsch', color: '#f7e400', src: [P(6758361584)] },
   // Spezial
   { id: 'now', group: 'special', name: 'Aktuelle Hits', icon: 'trend', sub: 'Charts Deutschland & weltweit', color: '#22c55e', src: [P(1111143121), P(3155776842)] },
-  { id: 'billion', group: 'special', name: 'Billionärs Club', icon: 'diamond', sub: 'Über 1 Mrd. Spotify-Streams', color: '#67e8f9', src: [{ type: 'static', url: 'data/billions.json' }] },
-  { id: 'tiktok', group: 'special', name: 'TikTok-Hits', icon: 'phone', sub: 'Was gerade viral geht', color: '#fe2c55', src: [P(4403076402)] },
-  { id: 'film', group: 'special', name: 'Film & Serien', icon: 'film', sub: 'Soundtracks und Titelsongs', color: '#d9a520', src: [P(754776991), P(6238866284), P(13253799423)] },
+  { id: 'billion', group: 'special', name: 'Billionärs Club', icon: 'diamond', sub: 'Über 1 Mrd. Spotify-Streams', color: '#e5a50a', src: [{ type: 'static', url: 'data/billions.json' }] },
+  { id: 'tiktok', group: 'special', name: 'TikTok-Hits', icon: 'phone', sub: 'Was gerade viral geht', color: '#25f4ee', src: [P(4403076402)] },
+  { id: 'film', group: 'special', name: 'Film & Serien', icon: 'clapper', sub: 'Soundtracks und Titelsongs', color: '#d62d3a', src: [P(754776991), P(6238866284), P(13253799423)] },
   { id: 'disney', group: 'special', name: 'Disney', icon: 'castle', sub: 'Die großen Disney-Songs (deutsch)', color: '#2f6bff', src: [P(970058271)] },
   { id: 'esc', group: 'special', name: 'Eurovision', icon: 'globe', sub: 'Sieger und Fan-Lieblinge', color: '#9b5cf6', src: [P(9037748342), P(12593394863)] },
   { id: 'custom', group: 'special', name: 'Eigene Playlist', icon: 'link', sub: 'Spotify- oder Deezer-Link', color: '#6b7280', src: null },

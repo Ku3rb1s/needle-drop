@@ -2,6 +2,11 @@
 
 Die Versionsnummer steht in `js/quiz.js` (`APP_VERSION`) und unten in den Einstellungen. In `index.html` bei jedem Update auch `?v=` an CSS/JS-Dateien erhöhen.
 
+## 1.5.1 – 07.11.2026
+- Billionärs Club wieder in Gold
+- Film & Serien: Kinosaal-Rot und Filmklappe als Icon; TikTok-Hits jetzt in TikTok-Cyan
+- Neue Deutsche Welle: Welle statt Blitz als Icon
+
 ## 1.5.0 – 07.11.2026
 - Kategorien aufgeräumt: Reiter (Jahrzehnte, International, Deutsch, Spezial) statt aller 22 Kategorien auf einmal, kompakte Kacheln
 - Neu: Versionsnummer und „Neuerungen“ unten in den Einstellungen
