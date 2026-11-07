@@ -2,6 +2,9 @@
 
 Die Versionsnummer steht in `js/quiz.js` (`APP_VERSION`) und unten in den Einstellungen. In `index.html` bei jedem Update auch `?v=` an CSS/JS-Dateien erhöhen.
 
+## 1.14.1 – 07.11.2026
+- iPhone/Handy: Ist ein Fenster offen (z. B. Einstellungen), scrollt die Seite dahinter nicht mehr mit; nach dem Schließen steht sie wieder an derselben Stelle
+
 ## 1.14.0 – 07.11.2026
 - Neu: **Erfolge** – 16 Auszeichnungen, z. B. „Blitzmerker“ (Song in 0,1 s erkannt), „Volltreffer“, „Ohne Hilfe“ oder „Eine ganze Woche“ Tages-Challenge. Neue Erfolge erscheinen nach der Runde, alle stehen in den Einstellungen unter „Erfolge“. Mit dem persönlichen Code auf allen Geräten
 - „Deine Statistik“ in den Einstellungen zählt jetzt auch die anderen verbundenen Geräte mit
