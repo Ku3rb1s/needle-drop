@@ -2,6 +2,9 @@
 
 Die Versionsnummer steht in `js/quiz.js` (`APP_VERSION`) und unten in den Einstellungen. In `index.html` bei jedem Update auch `?v=` an CSS/JS-Dateien erhöhen.
 
+## 1.15.1 – 07.11.2026
+- Mehr Avatare: rund 95 Emojis zur Auswahl, davon über 50 Tiere. Ein Tipp auf den Avatar öffnet jetzt ein Auswahl-Fenster (Tiere, Musik, Sonstiges) – gilt in allen Jukebox-Spielen
+
 ## 1.15.0 – 07.11.2026
 - **Viel mehr Songs** in allen Kategorien: jede ist jetzt aus vielen Redaktions-Playlists gemischt, ohne doppelte Songs. 2000er, 2010er und 2020er haben je 700 statt 70–125 Songs, 70er bis 90er 560–660, Pop 678, Schlager 569, Rock und EDM je 514
 - Die Jahrzehnte nutzen die offiziellen Jahres-Hitlisten von Deezer – damit stimmt das Jahrzehnt

@@ -1,5 +1,5 @@
 /* Needle Drop – Spielablauf und Anzeige */
-const APP_VERSION = '1.15.0', APP_DATE = '07.11.2026'; // bei jedem Update erhöhen + CHANGELOG.md ergänzen
+const APP_VERSION = '1.15.1', APP_DATE = '07.11.2026'; // bei jedem Update erhöhen + CHANGELOG.md ergänzen
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 
@@ -898,7 +898,7 @@ function renderProfile() {
   if (document.activeElement !== $('#profName')) $('#profName').value = p.name;
   $('#profName').placeholder = tx('Dein Name');
 }
-$('#profEmoji').onclick = () => { $('#profEmoji').textContent = Profile.nextEmoji(); };
+$('#profEmoji').onclick = () => Profile.pick(e => { $('#profEmoji').textContent = e; });   // Auswahl-Fenster (js/profile.js)
 $('#profName').oninput = () => Profile.set({ name: $('#profName').value });
 $('#profName').onkeydown = e => { if (e.key === 'Enter') $('#profName').blur(); };
 
