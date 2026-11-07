@@ -124,12 +124,18 @@ function prepare(r) {
     try { r.buf = await Snip.load(t.preview); }
     catch { t = r.track = await DZ.track(t.id); r.buf = await Snip.load(t.preview); }
     r.offset = Snip.findStart(r.buf, rule("startMode"), STEPS[STEPS.length - 1]);
-    DZ.album(t.album.id).then(a => r.album = a).catch(() => {});
+    DZ.album(t.album.id).then(a => {
+      r.album = a;
+      if (G && R() === r && !r.done && r.hints.length) renderHints(); // Tipp schon offen? Jahr/Genre nachtragen
+      if (G && R() === r && r.done) { const y = a.release_date?.slice(0, 4); $('#rvMeta').textContent = [t.album?.title, y].filter(Boolean).join(' · '); }
+    }).catch(() => {});
   })();
 }
 
 /* ---------- Spiel ---------- */
+let busy = false; // verhindert doppelte Starts/Rundenwechsel bei Doppelklick oder Leertaste
 async function startGame() {
+  if (busy) return;
   const cat = CATS.find(c => c.id === opt.cat);
   let c = cat;
   if (cat.id === 'custom') {
@@ -140,6 +146,7 @@ async function startGame() {
   }
   loading(true, 'Lade Songs…');
   Snip.ac(); // Audio im Klick freischalten (iOS)
+  busy = true;
   try {
     const pool = await loadPool(c);
     if (pool.length < 3) throw new Error('Zu wenige abspielbare Songs in dieser Quelle.');
@@ -148,11 +155,14 @@ async function startGame() {
     G = { cat, cand, pool, next: 0, rounds: [], i: -1, score: 0, n: Math.min(opt.count, cand.length) };
     setCat(cat.color);
     show('game');
+    busy = false;
     await nextRound();
+    if (!G) return;
+    if (!G.rounds.length) throw new Error('Keiner der Songs ließ sich laden. Versuch es gleich nochmal oder nimm eine andere Kategorie.');
   } catch (e) {
     toast(e.message || 'Fehler beim Laden');
-    if (!G?.rounds.length) show('home');
-  } finally { loading(false); }
+    G = null; show('home');
+  } finally { busy = false; loading(false); }
 }
 
 function newRound() {
@@ -161,6 +171,11 @@ function newRound() {
 }
 
 async function nextRound() {
+  if (busy || !G) return;
+  busy = true;
+  try { await nextRoundInner(); } finally { busy = false; }
+}
+async function nextRoundInner() {
   Snip.stop();
   G.i++;
   if (G.i >= G.n) return endGame();
@@ -169,7 +184,7 @@ async function nextRound() {
     for (;;) {
       const r = G.pending || newRound();
       G.pending = null;
-      if (!r) { G.n = G.i; return endGame(); }
+      if (!r) { G.n = G.i; return G.i ? endGame() : undefined; } // keine weiteren Songs ladbar
       try { await prepare(r); G.rounds[G.i] = r; break; } catch { /* Song überspringen */ }
     }
   } finally { loading(false); }
@@ -354,7 +369,7 @@ function renderHome() {
   $('#startLbl').textContent = `${c.name} spielen`;
   const best = LS.get(bestKey(), 0);
   renderSetup();
-  window.Daily?.renderCard();
+  if (typeof Daily !== 'undefined') Daily.renderCard();
   $('#bestPill').textContent = best ?`🏆 Rekord ${fmtN(best)}` : `${DIFF[opt.diff].label} · ${opt.count} Songs`;
 }
 
@@ -473,7 +488,7 @@ function renderHints() {
     const genre = a?.genres?.data?.map(g => g.name).slice(0, 2).join(', ');
     let when = y ? `${Math.floor(y / 10) * 10}er` : '';
     if (G.cat.decade && y && Math.floor(y / 10) * 10 !== G.cat.decade) when = `${G.cat.decade}er`; // Best-of-Alben haben oft falsche Jahre
-    out.push(row('Jahrzehnt', when || 'unbekannt'));
+    out.push(row('Jahrzehnt', when || (a ? 'unbekannt' : 'wird geladen…')));
     if (genre) out.push(row('Genre', esc(genre)));
   }
   if (r.hints.includes(1) && !r.hints.includes(2))
@@ -488,10 +503,13 @@ function renderHints() {
   if (r.hints.includes(2)) pixelate(t.album?.cover_medium, cv, 7);
 }
 
+let pixTok = 0;
 function pixelate(src, cv, n) {
   if (!src) return;
+  const tok = ++pixTok;
   const img = new Image();
   img.onload = () => {
+    if (tok !== pixTok) return; // inzwischen anderer Song
     const tiny = document.createElement('canvas'); tiny.width = tiny.height = n;
     tiny.getContext('2d').drawImage(img, 0, 0, n, n);
     const c = cv.getContext('2d');
@@ -687,7 +705,11 @@ gi.addEventListener('input', onType);
 gi.addEventListener('keydown', e => {
   if (e.key === 'ArrowDown' && sugg.length) { sel = (sel + 1) % sugg.length; renderSuggest(gi.value.trim()); e.preventDefault(); }
   else if (e.key === 'ArrowUp' && sugg.length) { sel = (sel - 1 + sugg.length) % sugg.length; renderSuggest(gi.value.trim()); e.preventDefault(); }
-  else if (e.key === 'Enter') { if (sel >= 0) pick(sel); e.preventDefault(); }
+  else if (e.key === 'Enter') {
+    e.preventDefault();
+    if (sel >= 0) pick(sel);
+    else if (gi.value.trim().length >= 2) { clearTimeout(deb); seq++; onType(); } // Vorschläge sofort holen
+  }
   else if (e.key === 'Escape') closeSuggest();
 });
 $('#suggest').addEventListener('pointerdown', e => { const li = e.target.closest('li'); if (li) { e.preventDefault(); pick(+li.dataset.i); } });

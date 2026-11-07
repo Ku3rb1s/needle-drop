@@ -48,6 +48,8 @@ const Daily = (() => {
   async function start() {
     const d = today();
     if (result(d)) return showResult(d);
+    if (busy) return;
+    busy = true;
     loading(true, 'Lade die heutige Challenge…');
     Snip.ac();
     try {
@@ -62,11 +64,13 @@ const Daily = (() => {
       G = { cat: CAT, cand, pool, next: 0, rounds: [], i: -1, score: 0, n: N, daily: { date: d, no: dayNo(d) } };
       setCat(CAT.color);
       show('game');
+      busy = false;
       await nextRound();
+      if (G && !G.rounds.length) throw new Error('Die Challenge konnte nicht geladen werden. Prüf die Verbindung und versuch es nochmal.');
     } catch (e) {
       toast(e.message || 'Challenge konnte nicht geladen werden');
       G = null; show('home');
-    } finally { loading(false); }
+    } finally { busy = false; loading(false); }
   }
 
   /* ---------- Ende (oder Abbruch) ---------- */
@@ -81,7 +85,8 @@ const Daily = (() => {
     while (items.length < N) items.push({ t: '–', a: 'nicht gespielt', c: '', p: 0, e: '⬛⬛⬛⬛⬛⬛' });
     const score = items.reduce((s, x) => s + x.p, 0);
     const L = log();
-    L[date] = { score, found: rounds.filter(r => r.won).length, items, aborted: aborted || undefined };
+    const complete = rounds.length >= N && rounds.every(r => r.done);
+    L[date] = { score, found: rounds.filter(r => r.won).length, items, aborted: (aborted && !complete) || undefined };
     LS.set('daily', L);
     LS.set('dailyBest', Math.max(LS.get('dailyBest', 0), streak()));
     G = null;

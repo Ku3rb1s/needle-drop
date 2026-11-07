@@ -4,7 +4,31 @@
 const Snip = (() => {
   let ctx = null, master = null, cur = null, vol = 0.8;
 
+  /* iPhone/iPad: Web Audio ist bei eingeschaltetem Lautlos-Schalter stumm. Abhilfe:
+     neueres Safari → audioSession „playback“; älteres → einmal ein (lautloses) <audio> starten,
+     dann behandelt iOS die Seite wie einen Musik-Player. */
+  let iosDone = false, silent = null;
+  const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  function unlockIOS() {
+    if (iosDone) return;
+    iosDone = true;
+    try { if (navigator.audioSession) { navigator.audioSession.type = 'playback'; return; } } catch {}
+    if (!isIOS) return;
+    if (silent) { silent.play().catch(() => { iosDone = false; }); return; } // erneut versuchen (nur bei Nutzer-Klick erfolgreich)
+    try {
+      // 0,5 s Stille als WAV (8 kHz, 8 bit, mono), in Schleife
+      const n = 4000, b = new Uint8Array(44 + n), v = new DataView(b.buffer);
+      const str = (o, s) => [...s].forEach((c, i) => b[o + i] = c.charCodeAt(0));
+      str(0, 'RIFF'); v.setUint32(4, 36 + n, true); str(8, 'WAVEfmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true);
+      v.setUint16(22, 1, true); v.setUint32(24, 8000, true); v.setUint32(28, 8000, true); v.setUint16(32, 1, true); v.setUint16(34, 8, true);
+      str(36, 'data'); v.setUint32(40, n, true); b.fill(128, 44);
+      silent = new Audio(URL.createObjectURL(new Blob([b], { type: 'audio/wav' })));
+      silent.loop = true; silent.setAttribute('playsinline', ''); silent.play().catch(() => { iosDone = false; });
+    } catch {}
+  }
+
   function ac() {
+    unlockIOS();
     if (!ctx) {
       ctx = new (window.AudioContext || window.webkitAudioContext)();
       master = ctx.createGain();
@@ -95,7 +119,7 @@ const Snip = (() => {
     return me;
   }
 
-  const elapsed = () => cur ? Math.max(0, ac().currentTime - cur.t0) : -1;
+  const elapsed = () => (cur && ctx) ? Math.max(0, ctx.currentTime - cur.t0) : -1;
 
   return { ac, load, findStart, play, stop, elapsed, setVolume };
 })();

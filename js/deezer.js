@@ -2,6 +2,12 @@
    Die Vorschau-MP3s (cdnt-preview.dzcdn.net) erlauben CORS – die lädt audio.js direkt per fetch. */
 const DZ = (() => {
   let n = 0;
+  // Deezer-Fehlercodes verständlich machen (https://developers.deezer.com/api/errors)
+  const errText = e => ({
+    4: 'Deezer ist gerade überlastet – bitte kurz warten und nochmal versuchen.',
+    700: 'Deezer ist gerade nicht erreichbar.',
+    800: 'Nicht gefunden – ist die Playlist öffentlich und der Link richtig?',
+  })[e.code] || 'Deezer-Fehler: ' + (e.message || 'unbekannt');
 
   function jsonp(path, params = {}) {
     return new Promise((resolve, reject) => {
@@ -14,7 +20,7 @@ const DZ = (() => {
         s.remove();
         err ? reject(err) : resolve(data);
       }
-      window[cb] = d => (d && d.error) ? done(new Error(d.error.message || 'Deezer-Fehler')) : done(null, d);
+      window[cb] = d => (d && d.error) ? done(new Error(errText(d.error))) : done(null, d);
       s.onerror = () => done(new Error('Deezer nicht erreichbar'));
       s.src = `https://api.deezer.com${path}?${new URLSearchParams({ ...params, output: 'jsonp', callback: cb })}`;
       document.head.appendChild(s);
