@@ -163,6 +163,15 @@ header{max-width:720px}
 .daily-r{display:inline-flex;align-items:center;gap:4px;font-weight:700;color:var(--quiz1);white-space:nowrap}
 .daily-r .ic{width:1.1em;height:1.1em}
 .daily.done .daily-r{color:var(--accent)}
+.daily-arch{display:flex;align-items:center;gap:6px;margin:-8px 0 14px auto;padding:4px 8px;background:none;border:0;color:var(--muted);font:inherit;font-size:.84rem;font-weight:600;cursor:pointer}
+.daily-arch:hover{color:var(--text)}
+.daily-arch .ic{width:1em;height:1em}
+.daily-arch .sub{font-weight:500}
+.daily-arch.hidden{display:none}
+.daily-next a{color:var(--quiz1);font-weight:700}
+#archiveList .arch-no{min-width:42px;font-family:Outfit,system-ui,sans-serif;font-weight:800;color:var(--muted)}
+#archiveList .trail small{display:block;font-size:.7rem;font-weight:500;color:var(--muted)}
+#archiveList .trail.play{display:inline-flex;align-items:center;gap:2px;color:var(--quiz1);font-weight:700}
 .daily-next{margin-top:10px;font-size:.9rem;color:var(--muted)}
 .daily-next b{color:var(--text);font-variant-numeric:tabular-nums}
 
@@ -254,3 +263,17 @@ header{max-width:720px}
 /* Platte: sichtbarer Fokus für Tastatur */
 #disc:focus-visible{outline:none}
 #disc:focus-visible .disc{box-shadow:0 0 0 3px var(--cat),0 20px 50px -15px rgba(0,0,0,.8)}
+
+/* Modi */
+.modes button{font-size:.92rem}
+.seg.fx{margin-top:6px;flex-wrap:wrap}
+.seg.fx button{font-size:.82rem;padding:.55em .2em;flex:1 1 18%}
+.setup .chip.mode{border-color:color-mix(in srgb,var(--cat) 60%,transparent);color:var(--text)}
+.choice.artist b{font-size:1.05rem}
+@media (max-width:640px){.seg.fx button{flex:1 1 30%}}
+
+/* Spielerprofil */
+.cell.prof{gap:12px;padding-top:10px;padding-bottom:10px}
+.prof-emo{width:46px;height:46px;flex:none;border-radius:50%;border:1px solid var(--line);background:rgba(255,255,255,.08);font-size:1.5rem;line-height:1;cursor:pointer;padding:0;display:grid;place-items:center}
+.prof-emo:active{transform:scale(.92)}
+.cell.prof input.bare{font-size:1.05rem;font-weight:600}

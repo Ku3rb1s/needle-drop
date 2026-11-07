@@ -1,5 +1,5 @@
 /* Needle Drop – Spielablauf und Anzeige */
-const APP_VERSION = '1.10.0', APP_DATE = '07.11.2026'; // bei jedem Update erhöhen + CHANGELOG.md ergänzen
+const APP_VERSION = '1.11.0', APP_DATE = '07.11.2026'; // bei jedem Update erhöhen + CHANGELOG.md ergänzen
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 
@@ -19,6 +19,14 @@ const START_INFO = {
   random: 'Irgendeine laute Stelle der Vorschau – am schwersten.',
 };
 const PTS = [600, 500, 400, 300, 200, 100];
+// Spielmodi – „Standard“ ist das normale Spiel
+const MODES = {
+  standard: { label: 'Standard', icon: '', info: 'Titel und Interpret erkennen – das normale Spiel.' },
+  crazy: { label: 'Verrückt', icon: '🌀', info: 'Die Ausschnitte werden verzerrt: rückwärts, unter Wasser, schneller oder langsamer. Die Auflösung läuft normal.' },
+  artist: { label: 'Nur Interpret', icon: '🎤', info: 'Es reicht, den Interpreten zu erkennen – leichter, gut für gemischte Runden.' },
+};
+const FX_NAMES = { random: 'Zufall', reverse: 'Rückwärts', underwater: 'Unterwasser', chipmunk: 'Chipmunk', slow: 'Zeitlupe' };
+const FX_LIST = ['reverse', 'underwater', 'chipmunk', 'slow'];
 const HINT_COST = [50, 100, 150];
 const HINT_FROM = 1; // Tipps erst ab Stufe 2 (0,5 s)
 const LOC = () => ({ de: 'de-DE', en: 'en-GB', fr: 'fr-FR', es: 'es-ES', nb: 'nb-NO' }[curLang] || 'de-DE');
@@ -88,6 +96,7 @@ const opt = {
   startMode: LS.get('startMode2', 'start'), hintsOn: LS.get('hintsOn', 'on'), theme: LS.get('theme', 'graphit'),
   ladder: LS.get('ladder', 'classic'), answer: LS.get('answer', 'search'), auto: LS.get('auto', false),
   clean: LS.get('clean', false), vol: LS.get('vol', 80), muted: false, sfx: LS.get('sfx', true),
+  mode: LS.get('mode', 'standard'), fx: LS.get('fx', 'random'),
 };
 // Gespeicherte Werte prüfen – unbekannte (z. B. nach Umbauten) auf Standard zurücksetzen
 if (!CATS.some(c => c.id === opt.cat)) opt.cat = '80s';
@@ -96,11 +105,14 @@ if (!LADDERS[opt.ladder]) opt.ladder = 'classic';
 if (!START_INFO[opt.startMode] && !['start', 'hook', 'random'].includes(opt.startMode)) opt.startMode = 'start';
 if (![5, 10, 15, 20].includes(opt.count)) opt.count = 10;
 if (!['search', 'mc'].includes(opt.answer)) opt.answer = 'search';
+if (!MODES[opt.mode]) opt.mode = 'standard';
+if (!FX_NAMES[opt.fx]) opt.fx = 'random';
 
 // Während der Tages-Challenge gelten feste Regeln (für alle gleich), sonst die eigenen Einstellungen
-const DAILY_RULES = { answer: "search", startMode: "start", hintsOn: "on" };
+const DAILY_RULES = { answer: "search", startMode: "start", hintsOn: "on", mode: "standard" };
+const isArtistMode = () => rule('mode') === 'artist';
 const rule = k => (G && G.daily && k in DAILY_RULES) ? DAILY_RULES[k] : opt[k];
-const bestKey = (cat = opt.cat) => `best2.${cat}.${opt.diff}.${opt.count}.${opt.ladder}.${opt.answer}`;
+const bestKey = (cat = opt.cat) => `best2.${cat}.${opt.diff}.${opt.count}.${opt.ladder}.${opt.answer}` + (opt.mode === 'standard' ? '' : `.${opt.mode}${opt.mode === 'crazy' ? '.' + opt.fx : ''}`);
 const pools = {};
 let G = null;
 let catTab = null; // gerade offener Kategorie-Reiter auf der Startseite
@@ -214,7 +226,8 @@ async function startGame() {
 
 function newRound() {
   const t = G.cand[G.next++];
-  return t && { track: t, stage: 0, artistAt: null, hints: [], hintCost: 0, guesses: [], done: false, won: false, pts: 0 };
+  const fx = rule('mode') === 'crazy' ? (opt.fx === 'random' ? FX_LIST[Math.floor(Math.random() * FX_LIST.length)] : opt.fx) : null;
+  return t && { track: t, stage: 0, artistAt: null, hints: [], hintCost: 0, guesses: [], done: false, won: false, pts: 0, fx };
 }
 
 async function nextRound() {
@@ -250,7 +263,7 @@ function playSnippet() {
   const dur = r.done ? Math.min(30, r.buf.duration - r.offset) : STEPS[r.stage];
   const disc = $('#disc');
   disc.classList.add('playing', 'counting'); disc.classList.remove('paused');
-  Snip.play(r.buf, r.offset, dur, () => { disc.classList.remove('playing', 'counting'); disc.classList.add('paused'); });
+  Snip.play(r.buf, r.offset, dur, () => { disc.classList.remove('playing', 'counting'); disc.classList.add('paused'); }, r.done ? null : r.fx); // Auflösung immer ohne Effekt
   animate(dur, !r.done);
 }
 
@@ -277,6 +290,11 @@ function guess(g) {
   const r = R();
   if (r.done) return;
   const { songOk, artistOk, titleOk } = judge(g, r.track);
+  if (isArtistMode()) {
+    const text = g.artist?.name || '';
+    if (artistOk) { r.guesses.push({ text, kind: 'ok' }); return finishRound(true); }
+    r.guesses.push({ text, kind: 'bad' }); sound('wrong'); shake(); return advance(false);
+  }
   const text = `${showTitle(g)} – ${g.artist?.name || ''}`;
   if (songOk) { r.guesses.push({ text, kind: 'ok' }); return finishRound(true); }
   let note = '';
@@ -319,7 +337,7 @@ function finishRound(won) {
   let calc = '';
   if (won) {
     r.pts = possible(r);
-    calc = tx('Erkannt bei {s}: {p}', { s: fmtS(STEPS[r.stage]), p: PTS[r.stage] }) + (r.hintCost ? ' ' + tx('− {n} für Tipps', { n: r.hintCost }) : '');
+    calc = tx(isArtistMode() ? 'Interpret erkannt bei {s}: {p}' : 'Erkannt bei {s}: {p}', { s: fmtS(STEPS[r.stage]), p: PTS[r.stage] }) + (r.hintCost ? ' ' + tx('− {n} für Tipps', { n: r.hintCost }) : '');
   } else if (r.artistAt != null) {
     const half = PTS[r.artistAt] / 2;
     r.pts = Math.max(0, half - r.hintCost);
@@ -379,12 +397,12 @@ function endGame() {
   const found = G.rounds.filter(r => r.won).length;
   recordStats(G);
   lastResult = {
-    title: G.cat.name, sub: DIFF[opt.diff].label, score: G.score, found, n: G.n, max,
+    title: G.cat.name, sub: DIFF[opt.diff].label + modeSuffix(), score: G.score, found, n: G.n, max,
     items: G.rounds.map(r => ({ t: showTitle(r.track), a: r.track.artist?.name || '', c: r.track.album?.cover_medium || '', e: emojiRow(r), p: r.pts })),
     text: shareText(),
   };
   if (found === G.n && G.n >= 5) confetti(140);
-  $('#endCat').textContent = `${G.cat.name} · ${DIFF[opt.diff].label}`;
+  $('#endCat').textContent = `${G.cat.name} · ${DIFF[opt.diff].label}` + modeSuffix();
   $('#endFound').textContent = tx('{a} von {b} erkannt', { a: found, b: G.n });
   $('#endScore').textContent = fmtN(G.score);
   $('#endSub').textContent = tx('von {n} möglichen', { n: fmtN(max) }) + (isBest ? ' · 🏆 ' + tx('Neuer Rekord!') : best ? ' · ' + tx('Rekord {n}', { n: fmtN(best) }) : '');
@@ -404,7 +422,9 @@ function emojiRow(r) {
   }).join('');
 }
 
-const shareText = () => `🎵 Needle Drop – ${G.cat.name} (${DIFF[opt.diff].label})\n${tx('{n} Punkte', { n: fmtN(G.score) })}\n${G.rounds.map(emojiRow).join('\n')}\nhttps://ku3rb1s.github.io/needle-drop/`;
+const modeLabel = () => opt.mode === 'crazy' ? FX_NAMES[opt.fx] : MODES[opt.mode].label;
+const modeSuffix = () => opt.mode === 'standard' ? '' : ` · ${MODES[opt.mode].icon} ${tx(modeLabel())}`;
+const shareText = () => `🎵 Needle Drop – ${G.cat.name} (${DIFF[opt.diff].label}${modeSuffix()})\n${tx('{n} Punkte', { n: fmtN(G.score) })}\n${G.rounds.map(emojiRow).join('\n')}${Profile.tag() ? '\n' + Profile.tag() : ''}\nhttps://ku3rb1s.github.io/needle-drop/`;
 
 /* ---------- Statistik (nur auf diesem Gerät) ---------- */
 let lastResult = null; // letztes Ergebnis – für „Teilen“ (Text + Bild)
@@ -467,6 +487,8 @@ async function resultImage(res) {
   const logo = await load('icon-192.png');
   if (logo) { x.save(); roundRect(x, 90, 110, 120, 120, 30); x.clip(); x.drawImage(logo, 90, 110, 120, 120); x.restore(); }
   x.fillStyle = '#fff'; x.font = font(900, 64); x.fillText('Needle Drop', 240, 192);
+  const who = Profile.tag();
+  if (who) { x.textAlign = 'right'; x.fillStyle = '#a1a1ad'; x.font = font(700, 44); x.fillText(clip(x, who, 330), W - 90, 186); x.textAlign = 'left'; }
   x.fillStyle = cat; x.font = font(800, 40); x.fillText((res.title + (res.sub ? ' · ' + res.sub : '')).toUpperCase(), 90, 340);
   x.fillStyle = '#fff'; x.font = font(900, 210); x.fillText(fmtN(res.score), 82, 540);
   x.fillStyle = '#a1a1ad'; x.font = font(600, 44); x.fillText(tx('Punkte') + ' · ' + tx('{a} von {b} erkannt', { a: res.found, b: res.n }), 90, 615);
@@ -559,6 +581,10 @@ function renderHome() {
   $('#customBox').classList.toggle('hidden', opt.cat !== 'custom');
   $('#customNote').classList.toggle('hidden', opt.cat !== 'custom');
   $$('#diff button').forEach(b => b.classList.toggle('on', b.dataset.v === opt.diff));
+  $$('#modeSeg button').forEach(b => b.classList.toggle('on', b.dataset.v === opt.mode));
+  $$('#fxSeg button').forEach(b => b.classList.toggle('on', b.dataset.v === opt.fx));
+  $('#fxSeg').classList.toggle('hidden', opt.mode !== 'crazy');
+  $('#modeInfo').textContent = tx(MODES[opt.mode].info);
   $('#diffInfo').textContent = DIFF[opt.diff].info;
   const icon = $('#homeCatIcon');
   icon.className = 'cat-icon' + (c.group === 'decades' ? ' dec' : '');
@@ -576,6 +602,7 @@ function renderSetup() {
   const L = LADDERS[opt.ladder];
   const chip = (ic, t) => `<span class="chip"><svg class="ic"><use href="#i-${ic}"/></svg>${t}</span>`;
   $('#setupChips').innerHTML = [
+    ...(opt.mode !== 'standard' ? [`<span class="chip mode">${MODES[opt.mode].icon} ${tx(modeLabel())}</span>`] : []),
     chip('clock', `${fmtS(L[0])} – ${fmtS(L[L.length - 1])}`),
     chip(opt.answer === 'mc' ? 'list' : 'search', tx(opt.answer === 'mc' ? '4 Antworten' : 'Suchen')),
     chip('start', tx({ start: 'Am Anfang', hook: 'Hook', random: 'Zufällig' }[opt.startMode])),
@@ -613,7 +640,8 @@ function renderRound() {
     $('#playArea').classList.remove('hidden');
   }
   renderMeta();
-  $('#gameKicker').textContent = G.daily ? `${G.cat.name} #${G.daily.no}` : G.cat.name;
+  $('#gameKicker').textContent = (G.daily ? `${G.cat.name} #${G.daily.no}` : G.cat.name) + (r.fx ? ` · 🌀 ${tx(FX_NAMES[r.fx])}` : isArtistMode() ? ` · 🎤 ${tx('Nur Interpret')}` : '');
+  $('#guessInput').placeholder = tx(isArtistMode() ? 'Interpret suchen…' : 'Song oder Interpret suchen…');
   const icon = $('#gameCatIcon');
   icon.className = 'cat-icon' + (G.cat.group === 'decades' ? ' dec' : '');
   icon.innerHTML = catIcon(G.cat);
@@ -652,13 +680,19 @@ function renderChoices() {
     r.choices = shuffle([r.track, ...others]);
     r.wrong = [];
   }
-  $('#choices').innerHTML = r.choices.map((t, i) => `<button class="choice${r.wrong.includes(i) ? ' wrong' : ''}" data-c="${i}" ${r.wrong.includes(i) ? 'disabled' : ''}>
-    <b>${esc(showTitle(t))}</b><small>${esc(t.artist?.name || '')}</small></button>`).join('');
+  const am = isArtistMode();
+  $('#choices').innerHTML = r.choices.map((t, i) => `<button class="choice${am ? ' artist' : ''}${r.wrong.includes(i) ? ' wrong' : ''}" data-c="${i}" ${r.wrong.includes(i) ? 'disabled' : ''}>
+    <b>${esc(am ? t.artist?.name || '' : showTitle(t))}</b>${am ? '' : `<small>${esc(t.artist?.name || '')}</small>`}</button>`).join('');
 }
 function choose(i) {
   const r = R();
   if (r.done || r.wrong.includes(i)) return;
   const t = r.choices[i];
+  if (isArtistMode()) {
+    const text = t.artist?.name || '';
+    if (t.id === r.track.id || judge(t, r.track).artistOk) { r.guesses.push({ text, kind: 'ok' }); return finishRound(true); }
+    r.wrong.push(i); r.guesses.push({ text, kind: 'bad' }); sound('wrong'); shake('#choices'); return advance(false);
+  }
   if (t.id === r.track.id) { r.guesses.push({ text: `${showTitle(t)} – ${t.artist?.name || ''}`, kind: 'ok' }); return finishRound(true); }
   r.wrong.push(i);
   r.guesses.push({ text: `${showTitle(t)} – ${t.artist?.name || ''}`, kind: 'bad' });
@@ -790,6 +824,17 @@ function parseChanges(text) {
   return out;
 }
 
+/* Spielerprofil (geteilt mit Bingo und Jukebox) */
+function renderProfile() {
+  const p = Profile.get();
+  $('#profEmoji').textContent = p.emoji;
+  if (document.activeElement !== $('#profName')) $('#profName').value = p.name;
+  $('#profName').placeholder = tx('Dein Name');
+}
+$('#profEmoji').onclick = () => { $('#profEmoji').textContent = Profile.nextEmoji(); };
+$('#profName').oninput = () => Profile.set({ name: $('#profName').value });
+$('#profName').onkeydown = e => { if (e.key === 'Enter') $('#profName').blur(); };
+
 /* Seiten im Einstellungsmenü (Übersicht → Unterseite → zurück) */
 function goPage(p, back = false) {
   const page = $(`#sheetSettings .page[data-page="${p}"]`) || $('#sheetSettings .page[data-page="main"]');
@@ -800,6 +845,7 @@ function goPage(p, back = false) {
   $('#sheetSettings .sheet-body').scrollTop = 0;
   if (page.dataset.page === 'changes') renderChanges();
   if (page.dataset.page === 'stats') renderStats();
+  if (page.dataset.page === 'archive' && typeof Daily !== 'undefined') Daily.renderArchive();
 }
 
 /* ---------- Lautstärke (nur am PC sichtbar – am Handy regeln die Tasten) ---------- */
@@ -823,6 +869,14 @@ function onType() {
   deb = setTimeout(async () => {
     const my = ++seq;
     let res = [];
+    if (isArtistMode()) {
+      try { res = await DZ.searchArtist(q, 8); } catch { return; }
+      if (my !== seq) return;
+      sugg = res.sort((a, b) => (b.nb_fan || 0) - (a.nb_fan || 0)).slice(0, 6)
+        .map(a => ({ id: 'a' + a.id, title: '', artist: { id: a.id, name: a.name }, album: { cover_small: a.picture_small }, isArtist: true }));
+      sel = sugg.length ? 0 : -1;
+      return renderSuggest(q);
+    }
     try { res = await DZ.search(q, 20); } catch { return; }
     if (my !== seq) return;
     const seen = new Set();
@@ -842,7 +896,7 @@ function renderSuggest(q = '') {
   ul.classList.toggle('hidden', !sugg.length);
   ul.innerHTML = sugg.map((t, i) => `<li class="${i === sel ? 'sel' : ''}" data-i="${i}">
     <img src="${t.album?.cover_small || ''}" alt="" loading="lazy">
-    <span><b>${mark(showTitle(t), q)}</b><small>${mark(t.artist?.name || '', q)}</small></span></li>`).join('');
+    <span>${t.isArtist ? `<b>${mark(t.artist.name, q)}</b><small>${tx('Interpret')}</small>` : `<b>${mark(showTitle(t), q)}</b><small>${mark(t.artist?.name || '', q)}</small>`}</span></li>`).join('');
 }
 function closeSuggest() { sugg = []; sel = -1; seq++; $('#suggest').classList.add('hidden'); }
 function pick(i) {
@@ -869,6 +923,14 @@ $('#home').addEventListener('click', e => {
   const b = e.target.closest('[data-id]'); if (!b) return;
   opt.cat = b.dataset.id; LS.set('cat', opt.cat); renderHome();
   if (opt.cat === 'custom') $('#customUrl').focus();
+});
+$('#modeSeg').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  opt.mode = b.dataset.v; LS.set('mode', opt.mode); renderHome();
+});
+$('#fxSeg').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  opt.fx = b.dataset.v; LS.set('fx', opt.fx); renderHome();
 });
 $('#diff').addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
@@ -910,7 +972,7 @@ $('#shareBtn').onclick = shareResult;
 // Einstellungen
 const sheet = $('#sheetSettings');
 const openSettings = (p = 'main') => {
-  renderSettings(); goPage(p); sheet.showModal();
+  renderSettings(); renderProfile(); goPage(p); sheet.showModal();
   LS.set('seenSettings', true); $('#settingsDot').classList.add('hidden');
 };
 $('#btnSettings').onclick = () => openSettings();

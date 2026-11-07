@@ -2,6 +2,16 @@
 
 Die Versionsnummer steht in `js/quiz.js` (`APP_VERSION`) und unten in den Einstellungen. In `index.html` bei jedem Update auch `?v=` an CSS/JS-Dateien erhöhen.
 
+## 1.11.0 – 07.11.2026
+- Neu: **Spielmodi** – über der Kategorie wählbar, Standard bleibt das gewohnte Spiel
+  - **🌀 Verrückt**: Ausschnitte laufen rückwärts, unter Wasser, als Chipmunk oder in Zeitlupe (ein Effekt fest oder jede Runde zufällig). Die Auflösung läuft normal
+  - **🎤 Nur Interpret**: Es reicht, den Interpreten zu erkennen – Suche und 4 Antworten zeigen dann Künstler
+  - Rekorde werden je Modus getrennt gezählt
+- Neu: **Challenge-Archiv** – alle bisherigen Tages-Challenges ansehen und verpasste nachspielen (zählen nicht zur Serie). Link unter der Challenge-Karte
+- Neu: **Spielerprofil** mit Name und Avatar in den Einstellungen – gilt für alle Spiele (Jukebox, Musik-Bingo, Needle Drop), steht beim Teilen unter dem Ergebnis und im Bingo schon beim Beitreten drin
+- Nach dem Ergebnis gibt es Links zum Song auf Spotify und Deezer
+- Statistik der Tages-Challenge ist jetzt auch übersetzt
+
 ## 1.10.0 – 07.11.2026
 - Kategorien überarbeitet – alle nachgemessen nach Bekanntheit der Songs:
   - **EDM**: Avicii, Guetta, Calvin Harris & Dance-Klassiker statt Underground-Tracks

@@ -101,20 +101,53 @@ const Snip = (() => {
     cur = null;
   }
 
-  /** Spielt `dur` Sekunden ab `offset`. Mini-Ein-/Ausblendung gegen Knacken. */
-  function play(buf, offset, dur, onEnd) {
+  /* Effekte für den Modus „Verrückt“. rate = Abspieltempo (verändert auch die Tonhöhe). */
+  const FX = {
+    reverse: { rate: 1 },            // Ausschnitt läuft rückwärts
+    underwater: { rate: 1, low: 420 }, // nur Bässe – wie durch die Wand
+    chipmunk: { rate: 1.5 },         // schneller und höher
+    slow: { rate: 0.72 },            // Zeitlupe: langsamer und tiefer
+  };
+
+  /** Ausschnitt [offset, offset+len] als eigener, umgedrehter Puffer */
+  function reversed(buf, offset, len) {
+    const c = ac(), sr = buf.sampleRate, from = Math.floor(offset * sr), n = Math.floor(len * sr);
+    const out = c.createBuffer(buf.numberOfChannels, n, sr);
+    for (let ch = 0; ch < buf.numberOfChannels; ch++) {
+      const src = buf.getChannelData(ch).subarray(from, from + n), dst = out.getChannelData(ch);
+      for (let i = 0; i < n; i++) dst[i] = src[n - 1 - i];
+    }
+    return out;
+  }
+
+  /** Spielt `dur` Sekunden (Hörzeit) ab `offset`. Mini-Ein-/Ausblendung gegen Knacken.
+      fx: optionaler Effekt aus FX (nur im Modus „Verrückt“). */
+  function play(buf, offset, dur, onEnd, fx) {
     const c = ac();
     stop();
-    dur = Math.min(dur, buf.duration - offset);
+    const f = FX[fx] || null, rate = f ? f.rate : 1;
+    // Wie viel vom Song gebraucht wird: bei schnellerem Tempo mehr, bei langsamerem weniger
+    const len = Math.min(dur * rate, buf.duration - offset);
+    dur = len / rate;
     const src = c.createBufferSource(), g = c.createGain();
-    src.buffer = buf;
-    src.connect(g).connect(master);
-    const t0 = c.currentTime + 0.03, fade = Math.min(0.006, dur / 4);
+    let start = offset;
+    if (fx === 'reverse') { src.buffer = reversed(buf, offset, len); start = 0; }
+    else src.buffer = buf;
+    src.playbackRate.value = rate;
+    let node = src;
+    if (f?.low) {
+      const lp = c.createBiquadFilter();
+      lp.type = 'lowpass'; lp.frequency.value = f.low; lp.Q.value = 0.8;
+      node.connect(lp); node = lp;
+      g.gain.value = 1.6; // Tiefpass klingt leiser – etwas ausgleichen
+    }
+    node.connect(g).connect(master);
+    const t0 = c.currentTime + 0.03, fade = Math.min(0.006, dur / 4), peak = f?.low ? 1.6 : 1;
     g.gain.setValueAtTime(0, t0);
-    g.gain.linearRampToValueAtTime(1, t0 + fade);
-    g.gain.setValueAtTime(1, t0 + dur - fade);
+    g.gain.linearRampToValueAtTime(peak, t0 + fade);
+    g.gain.setValueAtTime(peak, t0 + dur - fade);
     g.gain.linearRampToValueAtTime(0, t0 + dur);
-    src.start(t0, offset, dur + 0.01);
+    src.start(t0, start, len + 0.01);
     const me = { src, t0, dur };
     src.onended = () => { if (cur === me) cur = null; onEnd && onEnd(); };
     cur = me;

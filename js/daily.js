@@ -4,7 +4,7 @@
    - Feste Regeln (DAILY_RULES in quiz.js), einmal pro Tag, Ergebnis + Serie werden lokal gespeichert. */
 const Daily = (() => {
   const N = 5;
-  const START = '2026-11-07';                     // Challenge #1
+  const START = '2026-10-01';                     // Challenge #1 (frühere Tage gibt es im Archiv nicht)
   const CAT = { id: 'daily', group: 'special', name: 'Tägliche Challenge', icon: 'calendar', color: '#f59e0b' };
   trProps(CAT, ['name']);
   const TZ = 'Europe/Berlin';                     // Tageswechsel um Mitternacht deutscher Zeit – für alle gleich
@@ -25,18 +25,27 @@ const Daily = (() => {
     };
   }
 
-  const log = () => LS.get('daily', {});           // { "2026-11-07": { score, found, items, aborted } }
+  const log = () => LS.get('daily', {});           // { "2026-11-07": { score, found, items, aborted, late } }
   const result = d => log()[d];
 
-  /** Serie: aufeinanderfolgende gespielte Tage bis heute (oder bis gestern, wenn heute noch offen) */
+  /** Serie: aufeinanderfolgende Tage, jeweils am Tag selbst gespielt, bis heute (oder bis gestern, wenn heute noch offen).
+      Im Archiv nachgespielte Tage (late) zählen nicht – sonst ließe sich jede Serie nachträglich reparieren. */
   function streak() {
-    const L = log();
+    const L = log(), onTime = d => L[d] && !L[d].late;
     let d = today();
-    if (!L[d]) d = prevDay(d);
+    if (!onTime(d)) d = prevDay(d);
     let n = 0;
-    while (L[d]) { n++; d = prevDay(d); }
+    while (onTime(d)) { n++; d = prevDay(d); }
     return n;
   }
+
+  /** Alle bisherigen Tage ab START, neueste zuerst (ohne heute) */
+  function pastDays() {
+    const out = [], t = today();
+    for (let d = prevDay(t); d >= START; d = prevDay(d)) out.push(d);
+    return out;
+  }
+  const fmtDate = d => new Date(d + 'T12:00:00Z').toLocaleDateString(LOC(), { weekday: 'short', day: 'numeric', month: 'long', timeZone: 'UTC' });
 
   function msToMidnight() {
     const p = Object.fromEntries(new Intl.DateTimeFormat('en-GB', { timeZone: TZ, hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' })
@@ -46,12 +55,13 @@ const Daily = (() => {
   const fmtLeft = ms => { const s = Math.max(0, Math.floor(ms / 1000)); return [s / 3600, (s % 3600) / 60, s % 60].map(v => String(Math.floor(v)).padStart(2, '0')).join(':'); };
 
   /* ---------- Starten ---------- */
-  async function start() {
-    const d = today();
+  async function start(d = today()) {
+    if (d > today() || d < START) return;
+    const late = d !== today();
     if (result(d)) return showResult(d);
     if (busy) return;
     busy = true;
-    loading(true, tx('Lade die heutige Challenge…'));
+    loading(true, late ? tx('Lade Challenge #{n}…', { n: dayNo(d) }) : tx('Lade die heutige Challenge…'));
     Snip.ac();
     try {
       const pool = await loadPool(CATS.find(c => c.id === 'billion'));
@@ -62,7 +72,7 @@ const Daily = (() => {
       const artists = new Set();
       const cand = known.filter(t => { const a = norm(t.artist?.name); if (artists.has(a)) return false; artists.add(a); return true; }).slice(0, 40);
       STEPS = LADDERS.classic;
-      G = { cat: CAT, cand, pool, next: 0, rounds: [], i: -1, score: 0, n: N, daily: { date: d, no: dayNo(d) } };
+      G = { cat: CAT, cand, pool, next: 0, rounds: [], i: -1, score: 0, n: N, daily: { date: d, no: dayNo(d), late } };
       setCat(CAT.color);
       show('game');
       busy = false;
@@ -77,7 +87,7 @@ const Daily = (() => {
   /* ---------- Ende (oder Abbruch) ---------- */
   function finish(aborted = false) {
     Snip.stop();
-    const { date } = G.daily;
+    const { date, late } = G.daily;
     const rounds = G.rounds.filter(Boolean);
     const items = rounds.map(r => ({
       t: showTitle(r.track), a: r.track.artist?.name || '', c: r.track.album?.cover_small || '',
@@ -87,7 +97,7 @@ const Daily = (() => {
     const score = items.reduce((s, x) => s + x.p, 0);
     const L = log();
     const complete = rounds.length >= N && rounds.every(r => r.done);
-    L[date] = { score, found: rounds.filter(r => r.won).length, items, aborted: (aborted && !complete) || undefined };
+    L[date] = { score, found: rounds.filter(r => r.won).length, items, aborted: (aborted && !complete) || undefined, late: late || undefined };
     LS.set('daily', L);
     LS.set('dailyBest', Math.max(LS.get('dailyBest', 0), streak()));
     G = null;
@@ -104,7 +114,7 @@ const Daily = (() => {
     $('#endFound').textContent = tx('{a} von {b} erkannt', { a: res.found, b: N });
     $('#endScore').textContent = fmtN(res.score);
     const st = streak();
-    $('#endSub').textContent = tx('von {n} möglichen', { n: fmtN(N * PTS[0]) }) + (st ? ' · 🔥 ' + tx('Serie {n}', { n: st }) : '') + (res.aborted ? ' · ' + tx('abgebrochen') : '');
+    $('#endSub').textContent = tx('von {n} möglichen', { n: fmtN(N * PTS[0]) }) + (st ? ' · 🔥 ' + tx('Serie {n}', { n: st }) : '') + (res.aborted ? ' · ' + tx('abgebrochen') : '') + (res.late ? ' · ' + tx('nachgespielt') : '');
     $('#endList').innerHTML = res.items.map(x => `
       <div class="cell"><img class="pl-cover" src="${x.c}" alt="">
         <span class="grow">${esc(x.t)}<span class="sub">${esc(x.t === '–' ? tx(x.a) : x.a)}</span><span class="emo">${x.e}</span></span>
@@ -114,10 +124,11 @@ const Daily = (() => {
     $('#againBtn').classList.add('hidden');
     $('#shareBtn').classList.replace('ghost', 'big');
     $('#shareBtn').dataset.daily = d;
-    lastResult = { title: `${tx('Tägliche Challenge')} #${dayNo(d)}`, sub: '', score: res.score, found: res.found, n: N, max: N * PTS[0], items: res.items, text: shareText(d) };
+    lastResult = { title: `${tx('Tägliche Challenge')} #${dayNo(d)}`, sub: res.late ? tx('aus dem Archiv') : '', score: res.score, found: res.found, n: N, max: N * PTS[0], items: res.items, text: shareText(d) };
     clearInterval(timer);
     const tick = () => {
       if ($('#end').classList.contains('hidden')) return clearInterval(timer);
+      if (d !== today()) return $('#dailyNext').innerHTML = `${esc(fmtDate(d))} · <a href="#" id="toArchive">${tx('Zum Archiv')}</a>`;
       $('#dailyNext').innerHTML = tx('Nächste Challenge in {t}', { t: `<b>${fmtLeft(msToMidnight())}</b>` });
     };
     show('end');
@@ -141,12 +152,12 @@ const Daily = (() => {
     const max = Math.max(1, ...all);
     $('#dailyStats').innerHTML = `
       <div class="dstats-tiles">
-        <div><b>${days.length}</b><span>Gespielt</span></div>
-        <div><b>${fmtN(avg)}</b><span>Ø Punkte</span></div>
-        <div><b>${streak()}</b><span>Serie</span></div>
-        <div><b>${Math.max(LS.get('dailyBest', 0), streak())}</b><span>Beste Serie</span></div>
+        <div><b>${days.length}</b><span>${tx('Gespielt')}</span></div>
+        <div><b>${fmtN(avg)}</b><span>${tx('Ø Punkte')}</span></div>
+        <div><b>${streak()}</b><span>${tx('Serie')}</span></div>
+        <div><b>${Math.max(LS.get('dailyBest', 0), streak())}</b><span>${tx('Beste Serie')}</span></div>
       </div>
-      <div class="dstats-h">Erkannt bei</div>
+      <div class="dstats-h">${tx('Erkannt bei')}</div>
       <div class="dist">${all.map((n, i) => `
         <div class="dist-row${now[i] ? ' today' : ''}${i === 6 ? ' miss' : ''}"><span class="lbl">${labels[i]}</span>
           <span class="dist-bar" style="width:${Math.max(8, n / max * 100)}%">${n}</span></div>`).join('')}
@@ -166,8 +177,8 @@ const Daily = (() => {
   function shareText(d) {
     const res = result(d);
     const st = streak();
-    return `🎵 Needle Drop #${dayNo(d)} · ${tx('{n} Punkte', { n: fmtN(res.score) })}\n${res.items.map(x => x.e).join('\n')}` +
-      (st > 1 ? '\n🔥 ' + tx('Serie: {n} Tage', { n: st }) : '') + `\nhttps://ku3rb1s.github.io/needle-drop/`;
+    return `🎵 Needle Drop #${dayNo(d)}${res.late ? ' (' + tx('Archiv') + ')' : ''} · ${tx('{n} Punkte', { n: fmtN(res.score) })}\n${res.items.map(x => x.e).join('\n')}` +
+      (st > 1 ? '\n🔥 ' + tx('Serie: {n} Tage', { n: st }) : '') + (Profile.tag() ? '\n' + Profile.tag() : '') + `\nhttps://ku3rb1s.github.io/needle-drop/`;
   }
 
   /* ---------- Karte auf der Startseite ---------- */
@@ -179,9 +190,35 @@ const Daily = (() => {
       : tx('5 Songs · für alle gleich') + ' · ' + (st ? '🔥 ' + tx('Serie {n}', { n: st }) : tx('jeden Tag neu'));
     $('#dailyRight').innerHTML = res ? `<svg class="ic"><use href="#i-check"/></svg>${tx('Ergebnis')}` : `${tx('Spielen')}<svg class="ic chev"><use href="#i-chev"/></svg>`;
     $('#dailyCard').classList.toggle('done', !!res);
+    const open = pastDays().filter(x => !result(x)).length;
+    $('#dailyArch').innerHTML = `<svg class="ic"><use href="#i-calendar"/></svg>${tx('Archiv')}` + (open ? ` <span class="sub">· ${tx('{n} nachspielbar', { n: open })}</span>` : '');
+    $('#dailyArch').classList.toggle('hidden', !pastDays().length);
   }
+
+  /* ---------- Archiv: alle bisherigen Tage, verpasste nachspielen ---------- */
+  function renderArchive() {
+    const days = pastDays();
+    $('#archiveList').innerHTML = days.length ? days.map(d => {
+      const res = result(d);
+      const right = res
+        ? `<span class="trail">${fmtN(res.score)}${res.late ? ' <small>' + tx('nachgespielt') + '</small>' : ''}</span>`
+        : `<span class="trail play">${tx('Spielen')}<svg class="ic chev"><use href="#i-chev"/></svg></span>`;
+      return `<button class="cell tap" data-day="${d}"><span class="arch-no">#${dayNo(d)}</span>
+        <span class="grow">${esc(fmtDate(d))}<span class="sub">${res ? tx('{a} von {b} erkannt', { a: res.found, b: N }) : tx('noch nicht gespielt')}</span></span>${right}</button>`;
+    }).join('') : `<div class="cell"><span class="grow">${tx('Noch keine früheren Challenges.')}</span></div>`;
+  }
+  $('#archiveList').addEventListener('click', e => {
+    const b = e.target.closest('[data-day]');
+    if (!b || busy || G) return;
+    $('#sheetSettings').close();
+    const d = b.dataset.day;
+    result(d) ? showResult(d) : start(d);
+  });
+  const openArchive = e => { e?.preventDefault(); openSettings('archive'); };
+  $('#dailyArch').onclick = openArchive;
+  $('#dailyNext').addEventListener('click', e => { if (e.target.id === 'toArchive') openArchive(e); });
 
   $('#dailyCard').onclick = () => { const d = today(); result(d) ? showResult(d) : start(); };
   renderCard();
-  return { start, finish, showResult, resetEnd, shareText, renderCard, today };
+  return { start, finish, showResult, resetEnd, shareText, renderCard, renderArchive, today };
 })();

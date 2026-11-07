@@ -49,6 +49,7 @@ const DZ = (() => {
   }
 
   const search = (q, limit = 8) => jsonp('/search', { q, limit }).then(d => d.data || []);
+  const searchArtist = (q, limit = 8) => jsonp('/search/artist', { q, limit }).then(d => d.data || []);
   const track = id => jsonp(`/track/${id}`);
   const album = id => jsonp(`/album/${id}`);
 
@@ -67,5 +68,5 @@ const DZ = (() => {
     return { error: tx('Kein gültiger Link – bitte einen Spotify- oder Deezer-Link einfügen.') };
   }
 
-  return { jsonp, sourceTracks, search, track, album, parseLink };
+  return { jsonp, sourceTracks, search, searchArtist, track, album, parseLink };
 })();
