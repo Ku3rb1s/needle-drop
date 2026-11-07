@@ -1,5 +1,5 @@
 /* Needle Drop – Spielablauf und Anzeige */
-const APP_VERSION = '1.16.6', APP_DATE = '07.11.2026'; // bei jedem Update erhöhen + CHANGELOG.md ergänzen
+const APP_VERSION = '1.16.7', APP_DATE = '07.11.2026'; // bei jedem Update erhöhen + CHANGELOG.md ergänzen
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 
@@ -1020,19 +1020,21 @@ function onType() {
     const my = ++seq;
     let res = [];
     if (isArtistMode()) {
-      try { res = await DZ.searchArtist(q, 8); } catch { return; }
+      try { res = await DZ.searchArtist(q, 25); } catch { return; }
       if (my !== seq) return;
-      sugg = res.sort((a, b) => (b.nb_fan || 0) - (a.nb_fan || 0)).slice(0, 6)
+      sugg = res.sort((a, b) => (b.nb_fan || 0) - (a.nb_fan || 0)).slice(0, 20)
         .map(a => ({ id: 'a' + a.id, title: '', artist: { id: a.id, name: a.name }, album: { cover_small: a.picture_small }, isArtist: true }));
       sel = sugg.length ? 0 : -1;
       return renderSuggest(q);
     }
-    try { res = await DZ.search(q, 20); } catch { return; }
+    try { res = await DZ.search(q, 50); } catch { return; }
     if (my !== seq) return;
     const seen = new Set();
-    sugg = res.sort((a, b) => (b.rank || 0) - (a.rank || 0))
+    // die 20 passendsten (Deezer-Reihenfolge) nach Bekanntheit vorne, weitere Treffer dahinter
+    const byRank = l => l.sort((a, b) => (b.rank || 0) - (a.rank || 0));
+    sugg = [...byRank(res.slice(0, 20)), ...byRank(res.slice(20))]
       .filter(t => { const k = norm(showTitle(t)) + '|' + norm(t.artist?.name); return !seen.has(k) && seen.add(k); })
-      .slice(0, 6);
+      .slice(0, 30);                                          // mehr Treffer – die Liste lässt sich scrollen
     sel = sugg.length ? 0 : -1;
     renderSuggest(q);
   }, 160);
@@ -1041,11 +1043,10 @@ function mark(text, q) {
   const i = text.toLowerCase().indexOf(q.toLowerCase());
   return i < 0 ? esc(text) : esc(text.slice(0, i)) + '<mark>' + esc(text.slice(i, i + q.length)) + '</mark>' + esc(text.slice(i + q.length));
 }
-function renderSuggest(q = '') {
+function renderSuggest(q = '', keep = false) {
   const ul = $('#suggest');
-  const wasHidden = ul.classList.contains('hidden');
   ul.classList.toggle('hidden', !sugg.length);
-  if (wasHidden) ul.scrollTop = 0;
+  if (!keep) ul.scrollTop = 0;                                 // neue Treffer: wieder oben anfangen
   requestAnimationFrame(fitSuggest);
   ul.innerHTML = sugg.map((t, i) => `<li class="${i === sel ? 'sel' : ''}" data-i="${i}">
     <img src="${t.album?.cover_small || ''}" alt="" loading="lazy">
@@ -1218,8 +1219,8 @@ $('#themeRow').onclick = e => {
 const gi = $('#guessInput');
 gi.addEventListener('input', onType);
 gi.addEventListener('keydown', e => {
-  if (e.key === 'ArrowDown' && sugg.length) { sel = (sel + 1) % sugg.length; renderSuggest(gi.value.trim()); e.preventDefault(); }
-  else if (e.key === 'ArrowUp' && sugg.length) { sel = (sel - 1 + sugg.length) % sugg.length; renderSuggest(gi.value.trim()); e.preventDefault(); }
+  if (e.key === 'ArrowDown' && sugg.length) { sel = (sel + 1) % sugg.length; renderSuggest(gi.value.trim(), true); $('#suggest .sel')?.scrollIntoView({ block: 'nearest' }); e.preventDefault(); }
+  else if (e.key === 'ArrowUp' && sugg.length) { sel = (sel - 1 + sugg.length) % sugg.length; renderSuggest(gi.value.trim(), true); $('#suggest .sel')?.scrollIntoView({ block: 'nearest' }); e.preventDefault(); }
   else if (e.key === 'Enter') {
     e.preventDefault();
     if (sel >= 0) pick(sel);
@@ -1249,7 +1250,14 @@ function fitSuggest() {
   const vv = window.visualViewport, bottom = vv ? vv.offsetTop + vv.height : innerHeight;
   const room = bottom - ul.getBoundingClientRect().top - 12;
   ul.style.maxHeight = Math.max(150, Math.min(room, 460)) + 'px';
+  moreHint();
 }
+/* Unten leicht ausblenden, solange weitere Treffer folgen (zeigt: hier geht's weiter) */
+function moreHint() {
+  const ul = $('#suggest');
+  ul.classList.toggle('more', ul.scrollHeight - ul.scrollTop - ul.clientHeight > 8);
+}
+$('#suggest').addEventListener('scroll', moreHint, { passive: true });
 window.visualViewport?.addEventListener('resize', fitSuggest);
 window.visualViewport?.addEventListener('scroll', fitSuggest);
 addEventListener('resize', fitSuggest);

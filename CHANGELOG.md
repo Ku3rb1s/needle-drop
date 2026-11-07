@@ -2,6 +2,10 @@
 
 Die Versionsnummer steht in `js/quiz.js` (`APP_VERSION`) und unten in den Einstellungen. In `index.html` bei jedem Update auch `?v=` an CSS/JS-Dateien erhöhen.
 
+## 1.16.7 – 07.11.2026
+- Suche: bis zu 30 Song-Treffer (Interpreten: 20) statt 6 – die Liste lässt sich mit dem Finger oder Mausrad scrollen, unten blendet sie leicht aus, solange weitere Treffer folgen
+- Pfeiltasten in der Trefferliste: der gewählte Treffer bleibt im Bild
+
 ## 1.16.6 – 07.11.2026
 - Einstellungen: Dein Code steht nicht mehr offen da („✓ Abgeglichen · verwalten in der Jukebox“) – den Code selbst gibt es nur im Fenster „Dein Code“ der Jukebox
 

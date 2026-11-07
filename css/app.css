@@ -71,6 +71,7 @@ header{max-width:720px}
   background:rgba(var(--surf),.92);backdrop-filter:blur(30px) saturate(180%);-webkit-backdrop-filter:blur(30px) saturate(180%);
   border:1px solid var(--g-brd);box-shadow:var(--g-hi),0 24px 60px -12px #000;
   max-height:460px;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y}
+.suggest.more{-webkit-mask-image:linear-gradient(#000 calc(100% - 46px),transparent);mask-image:linear-gradient(#000 calc(100% - 46px),transparent)}
 .suggest li{touch-action:pan-y;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 /* Beim Tippen am Handy: unten Platz schaffen, damit sich das Suchfeld bis nach oben schieben lässt */
 body.typing main{padding-bottom:100vh}
