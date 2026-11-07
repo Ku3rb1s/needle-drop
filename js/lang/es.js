@@ -23,6 +23,8 @@
     "Abend": "Atardecer",
     "Aktuelle Hits": "Éxitos actuales",
     "Alle Rekorde auf diesem Gerät löschen?": "¿Borrar todos los récords de este dispositivo?",
+    "Alle Spiele": "Todos los juegos",
+    "Musik-Bingo und mehr": "Musik-Bingo y más",
     "Alle gespeicherten Daten löschen": "Borrar todos los datos guardados",
     "Alles andere bleibt hier": "Todo lo demás se queda aquí",
     "Alles bleibt auf diesem Gerät": "Todo se queda en este dispositivo",

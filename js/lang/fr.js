@@ -23,6 +23,8 @@
     "Abend": "Soir",
     "Aktuelle Hits": "Hits du moment",
     "Alle Rekorde auf diesem Gerät löschen?": "Supprimer tous les records sur cet appareil ?",
+    "Alle Spiele": "Tous les jeux",
+    "Musik-Bingo und mehr": "Musik-Bingo et plus",
     "Alle gespeicherten Daten löschen": "Supprimer toutes les données",
     "Alles andere bleibt hier": "Tout le reste reste ici",
     "Alles bleibt auf diesem Gerät": "Tout reste sur cet appareil",

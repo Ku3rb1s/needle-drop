@@ -24,6 +24,8 @@
     "Abend": "Evening",
     "Aktuelle Hits": "Current hits",
     "Alle Rekorde auf diesem Gerät löschen?": "Delete all records on this device?",
+    "Alle Spiele": "All games",
+    "Musik-Bingo und mehr": "Musik-Bingo and more",
     "Alle gespeicherten Daten löschen": "Delete all saved data",
     "Alles andere bleibt hier": "Everything else stays here",
     "Alles bleibt auf diesem Gerät": "Everything stays on this device",

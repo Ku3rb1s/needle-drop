@@ -23,6 +23,8 @@
     "Abend": "Kveld",
     "Aktuelle Hits": "Aktuelle hits",
     "Alle Rekorde auf diesem Gerät löschen?": "Slette alle rekorder på denne enheten?",
+    "Alle Spiele": "Alle spill",
+    "Musik-Bingo und mehr": "Musik-Bingo og mer",
     "Alle gespeicherten Daten löschen": "Slett alle lagrede data",
     "Alles andere bleibt hier": "Alt annet blir her",
     "Alles bleibt auf diesem Gerät": "Alt blir på denne enheten",

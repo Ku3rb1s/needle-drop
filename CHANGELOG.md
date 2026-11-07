@@ -2,6 +2,9 @@
 
 Die Versionsnummer steht in `js/quiz.js` (`APP_VERSION`) und unten in den Einstellungen. In `index.html` bei jedem Update auch `?v=` an CSS/JS-Dateien erhöhen.
 
+## 1.7.1 – 07.11.2026
+- Neu: „Alle Spiele“ in den Einstellungen führt zur Übersichtsseite ku3rb1s.github.io (Musik-Bingo, Needle Drop und künftige Spiele)
+
 ## 1.7.0 – 07.11.2026
 - Neu: **Sprachen** wie bei Musik-Bingo – Englisch, Französisch, Spanisch, Norwegisch (Einstellungen → Sprache, Voreinstellung: Sprache des Geräts). Zahlen und Sekunden im Format der Sprache
 - Prüfskript `node scripts/check-lang.js` zeigt fehlende Übersetzungen
