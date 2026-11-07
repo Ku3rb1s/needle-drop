@@ -2,6 +2,9 @@
 
 Die Versionsnummer steht in `js/quiz.js` (`APP_VERSION`) und unten in den Einstellungen. In `index.html` bei jedem Update auch `?v=` an CSS/JS-Dateien erhöhen.
 
+## 1.16.3 – 07.11.2026
+- Abgleich: gemeinsame Technik aktualisiert (Diamanten aus Gold Record werden mit abgeglichen)
+
 ## 1.16.2 – 07.11.2026
 - Spiele-Menü: neues Spiel **Hit or Miss** – Stimmt’s oder stimmt’s nicht? Musik-Quiz zum Wischen
 
