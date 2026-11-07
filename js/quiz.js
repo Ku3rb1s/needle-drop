@@ -26,18 +26,34 @@ const fmtN = n => Math.round(n).toLocaleString('de-DE');
 // Quellen: Deezer-Redaktions-Playlists; Billionärs Club als eigene Liste (scripts/build-billions.js)
 const P = id => ({ type: 'playlist', id });
 const CATS = [
+  { id: '70s', group: 'decades', name: '70er', big: '70s', color: '#e5a50a', src: [P(1470022445), P(8496467462)], decade: 1970 },
   { id: '80s', group: 'decades', name: '80er', big: '80s', color: '#ff4fa3', src: [P(867825522)], decade: 1980 },
   { id: '90s', group: 'decades', name: '90er', big: '90s', color: '#8b6bff', src: [P(878989033), P(3829647662)], decade: 1990 },
   { id: '00s', group: 'decades', name: '2000er', big: '00s', color: '#0ea5e9', src: [P(1977689462), P(11153531204)], decade: 2000 },
   { id: '10s', group: 'decades', name: '2010er', big: '10s', color: '#1ed760', src: [P(14917741483)], decade: 2010 },
   { id: '20s', group: 'decades', name: '2020er', big: '20s', color: '#ffa03c', src: [P(13650084141)], decade: 2020 },
-  { id: 'pop', group: 'genres', name: 'Pop', icon: 'star', sub: 'Chart-Pop von früher bis heute', color: '#ff4fa3', src: [P(1282483245), P(8282573142)] },
-  { id: 'rap', group: 'genres', name: 'Hip-Hop & Rap', icon: 'mic', sub: 'US-Rap & Deutschrap', color: '#ff7a3c', src: [P(7662551722), P(12547421383), P(10578289242)] },
-  { id: 'edm', group: 'genres', name: 'EDM', icon: 'wave', sub: 'Dance, Mainstage, Electronic', color: '#14b8a6', src: [P(1902101402), P(1495242491)] },
+  // International
+  { id: 'pop', group: 'intl', name: 'Pop', icon: 'star', sub: 'Chart-Pop von früher bis heute', color: '#ff4fa3', src: [P(1282483245), P(8282573142)] },
+  { id: 'rap', group: 'intl', name: 'Hip-Hop & Rap', icon: 'mic', sub: 'US-Rap, East Coast bis heute', color: '#ff7a3c', src: [P(7662551722), P(12547421383), P(1976915302), P(1677006641)] },
+  { id: 'rnb', group: 'intl', name: 'R&B', icon: 'heart', sub: 'Von 2000er bis heute', color: '#c084fc', src: [P(1999466402), P(2021626162)] },
+  { id: 'rock', group: 'intl', name: 'Rock', icon: 'guitar', sub: 'Klassiker und große Hymnen', color: '#ef4444', src: [P(11242423484), P(1306931615)] },
+  { id: 'edm', group: 'intl', name: 'EDM', icon: 'wave', sub: 'Dance, Mainstage, Electronic', color: '#14b8a6', src: [P(1902101402), P(1495242491)] },
+  { id: 'latin', group: 'intl', name: 'Latin', icon: 'sun', sub: 'Reggaeton und Latin-Hits', color: '#f59e0b', src: [P(178699142), P(1273315391)] },
+  // Deutsch
+  { id: 'derap', group: 'de', name: 'Deutschrap', icon: 'mic', sub: 'Von den Klassikern bis heute', color: '#f97316', src: [P(10578289242), P(146820791)] },
+  { id: 'depop', group: 'de', name: 'Deutsch-Pop', icon: 'star', sub: 'Deutschsprachige Pop-Hits', color: '#ec4899', src: [P(11242422704)] },
+  { id: 'schlager', group: 'de', name: 'Schlager & Party', icon: 'party', sub: 'Schlager, Malle, Après-Ski', color: '#eab308', src: [P(8699026122), P(10328601542), P(12244014291)] },
+  { id: 'ndw', group: 'de', name: 'Neue Deutsche Welle', icon: 'bolt', sub: 'Die 80er auf Deutsch', color: '#06b6d4', src: [P(6758361584)] },
+  // Spezial
   { id: 'now', group: 'special', name: 'Aktuelle Hits', icon: 'trend', sub: 'Charts Deutschland & weltweit', color: '#ff5a6a', src: [P(1111143121), P(3155776842)] },
   { id: 'billion', group: 'special', name: 'Billionärs Club', icon: 'diamond', sub: 'Über 1 Mrd. Spotify-Streams', color: '#e5a50a', src: [{ type: 'static', url: 'data/billions.json' }] },
+  { id: 'tiktok', group: 'special', name: 'TikTok-Hits', icon: 'phone', sub: 'Was gerade viral geht', color: '#22d3ee', src: [P(4403076402)] },
+  { id: 'film', group: 'special', name: 'Film & Serien', icon: 'film', sub: 'Soundtracks und Titelsongs', color: '#a3a3a3', src: [P(754776991), P(6238866284), P(13253799423)] },
+  { id: 'disney', group: 'special', name: 'Disney', icon: 'castle', sub: 'Die großen Disney-Songs (deutsch)', color: '#3b82f6', src: [P(970058271)] },
+  { id: 'esc', group: 'special', name: 'Eurovision', icon: 'globe', sub: 'Sieger und Fan-Lieblinge', color: '#8b5cf6', src: [P(9037748342), P(12593394863)] },
   { id: 'custom', group: 'special', name: 'Eigene Playlist', icon: 'link', sub: 'Deezer-Link einfügen', color: '#6b7280', src: null },
 ];
+const GROUPS = [['decades', 'Jahrzehnte'], ['intl', 'International'], ['de', 'Deutsch'], ['special', 'Spezial']];
 const DIFF = {
   easy: { top: 0.35, label: 'Leicht', info: 'Nur die bekanntesten 35 % der Kategorie – Songs, die fast jeder kennt.' },
   normal: { top: 0.7, label: 'Normal', info: 'Die bekannteren 70 % der Kategorie: viele Hits, dazu Songs, an die man sich erst erinnern muss.' },
@@ -354,10 +370,13 @@ function catCell(c) {
 function renderHome() {
   const c = CATS.find(x => x.id === opt.cat);
   setCat(c.color);
-  $('#catsDecades').innerHTML = CATS.filter(x => x.group === 'decades').map(x =>
-    `<button class="${x.id === opt.cat ? 'on' : ''}" data-id="${x.id}" style="--c:${x.color}">${x.big}<small>${x.name}</small></button>`).join('');
-  $('#catsGenres').innerHTML = CATS.filter(x => x.group === 'genres').map(catCell).join('');
-  $('#catsSpecial').innerHTML = CATS.filter(x => x.group === 'special').map(catCell).join('');
+  $('#catGroups').innerHTML = GROUPS.map(([g, title]) => {
+    const list = CATS.filter(x => x.group === g);
+    const body = g === 'decades'
+      ? `<div class="seg decades">${list.map(x => `<button class="${x.id === opt.cat ? 'on' : ''}" data-id="${x.id}" style="--c:${x.color}">${x.big}<small>${x.name}</small></button>`).join('')}</div>`
+      : `<div class="group icons two">${list.map(catCell).join('')}</div>`;
+    return `<div class="group-h">${title}</div>${body}`;
+  }).join('');
   $('#customBox').classList.toggle('hidden', opt.cat !== 'custom');
   $('#customNote').classList.toggle('hidden', opt.cat !== 'custom');
   $$('#diff button').forEach(b => b.classList.toggle('on', b.dataset.v === opt.diff));

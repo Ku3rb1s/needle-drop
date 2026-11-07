@@ -48,7 +48,14 @@ Feste Regeln (klassische Leiter, Suchen, Start am Anfang, Tipps erlaubt), einmal
 
 ## Kategorien
 
-Alle außer Billionärs Club kommen aus offiziellen Deezer-Redaktions-Playlists (IDs in `CATS` in `js/quiz.js`).
+| Gruppe | Kategorien |
+|---|---|
+| Jahrzehnte | 70er, 80er, 90er, 2000er, 2010er, 2020er |
+| International | Pop, Hip-Hop & Rap, R&B, Rock, EDM, Latin |
+| Deutsch | Deutschrap, Deutsch-Pop, Schlager & Party (inkl. Malle, Après-Ski), Neue Deutsche Welle |
+| Spezial | Aktuelle Hits, Billionärs Club, TikTok-Hits, Film & Serien, Disney (deutsch), Eurovision, Eigene Playlist |
+
+Alle außer Billionärs Club und Eigene Playlist kommen aus offiziellen Deezer-Redaktions-Playlists (IDs in `CATS` in `js/quiz.js`, Gruppen in `GROUPS`).
 Der **Billionärs Club** basiert auf der Streamliste von kworb.net; neu bauen mit `node scripts/build-billions.js`
 (dauert einige Minuten wegen des Deezer-Limits von 50 Anfragen / 5 s).
 

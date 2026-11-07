@@ -181,3 +181,19 @@ header{max-width:720px}
 .dist-row.today .dist-bar{background:linear-gradient(90deg,var(--quiz1),var(--quiz2));color:#2a1400}
 .dist-row.miss .lbl{color:var(--danger)}
 @media (max-width:640px){.dstats-tiles b{font-size:1.25rem}}
+
+/* Kategorien zweispaltig, damit die Startseite trotz vieler Kategorien kompakt bleibt */
+.group.two{display:grid;grid-template-columns:1fr 1fr}
+.group.two .cell::before{display:none}
+.group.two .cell{border-bottom:1px solid var(--line);min-height:58px}
+.group.two .cell:nth-child(odd){border-right:1px solid var(--line)}
+.group.two .cell:last-child,.group.two .cell:nth-last-child(2):nth-child(odd){border-bottom:0}
+.group.two .cell .trail{min-width:0}
+@media (max-width:640px){
+  .group.two .cell{padding:10px 10px;gap:9px}
+  .group.two .cell-ic{width:28px;height:28px;border-radius:8px}
+  .group.two .cell .sub{font-size:.72rem}
+  .group.two .grow{font-size:.92rem}
+  .decades button{font-size:.95rem;padding:.55em 0}
+  .decades button small{font-size:.6rem}
+}
