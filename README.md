@@ -45,7 +45,7 @@ cd worker
 npx wrangler login      # mit dem eigenen Cloudflare-Konto anmelden
 npx wrangler deploy     # gibt die Adresse aus, z. B. https://needle-drop-spotify.<name>.workers.dev
 ```
-Die Adresse dann in `js/spotify.js` bei `PROXY` eintragen. Lokal testen: `npx wrangler dev --port 8787` (die App nutzt lokal automatisch Port 8787).
+Live: `https://needle-drop-spotify.ku3rb1s.workers.dev` (in `js/spotify.js` bei `PROXY`). Lokal testen: `npx wrangler dev --port 8787` (die App nutzt lokal automatisch Port 8787).
 
 ## Sprachen
 

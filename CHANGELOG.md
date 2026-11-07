@@ -2,6 +2,9 @@
 
 Die Versionsnummer steht in `js/quiz.js` (`APP_VERSION`) und unten in den Einstellungen. In `index.html` bei jedem Update auch `?v=` an CSS/JS-Dateien erhöhen.
 
+## 1.8.0 – 07.11.2026
+- **Spotify-Import ist live:** Unter „Eigene Playlist“ einen Spotify-Link (Playlist oder Album, bis 100 Songs) einfügen – die Songs werden automatisch bei Deezer gefunden
+
 ## 1.7.1 – 07.11.2026
 - Neu: „Alle Spiele“ in den Einstellungen führt zur Übersichtsseite **Jukebox** (ku3rb1s.github.io/jukebox – Musik-Bingo, Needle Drop und künftige Spiele)
 

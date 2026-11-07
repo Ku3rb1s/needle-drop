@@ -5,7 +5,7 @@
 const Spot = (() => {
   // Adresse des Workers. Lokal (node server.js) läuft er mit „npx wrangler dev“ auf Port 8787.
   const LOCAL = /^(127\.0\.0\.1|localhost)$/.test(location.hostname);
-  const PROXY = LOCAL ? 'http://127.0.0.1:8787' : 'https://needle-drop-spotify.WORKERS-SUBDOMAIN.workers.dev';
+  const PROXY = LOCAL ? 'http://127.0.0.1:8787' : 'https://needle-drop-spotify.ku3rb1s.workers.dev';
   const ready = () => LOCAL || !PROXY.includes('WORKERS-SUBDOMAIN');
 
   /** Spotify-Link → { kind: 'playlist'|'album', id } oder null */
