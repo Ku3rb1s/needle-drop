@@ -2,6 +2,9 @@
 
 Die Versionsnummer steht in `js/quiz.js` (`APP_VERSION`) und unten in den Einstellungen. In `index.html` bei jedem Update auch `?v=` an CSS/JS-Dateien erhöhen.
 
+## 1.16.2 – 07.11.2026
+- Spiele-Menü: neues Spiel **Hit or Miss** – Stimmt’s oder stimmt’s nicht? Musik-Quiz zum Wischen
+
 ## 1.16.1 – 07.11.2026
 - Spiele-Menü: Logo oben lange gedrückt halten (am Computer Rechtsklick) – zurück zur Jukebox oder direkt in ein anderes Spiel
 
