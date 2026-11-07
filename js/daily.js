@@ -39,11 +39,25 @@ const Daily = (() => {
     return n;
   }
 
-  /** Alle bisherigen Tage ab START, neueste zuerst (ohne heute) */
+  /** Archiv: die letzten 30 Tage vor heute (ab START), neueste zuerst */
+  const ARCHIVE_DAYS = 30;
   function pastDays() {
-    const out = [], t = today();
-    for (let d = prevDay(t); d >= START; d = prevDay(d)) out.push(d);
+    const out = [];
+    for (let d = prevDay(today()); d >= START && out.length < ARCHIVE_DAYS; d = prevDay(d)) out.push(d);
     return out;
+  }
+
+  /** Speicher klein halten: Einträge, die älter als das Archiv sind, behalten nur Punkte und Emoji-Raster
+      (reicht für Statistik und Serie) – Titel, Interpreten und Cover-Links fliegen raus. */
+  function tidy() {
+    const L = log(), limit = pastDays().at(-1) || today();
+    let changed = false;
+    for (const [d, r] of Object.entries(L)) {
+      if (d >= limit || !r?.items?.some(x => x.t || x.a || x.c)) continue;
+      r.items = r.items.map(x => ({ p: x.p, e: x.e }));
+      changed = true;
+    }
+    if (changed) LS.set('daily', L);
   }
   const fmtDate = d => new Date(d + 'T12:00:00Z').toLocaleDateString(LOC(), { weekday: 'short', day: 'numeric', month: 'long', timeZone: 'UTC' });
 
@@ -56,7 +70,7 @@ const Daily = (() => {
 
   /* ---------- Starten ---------- */
   async function start(d = today()) {
-    if (d > today() || d < START) return;
+    if (d > today() || d < START || (d !== today() && !pastDays().includes(d))) return;
     const late = d !== today();
     if (result(d)) return showResult(d);
     if (busy) return;
@@ -128,8 +142,9 @@ const Daily = (() => {
     clearInterval(timer);
     const tick = () => {
       if ($('#end').classList.contains('hidden')) return clearInterval(timer);
-      if (d !== today()) return $('#dailyNext').innerHTML = `${esc(fmtDate(d))} · <a href="#" id="toArchive">${tx('Zum Archiv')}</a>`;
-      $('#dailyNext').innerHTML = tx('Nächste Challenge in {t}', { t: `<b>${fmtLeft(msToMidnight())}</b>` });
+      const arch = ` · <a href="#" id="toArchive">${tx('Archiv')}</a>`;
+      if (d !== today()) return $('#dailyNext').innerHTML = esc(fmtDate(d)) + arch;
+      $('#dailyNext').innerHTML = tx('Nächste Challenge in {t}', { t: `<b>${fmtLeft(msToMidnight())}</b>` }) + arch;
     };
     show('end');
     tick(); timer = setInterval(tick, 1000);
@@ -181,18 +196,20 @@ const Daily = (() => {
       (st > 1 ? '\n🔥 ' + tx('Serie: {n} Tage', { n: st }) : '') + (Profile.tag() ? '\n' + Profile.tag() : '') + `\nhttps://ku3rb1s.github.io/needle-drop/`;
   }
 
-  /* ---------- Karte auf der Startseite ---------- */
+  /* ---------- Knopf in der Kopfzeile ---------- */
   function renderCard() {
-    const d = today(), res = result(d), st = streak();
-    $('#dailyNo').textContent = '#' + dayNo(d);
-    $('#dailySub').textContent = res
+    const d = today(), res = result(d), st = streak(), b = $('#dailyHdr');
+    b.innerHTML = `<span class="dh-ic"><svg class="ic"><use href="#i-calendar"/></svg></span>
+      <span class="dh-t"><span class="dh-name">${tx('Tägliche Challenge')}</span> #${dayNo(d)}</span>` + (res
+      ? `<span class="dh-st done"><svg class="ic"><use href="#i-check"/></svg><span class="dh-x">${fmtN(res.score)}</span></span>`
+      : `<span class="dh-st">${st ? `<span class="dh-x">🔥${st}</span>` : ''}<span class="dh-go">${tx('Spielen')}</span><i class="dh-dot"></i></span>`);
+    b.classList.toggle('done', !!res);
+    b.title = res
       ? tx('Heute: {n} Punkte · {a}/{b} erkannt', { n: fmtN(res.score), a: res.found, b: N })
       : tx('5 Songs · für alle gleich') + ' · ' + (st ? '🔥 ' + tx('Serie {n}', { n: st }) : tx('jeden Tag neu'));
-    $('#dailyRight').innerHTML = res ? `<svg class="ic"><use href="#i-check"/></svg>${tx('Ergebnis')}` : `${tx('Spielen')}<svg class="ic chev"><use href="#i-chev"/></svg>`;
-    $('#dailyCard').classList.toggle('done', !!res);
+    b.setAttribute('aria-label', tx('Tägliche Challenge') + ' #' + dayNo(d) + ' – ' + b.title);
     const open = pastDays().filter(x => !result(x)).length;
-    $('#dailyArch').innerHTML = `<svg class="ic"><use href="#i-calendar"/></svg>${tx('Archiv')}` + (open ? ` <span class="sub">· ${tx('{n} nachspielbar', { n: open })}</span>` : '');
-    $('#dailyArch').classList.toggle('hidden', !pastDays().length);
+    $('#subArchive').textContent = open ? tx('{n} nachspielbar', { n: open }) : tx('Die letzten 30 Tage');
   }
 
   /* ---------- Archiv: alle bisherigen Tage, verpasste nachspielen ---------- */
@@ -215,10 +232,10 @@ const Daily = (() => {
     result(d) ? showResult(d) : start(d);
   });
   const openArchive = e => { e?.preventDefault(); openSettings('archive'); };
-  $('#dailyArch').onclick = openArchive;
   $('#dailyNext').addEventListener('click', e => { if (e.target.id === 'toArchive') openArchive(e); });
 
-  $('#dailyCard').onclick = () => { const d = today(); result(d) ? showResult(d) : start(); };
+  $('#dailyHdr').onclick = () => { if (busy || G) return; const d = today(); result(d) ? showResult(d) : start(); };
+  tidy();
   renderCard();
   return { start, finish, showResult, resetEnd, shareText, renderCard, renderArchive, today };
 })();

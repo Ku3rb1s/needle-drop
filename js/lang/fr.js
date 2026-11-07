@@ -4,6 +4,8 @@
   name: 'Français',
   flag: '🇫🇷',
   dict: {
+    "Die letzten 30 Tage": "Les 30 derniers jours",
+    "Die letzten 30 Tage. Verpasste kannst du nachspielen – sie zählen nicht zur Serie.": "Les 30 derniers jours. Tu peux rejouer ceux que tu as manqués – ils ne comptent pas pour ta série.",
     "Modus": "Mode",
     "Standard": "Standard",
     "wie gewohnt": "comme d’habitude",
@@ -32,7 +34,6 @@
     "Avatar wechseln": "Changer d’avatar",
     "Dein Name": "Ton nom",
     "Challenge-Archiv": "Archives des défis",
-    "Verpasste Tage kannst du nachspielen. Sie zählen nicht zur Serie.": "Tu peux rejouer les jours manqués. Ils ne comptent pas pour ta série.",
     "Lade Challenge #{n}…": "Chargement du défi n° {n}…",
     "nachgespielt": "rejoué",
     "aus dem Archiv": "des archives",

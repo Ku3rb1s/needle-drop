@@ -2,6 +2,10 @@
 
 Die Versionsnummer steht in `js/quiz.js` (`APP_VERSION`) und unten in den Einstellungen. In `index.html` bei jedem Update auch `?v=` an CSS/JS-Dateien erhöhen.
 
+## 1.11.1 – 07.11.2026
+- Die Tägliche Challenge sitzt jetzt oben in der Kopfzeile statt als große Karte – die Startseite ist dadurch aufgeräumter
+- Challenge-Archiv zeigt die letzten 30 Tage (auch in den Einstellungen und nach dem Ergebnis erreichbar). Ältere Einträge behalten nur Punkte und Ergebnis-Raster für die Statistik – das hält den Speicher klein
+
 ## 1.11.0 – 07.11.2026
 - Neu: **Spielmodi** – über der Kategorie wählbar, Standard bleibt das gewohnte Spiel
   - **🌀 Verrückt**: Ausschnitte laufen rückwärts, unter Wasser, als Chipmunk oder in Zeitlupe (ein Effekt fest oder jede Runde zufällig). Die Auflösung läuft normal

@@ -1,5 +1,5 @@
 /* Needle Drop – Spielablauf und Anzeige */
-const APP_VERSION = '1.11.0', APP_DATE = '07.11.2026'; // bei jedem Update erhöhen + CHANGELOG.md ergänzen
+const APP_VERSION = '1.11.1', APP_DATE = '07.11.2026'; // bei jedem Update erhöhen + CHANGELOG.md ergänzen
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 
@@ -543,6 +543,7 @@ function show(id) {
   $('#game').classList.toggle('hidden', id !== 'game');
   $('#end').classList.toggle('hidden', id !== 'end');
   $('#btnQuit').classList.toggle('hidden', id !== 'game');
+  $('#dailyHdr').classList.toggle('hidden', id !== 'home');
   window.scrollTo(0, 0);
 }
 

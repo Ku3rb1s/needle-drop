@@ -19,7 +19,7 @@
 <link rel="preload" href="fonts/outfit-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/fonts.css?v=1">
 <link rel="stylesheet" href="css/base.css?v=9">
-<link rel="stylesheet" href="css/app.css?v=18">
+<link rel="stylesheet" href="css/app.css?v=19">
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -68,6 +68,7 @@
 
 <header>
   <button class="logo logo-btn" id="logoBtn" aria-label="Zur Startseite"><img src="icon-192.png?v=5" alt=""><span>Needle Drop</span></button>
+  <button class="daily-hdr" id="dailyHdr"></button>
   <div class="hdr-r">
     <button class="hbtn hidden" id="btnQuit" aria-label="Spiel beenden"><svg class="ic"><use href="#i-x"/></svg><span class="lbl">Beenden</span></button>
     <button class="hbtn" id="btnSettings" aria-label="Einstellungen"><svg class="ic"><use href="#i-sliders"/></svg><span class="lbl">Einstellungen</span><i class="new-dot hidden" id="settingsDot"></i></button>
@@ -77,12 +78,6 @@
 <main>
   <!-- ============ Start ============ -->
   <div id="home">
-    <button class="glass daily" id="dailyCard">
-      <span class="daily-ic"><svg class="ic"><use href="#i-calendar"/></svg><b id="dailyNo">#1</b></span>
-      <span class="grow"><b>Tägliche Challenge</b><span class="sub" id="dailySub"></span></span>
-      <span class="daily-r" id="dailyRight"></span>
-    </button>
-    <button class="daily-arch hidden" id="dailyArch"></button>
     <section class="stage glass">
       <div class="round-meta"><span class="pill">Song-Quiz</span><span class="pill" id="bestPill">Noch kein Rekord</span></div>
       <div class="cat" id="homeCat">
@@ -267,6 +262,11 @@
           <span class="grow">Deine Statistik<span class="sub" id="subStats"></span></span>
           <svg class="ic chev"><use href="#i-chev"/></svg>
         </button>
+        <button class="cell tap" data-go="archive">
+          <span class="cell-ic" style="background:linear-gradient(135deg,#fbbf24,#f59e0b)"><svg class="ic"><use href="#i-calendar"/></svg></span>
+          <span class="grow">Challenge-Archiv<span class="sub" id="subArchive"></span></span>
+          <svg class="ic chev"><use href="#i-chev"/></svg>
+        </button>
         <button class="cell tap" data-go="points">
           <span class="cell-ic" style="background:#1ed760"><svg class="ic"><use href="#i-trophy"/></svg></span>
           <span class="grow">So zählen die Punkte<span class="sub" id="subPoints"></span></span>
@@ -293,7 +293,7 @@
     </section>
 
     <section class="page" data-page="archive" data-title="Challenge-Archiv">
-      <div class="group-f" style="margin-top:14px">Verpasste Tage kannst du nachspielen. Sie zählen nicht zur Serie.</div>
+      <div class="group-f" style="margin-top:14px">Die letzten 30 Tage. Verpasste kannst du nachspielen – sie zählen nicht zur Serie.</div>
       <div class="group" id="archiveList"></div>
     </section>
 
@@ -371,16 +371,16 @@
 <div id="loading" class="loading hidden"><div class="loader"></div><p id="loadingTxt">Lade Songs…</p></div>
 <div id="toast" class="hidden"></div>
 
-<script src="js/lang/en.js?v=5"></script>
-<script src="js/lang/fr.js?v=5"></script>
-<script src="js/lang/es.js?v=5"></script>
-<script src="js/lang/nb.js?v=5"></script>
+<script src="js/lang/en.js?v=6"></script>
+<script src="js/lang/fr.js?v=6"></script>
+<script src="js/lang/es.js?v=6"></script>
+<script src="js/lang/nb.js?v=6"></script>
 <script src="js/profile.js?v=1"></script>
 <script src="js/i18n.js?v=1"></script>
 <script src="js/deezer.js?v=9"></script>
 <script src="js/spotify.js?v=3"></script>
 <script src="js/audio.js?v=9"></script>
-<script src="js/quiz.js?v=22"></script>
-<script src="js/daily.js?v=6"></script>
+<script src="js/quiz.js?v=23"></script>
+<script src="js/daily.js?v=7"></script>
 </body>
 </html>

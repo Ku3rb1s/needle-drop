@@ -4,6 +4,8 @@
   name: 'Norsk',
   flag: '🇳🇴',
   dict: {
+    "Die letzten 30 Tage": "De siste 30 dagene",
+    "Die letzten 30 Tage. Verpasste kannst du nachspielen – sie zählen nicht zur Serie.": "De siste 30 dagene. Du kan spille dem du gikk glipp av – de teller ikke med i rekken.",
     "Modus": "Modus",
     "Standard": "Standard",
     "wie gewohnt": "som vanlig",
@@ -32,7 +34,6 @@
     "Avatar wechseln": "Bytt avatar",
     "Dein Name": "Navnet ditt",
     "Challenge-Archiv": "Utfordringsarkiv",
-    "Verpasste Tage kannst du nachspielen. Sie zählen nicht zur Serie.": "Du kan spille dager du gikk glipp av. De teller ikke med i rekken.",
     "Lade Challenge #{n}…": "Laster utfordring #{n}…",
     "nachgespielt": "spilt senere",
     "aus dem Archiv": "fra arkivet",

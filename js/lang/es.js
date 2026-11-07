@@ -4,6 +4,8 @@
   name: 'Español',
   flag: '🇪🇸',
   dict: {
+    "Die letzten 30 Tage": "Los últimos 30 días",
+    "Die letzten 30 Tage. Verpasste kannst du nachspielen – sie zählen nicht zur Serie.": "Los últimos 30 días. Puedes jugar los que te perdiste; no cuentan para tu racha.",
     "Modus": "Modo",
     "Standard": "Estándar",
     "wie gewohnt": "como siempre",
@@ -32,7 +34,6 @@
     "Avatar wechseln": "Cambiar avatar",
     "Dein Name": "Tu nombre",
     "Challenge-Archiv": "Archivo de retos",
-    "Verpasste Tage kannst du nachspielen. Sie zählen nicht zur Serie.": "Puedes jugar los días que te perdiste. No cuentan para tu racha.",
     "Lade Challenge #{n}…": "Cargando reto n.º {n}…",
     "nachgespielt": "jugado después",
     "aus dem Archiv": "del archivo",
