@@ -573,7 +573,14 @@ $('#diff').addEventListener('click', e => {
   opt.diff = b.dataset.v; LS.set('diff', opt.diff); renderHome();
 });
 $('#startBtn').onclick = startGame;
-$('#disc').onclick = playSnippet;
+// Platte antippen: läuft etwas → stoppen, sonst abspielen
+$('#disc').onclick = () => {
+  if (Snip.elapsed() >= 0) {
+    Snip.stop(); cancelAnimationFrame(raf); setRing(0);
+    $$('#ladder .bar-fill').forEach(s => s.style.transform = 'scaleY(0)');
+    const d = $('#disc'); d.classList.remove('playing', 'counting'); d.classList.add('paused');
+  } else playSnippet();
+};
 $('#skipBtn').onclick = skip;
 $('#hintBtn').onclick = () => { $('#hintPanel').classList.toggle('hidden'); renderHints(); };
 $('#giveupBtn').onclick = () => { if (!R().done && confirm('Song auflösen? Du bekommst nur Punkte, falls der Interpret schon stimmte.')) finishRound(false); };
@@ -648,7 +655,7 @@ gi.addEventListener('blur', () => setTimeout(closeSuggest, 150));
 document.addEventListener('keydown', e => {
   if ($('#game').classList.contains('hidden') || e.target === gi || sheet.open) return;
   if (e.target.matches?.('input,select,textarea')) return;
-  if (e.code === 'Space') { e.preventDefault(); R()?.done ? nextRound() : playSnippet(); }
+  if (e.code === 'Space') { e.preventDefault(); R()?.done ? nextRound() : $('#disc').click(); }
   else if (e.key === 'ArrowUp') { e.preventDefault(); setVol(opt.vol + 5); }
   else if (e.key === 'ArrowDown') { e.preventDefault(); setVol(opt.vol - 5); }
   else if (e.key === 'm' || e.key === 'M') { opt.muted = !opt.muted; applyVol(); }
