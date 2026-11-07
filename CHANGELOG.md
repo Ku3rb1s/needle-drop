@@ -2,6 +2,9 @@
 
 Die Versionsnummer steht in `js/quiz.js` (`APP_VERSION`) und unten in den Einstellungen. In `index.html` bei jedem Update auch `?v=` an CSS/JS-Dateien erhöhen.
 
+## 1.16.4 – 07.11.2026
+- Nach einem Update kommt die neue Version jetzt sofort – vorher konnte der Browser bis zu 10 Minuten lang noch die alte Seite zeigen
+
 ## 1.16.3 – 07.11.2026
 - Abgleich: gemeinsame Technik aktualisiert (Diamanten aus Gold Record werden mit abgeglichen)
 
