@@ -2,6 +2,9 @@
 
 Die Versionsnummer steht in `js/quiz.js` (`APP_VERSION`) und unten in den Einstellungen. In `index.html` bei jedem Update auch `?v=` an CSS/JS-Dateien erhöhen.
 
+## 1.16.12 – 07.11.2026
+- Unnötige Anzeige „Song-Quiz“ auf der Startseite entfernt
+
 ## 1.16.11 – 07.11.2026
 - Kleine iPhones (z. B. SE): nichts läuft mehr seitlich aus dem Bild, Auswahlknöpfe mit langen Wörtern passen
 
