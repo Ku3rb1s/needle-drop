@@ -1,5 +1,5 @@
 /* Needle Drop – Spielablauf und Anzeige */
-const APP_VERSION = '1.16.18', APP_DATE = '08.11.2026'; // bei jedem Update erhöhen + CHANGELOG.md ergänzen
+const APP_VERSION = '1.16.19', APP_DATE = '08.11.2026'; // bei jedem Update erhöhen + CHANGELOG.md ergänzen
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 
@@ -1304,6 +1304,14 @@ $('#customUrl').value = LS.get('customUrl', '');
 applyTheme();
 applyVol();
 renderHome();
+
+// App über Nacht offen gelassen: beim Zurückkehren Challenge-Knopf (neuer Tag, Serie) und Startseite auffrischen
+let shownDay = typeof Daily !== 'undefined' ? Daily.today() : '';
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden || typeof Daily === 'undefined' || Daily.today() === shownDay) return;
+  shownDay = Daily.today();
+  if (!G && !$('#home').classList.contains('hidden')) renderHome(); else Daily.renderCard();
+});
 
 // Neue Spielstände von anderen Geräten (js/sync.js, Code in der Jukebox): Startseite, Challenge und Einstellungen neu zeichnen
 addEventListener('jukebox-sync', () => {

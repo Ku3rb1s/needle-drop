@@ -9,6 +9,7 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 const norm = s => (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
   .replace(/\s*[([].*?[)\]]/g, '').replace(/\s+-\s+.*$/, '').replace(/feat\..*$/, '')
   .replace(/&/g, 'and').replace(/[^a-z0-9]+/g, ' ').trim();
+const JUNK = /karaoke|cover band|\bcover\)|tribute|in the style of|originally (performed|by)|made famous|instrumental|lullaby|8-bit|sped up|slowed|nightcore|piano version|vocal melody/i;
 const decode = s => s.replace(/&amp;/g, '&').replace(/&#39;|&apos;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
 
 async function deezer(q) {
@@ -36,10 +37,14 @@ async function deezer(q) {
     let res = await deezer(`artist:"${main}" track:"${title.replace(/\s*[([].*$/, '')}"`);
     if (!res.length) res = await deezer(`${main} ${title.replace(/\s*[([].*$/, '')}`);
     const nt = norm(title), na = norm(main);
+    // Keine Karaoke-, Cover- oder Tribute-Fassungen (außer der Titel bei kworb heißt selbst so);
+    // der Original-Interpret (Name stimmt genau) geht vor ähnlichen Namen wie „Bruno Mars Cover Band“
+    const fake = t => JUNK.test(t.title + ' ' + t.artist.name) && !JUNK.test(r.name);
+    const exact = t => norm(t.artist.name) === na;
     const hit = res
-      .filter(t => t.readable && t.preview)
+      .filter(t => t.readable && t.preview && !fake(t))
       .filter(t => (norm(t.title).startsWith(nt) || nt.startsWith(norm(t.title))) && norm(t.artist.name).includes(na.split(' ')[0]))
-      .sort((a, b) => b.rank - a.rank)[0];
+      .sort((a, b) => (exact(b) - exact(a)) || (b.rank - a.rank))[0];
     if (hit) out.push({ id: hit.id, title: hit.title_short || hit.title, artist: hit.artist.name, streams: r.streams });
     else missing.push(r.name);
     if (i % 50 === 0) console.log(i, '/', rows.length);

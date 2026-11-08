@@ -2,6 +2,10 @@
 
 Die Versionsnummer steht in `js/quiz.js` (`APP_VERSION`) und unten in den Einstellungen. In `index.html` bei jedem Update auch `?v=` an CSS/JS-Dateien erhöhen.
 
+## 1.16.19 – 08.11.2026
+- App über Nacht offen: Der Knopf der Täglichen Challenge zeigt beim Zurückkehren den neuen Tag (vorher stand noch „erledigt“ vom Vortag da)
+- Milliarden-Liste: Karaoke- und Cover-Band-Fassungen ersetzt (Hozier „Take Me to Church“, Bruno Mars „It Will Rain“) und künftig ausgeschlossen
+
 ## 1.16.18 – 08.11.2026
 - Fenster: Ein Doppeltipp auf „Fertig“ tippt nicht mehr versehentlich, was darunter liegt
 
