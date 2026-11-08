@@ -2,6 +2,9 @@
 
 Die Versionsnummer steht in `js/quiz.js` (`APP_VERSION`) und unten in den Einstellungen. In `index.html` bei jedem Update auch `?v=` an CSS/JS-Dateien erhöhen.
 
+## 1.16.11 – 07.11.2026
+- Kleine iPhones (z. B. SE): nichts läuft mehr seitlich aus dem Bild, Auswahlknöpfe mit langen Wörtern passen
+
 ## 1.16.10 – 07.11.2026
 - Punkte am Rundenende zählen kurz hoch
 
