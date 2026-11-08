@@ -2,6 +2,9 @@
 
 Die Versionsnummer steht in `js/quiz.js` (`APP_VERSION`) und unten in den Einstellungen. In `index.html` bei jedem Update auch `?v=` an CSS/JS-Dateien erhöhen.
 
+## 1.16.18 – 08.11.2026
+- Fenster: Ein Doppeltipp auf „Fertig“ tippt nicht mehr versehentlich, was darunter liegt
+
 ## 1.16.17 – 08.11.2026
 - Behoben: Direkt nach dem Schließen eines Fensters ging der nächste Tipp verloren, solange das Fenster noch wegglitt
 
