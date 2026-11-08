@@ -2,6 +2,9 @@
 
 Die Versionsnummer steht in `js/quiz.js` (`APP_VERSION`) und unten in den Einstellungen. In `index.html` bei jedem Update auch `?v=` an CSS/JS-Dateien erhöhen.
 
+## 1.16.15 – 08.11.2026
+- Abgleich: On-Tour-Sterne zählen jetzt in der Jukebox-Bestenliste
+
 ## 1.16.14 – 08.11.2026
 - Spiele-Menü (Logo lange drücken): neues Spiel On Tour – eine Reise durch die Musikgeschichte
 
