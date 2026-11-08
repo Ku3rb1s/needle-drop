@@ -3,9 +3,9 @@
 Die Versionsnummer steht in `js/quiz.js` (`APP_VERSION`) und unten in den Einstellungen. In `index.html` bei jedem Update auch `?v=` an CSS/JS-Dateien erhöhen.
 
 ## 1.16.9 – 07.11.2026
-- - Fenster wie auf dem iPhone: am Kopf (oder oben im Inhalt) nach unten wegwischen; beim Schließen gleiten sie nach unten weg
-- - Knöpfe reagieren schneller beim Drücken, Hover-Effekte nur noch mit Maus
-- - „Bewegung reduzieren“ und „Transparenz reduzieren“ (iPhone-Bedienungshilfen) werden beachtet
+- Fenster wie auf dem iPhone: am Kopf (oder oben im Inhalt) nach unten wegwischen; beim Schließen gleiten sie nach unten weg
+- Knöpfe reagieren schneller beim Drücken, Hover-Effekte nur noch mit Maus
+- „Bewegung reduzieren“ und „Transparenz reduzieren“ (iPhone-Bedienungshilfen) werden beachtet
 
 ## 1.16.8 – 08.11.2026
 - Archiv: Nach einem normalen Spiel ließen sich frühere Challenges nicht öffnen (Klick tat nichts) – behoben
