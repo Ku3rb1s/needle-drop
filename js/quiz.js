@@ -1,5 +1,5 @@
 /* Needle Drop – Spielablauf und Anzeige */
-const APP_VERSION = '1.16.9', APP_DATE = '07.11.2026'; // bei jedem Update erhöhen + CHANGELOG.md ergänzen
+const APP_VERSION = '1.16.10', APP_DATE = '07.11.2026'; // bei jedem Update erhöhen + CHANGELOG.md ergänzen
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 
@@ -489,7 +489,7 @@ function endGame() {
   if (found === G.n && G.n >= 5) confetti(140);
   $('#endCat').textContent = `${G.cat.name} · ${DIFF[opt.diff].label}` + modeSuffix();
   $('#endFound').textContent = tx('{a} von {b} erkannt', { a: found, b: G.n });
-  $('#endScore').textContent = fmtN(G.score);
+  window.countUp ? countUp($('#endScore'), G.score, fmtN) : $('#endScore').textContent = fmtN(G.score);
   $('#endSub').textContent = tx('von {n} möglichen', { n: fmtN(max) }) + (isBest ? ' · 🏆 ' + tx('Neuer Rekord!') : best ? ' · ' + tx('Rekord {n}', { n: fmtN(best) }) : '');
   $('#endList').innerHTML = G.rounds.map(r => `
     <div class="cell"><img class="pl-cover" src="${r.track.album?.cover_small || ''}" alt="">
