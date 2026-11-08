@@ -2,6 +2,9 @@
 
 Die Versionsnummer steht in `js/quiz.js` (`APP_VERSION`) und unten in den Einstellungen. In `index.html` bei jedem Update auch `?v=` an CSS/JS-Dateien erhöhen.
 
+## 1.16.16 – 08.11.2026
+- Abgleich: Gelöschte Werte (z. B. „Rekorde löschen“) kommen nicht mehr von anderen Geräten zurück
+
 ## 1.16.15 – 08.11.2026
 - Abgleich: On-Tour-Sterne zählen jetzt in der Jukebox-Bestenliste
 
