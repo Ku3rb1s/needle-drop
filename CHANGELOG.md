@@ -2,6 +2,9 @@
 
 Die Versionsnummer steht in `js/quiz.js` (`APP_VERSION`) und unten in den Einstellungen. In `index.html` bei jedem Update auch `?v=` an CSS/JS-Dateien erhöhen.
 
+## 1.16.22 – 09.11.2026
+- Neues Spiel in der Jukebox: Piano Rain (Klavier lernen mit fallenden Noten) – im Spiele-Menü (Logo lange drücken) und im Abgleich
+
 ## 1.16.21 – 08.11.2026
 - Exklusive Avatare aus dem Adventskalender der Jukebox (ab 1. Dezember, hinter Türchen 6, 12, 18 und 24) erscheinen nach dem Freischalten in der Avatar-Auswahl unter „Aus dem Adventskalender“ und werden auf allen Geräten abgeglichen
 
