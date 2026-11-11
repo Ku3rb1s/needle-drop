@@ -2,6 +2,10 @@
 
 Die Versionsnummer steht in `js/quiz.js` (`APP_VERSION`) und unten in den Einstellungen. In `index.html` bei jedem Update auch `?v=` an CSS/JS-Dateien erhöhen.
 
+## 1.16.23 – 11.11.2026
+- Song bleibt stumm, egal wie oft man Play drückt (vor allem iPhone): Die Ton-Ausgabe wird jetzt auch nach Anruf, Sperrbildschirm oder App-Wechsel wieder geweckt. Hängt sie trotzdem, baut das Spiel sie nach 0,8 s neu auf und spielt den Ausschnitt nochmal
+- Weniger Speicher: Songs vergangener Runden werden freigegeben (je ~10 MB) – auf dem iPhone verstummte sonst nach einigen Runden die Ausgabe
+
 ## 1.16.22 – 09.11.2026
 - Neues Spiel in der Jukebox: Piano Rain (Klavier lernen mit fallenden Noten) – im Spiele-Menü (Logo lange drücken) und im Abgleich
 

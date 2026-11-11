@@ -27,17 +27,28 @@ const Snip = (() => {
     } catch {}
   }
 
+  function fresh() {
+    ctx = new (window.AudioContext || window.webkitAudioContext)();
+    master = ctx.createGain();
+    master.gain.value = vol * vol;
+    master.connect(ctx.destination);
+  }
   function ac() {
     unlockIOS();
-    if (!ctx) {
-      ctx = new (window.AudioContext || window.webkitAudioContext)();
-      master = ctx.createGain();
-      master.gain.value = vol * vol;
-      master.connect(ctx.destination);
-    }
-    if (ctx.state === 'suspended') ctx.resume();
+    if (!ctx || ctx.state === 'closed') fresh();
+    // iPhone: nach Anruf, Sperre oder App-Wechsel steht die Ausgabe auf „interrupted“ (nicht „suspended“) – auch dann wecken
+    if (ctx.state !== 'running') ctx.resume().catch(() => {});
     return ctx;
   }
+  /** Hängende Ausgabe ersetzen (dekodierte Songs lassen sich in der neuen weiter abspielen) */
+  function rebuild() {
+    const old = ctx; ctx = null;
+    try { old && old.close(); } catch {}
+    iosDone = false;
+    return ac();
+  }
+  // Zurück in der App / im Tab: Ausgabe gleich wieder wecken
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && ctx && ctx.state !== 'running') ctx.resume().catch(() => {}); });
 
   /** Lautstärke 0…1 (gilt sofort, auch während der Wiedergabe) */
   function setVolume(v) {
@@ -122,7 +133,7 @@ const Snip = (() => {
 
   /** Spielt `dur` Sekunden (Hörzeit) ab `offset`. Mini-Ein-/Ausblendung gegen Knacken.
       fx: optionaler Effekt aus FX (nur im Modus „Verrückt“). */
-  function play(buf, offset, dur, onEnd, fx) {
+  function play(buf, offset, dur, onEnd, fx, retry = true) {
     const c = ac();
     stop();
     const f = FX[fx] || null, rate = f ? f.rate : 1;
@@ -142,15 +153,21 @@ const Snip = (() => {
       g.gain.value = 1.6; // Tiefpass klingt leiser – etwas ausgleichen
     }
     node.connect(g).connect(master);
-    const t0 = c.currentTime + 0.03, fade = Math.min(0.006, dur / 4), peak = f?.low ? 1.6 : 1;
+    const t0 = c.currentTime + 0.03, at = performance.now(), fade = Math.min(0.006, dur / 4), peak = f?.low ? 1.6 : 1;
     g.gain.setValueAtTime(0, t0);
     g.gain.linearRampToValueAtTime(peak, t0 + fade);
     g.gain.setValueAtTime(peak, t0 + dur - fade);
     g.gain.linearRampToValueAtTime(0, t0 + dur);
     src.start(t0, start, len + 0.01);
-    const me = { src, t0, dur };
+    const me = { src, t0, dur, at };
     src.onended = () => { if (cur === me) cur = null; onEnd && onEnd(); };
     cur = me;
+    // Absicherung: läuft die Zeit nach 0,8 s nicht an, hängt die Ausgabe (iPhone) → neu aufbauen und nochmal abspielen
+    if (retry) setTimeout(() => {
+      if (cur !== me || ctx !== c || c.currentTime > t0) return;
+      stop(); rebuild();
+      play(buf, offset, dur, onEnd, fx, false);
+    }, 800);
     return me;
   }
 
@@ -179,7 +196,13 @@ const Snip = (() => {
     }
   }
 
-  const elapsed = () => (cur && ctx) ? Math.max(0, ctx.currentTime - cur.t0) : -1;
+  // läuft gerade etwas? (-1 = nein). Eine hängende Ausgabe zählt nach 1 s nicht mehr als „läuft“ – sonst stoppt der nächste Tipp nur
+  const elapsed = () => {
+    if (!cur || !ctx) return -1;
+    const t = ctx.currentTime - cur.t0;
+    if (t < 0 && performance.now() - cur.at > 1000) return -1;
+    return Math.max(0, t);
+  };
 
   return { ac, load, findStart, play, stop, elapsed, setVolume, sfx };
 })();

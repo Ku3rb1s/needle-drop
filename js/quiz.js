@@ -1,5 +1,5 @@
 /* Needle Drop – Spielablauf und Anzeige */
-const APP_VERSION = '1.16.22', APP_DATE = '09.11.2026'; // bei jedem Update erhöhen + CHANGELOG.md ergänzen
+const APP_VERSION = '1.16.23', APP_DATE = '11.11.2026'; // bei jedem Update erhöhen + CHANGELOG.md ergänzen
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 
@@ -321,6 +321,9 @@ async function nextRound() {
 }
 async function nextRoundInner() {
   Snip.stop();
+  // Speicher frei machen: entpackte Songs sind je ~10 MB – auf dem iPhone verstummt sonst nach einigen Runden die Ausgabe
+  const prev = G.rounds[G.i];
+  if (prev) prev.buf = null;
   G.i++;
   if (G.i >= G.n) return endGame();
   loading(true, tx('Lade Song…'));
