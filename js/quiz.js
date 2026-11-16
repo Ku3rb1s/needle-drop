@@ -1,5 +1,5 @@
 /* Needle Drop – Spielablauf und Anzeige */
-const APP_VERSION = '1.16.23', APP_DATE = '11.11.2026'; // bei jedem Update erhöhen + CHANGELOG.md ergänzen
+const APP_VERSION = '1.16.24', APP_DATE = '16.11.2026'; // bei jedem Update erhöhen + CHANGELOG.md ergänzen
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 
@@ -116,6 +116,10 @@ const isArtistMode = () => rule('mode') === 'artist';
 const rule = k => (G && G.daily && k in DAILY_RULES) ? DAILY_RULES[k] : opt[k];
 const bestKey = (cat = opt.cat) => `best2.${cat}.${opt.diff}.${opt.count}.${opt.ladder}.${opt.answer}` + (opt.mode === 'standard' ? '' : `.${opt.mode}${opt.mode === 'crazy' ? '.' + opt.fx : ''}`);
 const pools = {};
+/* Bestenliste (in der Jukebox): Rekorde je Kategorie und Schwierigkeit – nur mit vergleichbaren Regeln.
+   Gemeldet wird von js/sync.js (BOARD.high) aus mq.best2.<kat>.<stufe>.10.classic.search */
+const LB_PAGE = 'https://ku3rb1s.github.io/jukebox/#bestenliste=needle-drop/';
+const lbCounts = () => opt.count === 10 && opt.ladder === 'classic' && opt.answer === 'search' && opt.mode === 'standard';
 let G = null;
 let catTab = null; // gerade offener Kategorie-Reiter auf der Startseite
 
@@ -494,6 +498,12 @@ function endGame() {
   $('#endFound').textContent = tx('{a} von {b} erkannt', { a: found, b: G.n });
   window.countUp ? countUp($('#endScore'), G.score, fmtN) : $('#endScore').textContent = fmtN(G.score);
   $('#endSub').textContent = tx('von {n} möglichen', { n: fmtN(max) }) + (isBest ? ' · 🏆 ' + tx('Neuer Rekord!') : best ? ' · ' + tx('Rekord {n}', { n: fmtN(best) }) : '');
+  // Bestenliste: Link zur Wertung dieser Kategorie – oder Hinweis, warum dieses Spiel nicht zählt
+  const counts = G.cat.id !== 'custom' && lbCounts();
+  $('#endLb').classList.toggle('hidden', G.cat.id === 'custom');
+  $('#endLb').href = LB_PAGE + 'high/' + G.cat.id + '.' + opt.diff;
+  $('#endLbT').textContent = isBest && counts ? tx('Neuer Rekord – zur Bestenliste') : tx('Zur Bestenliste');
+  $('#endLbNote').classList.toggle('hidden', G.cat.id === 'custom' || counts);
   $('#endList').innerHTML = G.rounds.map(r => `
     <div class="cell"><img class="pl-cover" src="${r.track.album?.cover_small || ''}" alt="">
       <span class="grow">${esc(showTitle(r.track))}<span class="sub">${esc(r.track.artist?.name || '')}</span><span class="emo">${emojiRow(r)}</span></span>
@@ -1227,7 +1237,8 @@ gi.addEventListener('keydown', e => {
   else if (e.key === 'ArrowUp' && sugg.length) { sel = (sel - 1 + sugg.length) % sugg.length; renderSuggest(gi.value.trim(), true); $('#suggest .sel')?.scrollIntoView({ block: 'nearest' }); e.preventDefault(); }
   else if (e.key === 'Enter') {
     e.preventDefault();
-    if (sel >= 0) pick(sel);
+    // Am Handy/Tablet heißt die Taste „Suchen“ – dort nicht einfach den obersten Treffer als Antwort abschicken
+    if (sel >= 0 && !touchUI) pick(sel);
     else if (gi.value.trim().length >= 2) { clearTimeout(deb); seq++; onType(); } // Vorschläge sofort holen
   }
   else if (e.key === 'Escape') closeSuggest();
@@ -1238,14 +1249,19 @@ gi.addEventListener('keydown', e => {
   const ul = $('#suggest');
   let down = null;
   ul.addEventListener('mousedown', e => e.preventDefault());
-  ul.addEventListener('pointerdown', e => { down = { x: e.clientX, y: e.clientY, top: ul.scrollTop }; });
-  ul.addEventListener('pointerup', e => {
+  let swiped = false;
+  ul.addEventListener('pointerdown', e => { down = { x: e.clientX, y: e.clientY, top: ul.scrollTop }; swiped = false; });
+  ul.addEventListener('pointermove', e => {
+    if (down && (Math.abs(e.clientX - down.x) > 10 || Math.abs(e.clientY - down.y) > 10 || Math.abs(ul.scrollTop - down.top) > 4)) swiped = true;
+  });
+  ul.addEventListener('pointercancel', () => { down = null; swiped = true; });   // Browser hat das Wischen übernommen (Scrollen)
+  // Erst beim „click“ auswählen: Würde schon beim Loslassen gewählt, verschwände die Liste und der Klick, den iOS danach
+  // schickt, landete auf dem Knopf darunter (z. B. „Nächster Song“ oder „Auflösen“)
+  ul.addEventListener('click', e => {
     const li = e.target.closest('li'), d = down; down = null;
-    if (!li || !d) return;
-    if (Math.abs(e.clientX - d.x) > 10 || Math.abs(e.clientY - d.y) > 10 || Math.abs(ul.scrollTop - d.top) > 4) return; // gewischt
+    if (!li || swiped || (d && Math.abs(ul.scrollTop - d.top) > 4)) return;
     e.preventDefault(); pick(+li.dataset.i);
   });
-  ul.addEventListener('pointercancel', () => { down = null; });
 }
 /* Liste nur so hoch, wie über der Tastatur Platz ist (visualViewport = sichtbarer Bereich ohne Tastatur) */
 function fitSuggest() {

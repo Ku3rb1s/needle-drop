@@ -126,6 +126,9 @@ const Daily = (() => {
     const res = result(d);
     if (!res) return;
     $('#endAch').innerHTML = '';
+    // Bestenliste der Tages-Challenge (nachgespielte Tage zählen dort nicht)
+    $('#endLb').classList.toggle('hidden', !!res.late); $('#endLb').href = LB_PAGE + 'daily';
+    $('#endLbT').textContent = tx('Zur Bestenliste'); $('#endLbNote').classList.add('hidden');
     setCat(CAT.color);
     $('#endCat').textContent = `${tx('Tägliche Challenge')} #${dayNo(d)}`;
     $('#endFound').textContent = tx('{a} von {b} erkannt', { a: res.found, b: N });

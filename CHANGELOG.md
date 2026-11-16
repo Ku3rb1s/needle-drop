@@ -2,6 +2,13 @@
 
 Die Versionsnummer steht in `js/quiz.js` (`APP_VERSION`) und unten in den Einstellungen. In `index.html` bei jedem Update auch `?v=` an CSS/JS-Dateien erhöhen.
 
+## 1.16.24 – 16.11.2026
+- Neu: Bestenliste für Needle Drop – Rekorde je Kategorie und Schwierigkeit in der Jukebox-Bestenliste (Highscores → Needle Drop). Gewertet werden Spiele mit 10 Songs, Leiter „Klassisch“, Antwort „Suchen“ und Modus „Standard“
+- Ergebnis: Knopf „Zur Bestenliste“ (öffnet direkt die gespielte Kategorie) – oder ein Hinweis, warum das Spiel nicht zählt. Auch in den Einstellungen und nach der Tages-Challenge
+- Suche am iPhone/iPad: Autokorrektur aus (machte z. B. aus Interpreten normale Wörter)
+- Suche am iPhone/iPad: Treffer antippen löst keinen zweiten Tipp mehr auf dem Knopf darunter aus (z. B. „Nächster Song“ oder „Auflösen“)
+- Suche am iPhone/iPad: Die Tastatur-Taste „Suchen“ schickt nicht mehr ungefragt den obersten Treffer als Antwort ab
+
 ## 1.16.23 – 11.11.2026
 - Song bleibt stumm, egal wie oft man Play drückt (vor allem iPhone): Die Ton-Ausgabe wird jetzt auch nach Anruf, Sperrbildschirm oder App-Wechsel wieder geweckt. Hängt sie trotzdem, baut das Spiel sie nach 0,8 s neu auf und spielt den Ausschnitt nochmal
 - Weniger Speicher: Songs vergangener Runden werden freigegeben (je ~10 MB) – auf dem iPhone verstummte sonst nach einigen Runden die Ausgabe

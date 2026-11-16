@@ -4,6 +4,11 @@
   name: 'Français',
   flag: '🇫🇷',
   dict: {
+    "Zur Bestenliste": "Voir le classement",
+    "Neuer Rekord – zur Bestenliste": "Nouveau record – voir le classement",
+    "Bestenliste": "Classement",
+    "Rekorde je Kategorie, Tages-Challenge und Serien – in der Jukebox": "Records par catégorie, défi du jour et séries – dans la Jukebox",
+    "Zählt nicht für die Bestenliste – dort gelten 10 Songs, Leiter „Klassisch“, Antwort „Suchen“ und Modus „Standard“.": "Ne compte pas pour le classement – il faut 10 titres, l’échelle « Classique », la réponse « Rechercher » et le mode « Standard ».",
     "Erfolge": "Succès",
     "{a} von {b}": "{a} sur {b}",
     "Neuer Erfolg: {s}": "Nouveau succès : {s}",

@@ -5,6 +5,11 @@
   name: 'English',
   flag: '🇬🇧',
   dict: {
+    "Zur Bestenliste": "To the leaderboard",
+    "Neuer Rekord – zur Bestenliste": "New record – to the leaderboard",
+    "Bestenliste": "Leaderboard",
+    "Rekorde je Kategorie, Tages-Challenge und Serien – in der Jukebox": "Records per category, daily challenge and streaks – in the Jukebox",
+    "Zählt nicht für die Bestenliste – dort gelten 10 Songs, Leiter „Klassisch“, Antwort „Suchen“ und Modus „Standard“.": "Doesn’t count for the leaderboard – it uses 10 songs, the “Classic” ladder, “Search” answers and “Standard” mode.",
     "Erfolge": "Achievements",
     "{a} von {b}": "{a} of {b}",
     "Neuer Erfolg: {s}": "New achievement: {s}",

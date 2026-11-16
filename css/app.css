@@ -342,3 +342,9 @@ a.cell{color:inherit;text-decoration:none}
 .end-ach:empty{display:none}
 .ach-new{font-size:.85rem;font-weight:700;padding:.35em .8em;border-radius:99px;background:linear-gradient(135deg,rgba(253,230,138,.22),rgba(212,160,23,.1));
   border:1px solid rgba(245,179,1,.5);color:#fcd34d;animation:pop .4s cubic-bezier(.3,1.6,.5,1)}
+/* Ergebnis: Link zur Bestenliste (Jukebox) bzw. Hinweis, warum das Spiel dort nicht zählt */
+.end-lb{display:inline-flex;align-items:center;gap:7px;margin-top:12px;padding:.45em 1em;border-radius:99px;font-size:.88rem;font-weight:700;
+  color:var(--text,#fff);text-decoration:none;background:rgba(255,255,255,.07);border:1px solid var(--g-brd)}
+.end-lb .ic{width:16px;height:16px;color:#fbbf24}
+.end-lb:active{transform:scale(.97)}
+.end-lb-note{margin:8px auto 0;max-width:340px;font-size:.78rem;color:var(--muted);line-height:1.4}
