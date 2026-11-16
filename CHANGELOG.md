@@ -2,6 +2,9 @@
 
 Die Versionsnummer steht in `js/quiz.js` (`APP_VERSION`) und unten in den Einstellungen. In `index.html` bei jedem Update auch `?v=` an CSS/JS-Dateien erhöhen.
 
+## 1.16.25 – 16.11.2026
+- Bestenliste: neue Gesamtwertung „Bester Highscore (alle Kategorien)“ – je Spieler der höchste Rekord, mit Kategorie und Stufe, in der er geholt wurde. Einstellungen → Bestenliste öffnet sie direkt
+
 ## 1.16.24 – 16.11.2026
 - Neu: Bestenliste für Needle Drop – Rekorde je Kategorie und Schwierigkeit in der Jukebox-Bestenliste (Highscores → Needle Drop). Gewertet werden Spiele mit 10 Songs, Leiter „Klassisch“, Antwort „Suchen“ und Modus „Standard“
 - Ergebnis: Knopf „Zur Bestenliste“ (öffnet direkt die gespielte Kategorie) – oder ein Hinweis, warum das Spiel nicht zählt. Auch in den Einstellungen und nach der Tages-Challenge
