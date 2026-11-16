@@ -49,6 +49,7 @@
     "Löschen": "Delete",
     "OK": "OK",
     "Abbrechen": "Cancel",
+    "Challenge starten": "Start challenge",
     "Die letzten 30 Tage": "The last 30 days",
     "Die letzten 30 Tage. Verpasste kannst du nachspielen – sie zählen nicht zur Serie.": "The last 30 days. You can replay the ones you missed – they don’t count toward your streak.",
     "Modus": "Mode",

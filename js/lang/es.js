@@ -48,6 +48,7 @@
     "Löschen": "Borrar",
     "OK": "Aceptar",
     "Abbrechen": "Cancelar",
+    "Challenge starten": "Empezar el reto",
     "Die letzten 30 Tage": "Los últimos 30 días",
     "Die letzten 30 Tage. Verpasste kannst du nachspielen – sie zählen nicht zur Serie.": "Los últimos 30 días. Puedes jugar los que te perdiste; no cuentan para tu racha.",
     "Modus": "Modo",

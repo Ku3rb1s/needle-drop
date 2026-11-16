@@ -2,6 +2,9 @@
 
 Die Versionsnummer steht in `js/quiz.js` (`APP_VERSION`) und unten in den Einstellungen. In `index.html` bei jedem Update auch `?v=` an CSS/JS-Dateien erhöhen.
 
+## 1.16.27 – 16.11.2026
+- Aus der Jukebox: erst ein Knopf „Challenge starten“ statt sofortigem Start (Abbrechen verbraucht die Challenge nicht)
+
 ## 1.16.26 – 16.11.2026
 - Aus der Jukebox („Heute noch offen“) startet die Tägliche Challenge direkt
 

@@ -246,23 +246,21 @@ const Daily = (() => {
   return { start, finish, showResult, resetEnd, shareText, renderCard, renderArchive, today, streak };
 })();
 
-// Aus der Jukebox („Heute noch offen“): ?daily=1 öffnet direkt die Tägliche Challenge (bzw. das Ergebnis, wenn schon gespielt).
-// Erlaubt der Browser ohne Tippen keinen Ton (iPhone/iPad), erst ein großer Start-Knopf – sonst liefe die Zeit ohne Musik.
+// Aus der Jukebox („Heute noch offen“): ?daily=1 zeigt sofort einen Knopf „Challenge starten“ (schon gespielt → Ergebnis).
+// Nicht automatisch starten: Die Challenge zählt ab dem Start, und iPhone/iPad spielen Ton erst nach einem Tipp.
 if (new URLSearchParams(location.search).has('daily')) {
-  history.replaceState(history.state, '', location.pathname + location.hash);   // beim Neuladen nicht noch einmal starten
-  (async () => {
-    let ok = false;
-    try {
-      const c = new (window.AudioContext || window.webkitAudioContext)();
-      await Promise.race([c.resume(), new Promise(r => setTimeout(r, 300))]);
-      ok = c.state === 'running'; c.close().catch(() => {});
-    } catch {}
-    if (ok) return $('#dailyHdr').click();
+  history.replaceState(history.state, '', location.pathname + location.hash);   // beim Neuladen nicht noch einmal
+  if ((LS.get('daily', {}) || {})[Daily.today()]) setTimeout(() => $('#dailyHdr').click(), 0);
+  else {
     const o = document.createElement('div');
-    o.style.cssText = 'position:fixed;inset:0;z-index:999;display:grid;place-items:center;background:rgba(0,0,0,.55);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)';
-    o.innerHTML = `<button type="button" style="font:inherit;font-weight:800;font-size:1.15rem;color:#fff;background:rgba(255,255,255,.12);border:0;border-radius:22px;padding:22px 30px;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.25);display:grid;gap:6px;cursor:pointer">
-      <span style="font-size:.85rem;opacity:.75">📅 ${esc(tx('Tägliche Challenge'))}</span>▶ ${esc(tx('Spielen'))}</button>`;
-    o.onclick = e => { o.remove(); if (e.target.closest('button')) $('#dailyHdr').click(); };
+    o.style.cssText = 'position:fixed;inset:0;z-index:999;display:grid;place-items:center;padding:16px;background:rgba(0,0,0,.6);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)';
+    const btn = 'font:inherit;font-weight:800;color:#fff;border:0;cursor:pointer;border-radius:18px';
+    o.innerHTML = `<div style="display:grid;gap:10px;justify-items:center;text-align:center">
+      <div style="font-size:1rem;font-weight:800;color:#fff;opacity:.8">📅 ${esc(tx('Tägliche Challenge'))}</div>
+      <button type="button" data-go style="${btn};font-size:1.2rem;padding:18px 34px;background:var(--accent,#1ed760);color:#000">▶ ${esc(tx('Challenge starten'))}</button>
+      <button type="button" style="${btn};font-size:.95rem;padding:10px 20px;background:none;opacity:.75">${esc(tx('Abbrechen'))}</button></div>`;
+    o.onclick = e => { const b = e.target.closest('button'); if (!b && e.target !== o) return; o.remove(); if (b?.hasAttribute('data-go')) $('#dailyHdr').click(); };
     document.body.appendChild(o);
-  })();
+    o.querySelector('[data-go]').focus();
+  }
 }
