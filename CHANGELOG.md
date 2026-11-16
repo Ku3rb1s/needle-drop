@@ -2,6 +2,9 @@
 
 Die Versionsnummer steht in `js/quiz.js` (`APP_VERSION`) und unten in den Einstellungen. In `index.html` bei jedem Update auch `?v=` an CSS/JS-Dateien erhöhen.
 
+## 1.16.26 – 16.11.2026
+- Aus der Jukebox („Heute noch offen“) startet die Tägliche Challenge direkt
+
 ## 1.16.25 – 16.11.2026
 - Bestenliste: neue Gesamtwertung „Bester Highscore (alle Kategorien)“ – je Spieler der höchste Rekord, mit Kategorie und Stufe, in der er geholt wurde. Einstellungen → Bestenliste öffnet sie direkt
 

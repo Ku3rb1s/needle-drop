@@ -245,3 +245,24 @@ const Daily = (() => {
   renderCard();
   return { start, finish, showResult, resetEnd, shareText, renderCard, renderArchive, today, streak };
 })();
+
+// Aus der Jukebox („Heute noch offen“): ?daily=1 öffnet direkt die Tägliche Challenge (bzw. das Ergebnis, wenn schon gespielt).
+// Erlaubt der Browser ohne Tippen keinen Ton (iPhone/iPad), erst ein großer Start-Knopf – sonst liefe die Zeit ohne Musik.
+if (new URLSearchParams(location.search).has('daily')) {
+  history.replaceState(history.state, '', location.pathname + location.hash);   // beim Neuladen nicht noch einmal starten
+  (async () => {
+    let ok = false;
+    try {
+      const c = new (window.AudioContext || window.webkitAudioContext)();
+      await Promise.race([c.resume(), new Promise(r => setTimeout(r, 300))]);
+      ok = c.state === 'running'; c.close().catch(() => {});
+    } catch {}
+    if (ok) return $('#dailyHdr').click();
+    const o = document.createElement('div');
+    o.style.cssText = 'position:fixed;inset:0;z-index:999;display:grid;place-items:center;background:rgba(0,0,0,.55);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)';
+    o.innerHTML = `<button type="button" style="font:inherit;font-weight:800;font-size:1.15rem;color:#fff;background:rgba(255,255,255,.12);border:0;border-radius:22px;padding:22px 30px;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.25);display:grid;gap:6px;cursor:pointer">
+      <span style="font-size:.85rem;opacity:.75">📅 ${esc(tx('Tägliche Challenge'))}</span>▶ ${esc(tx('Spielen'))}</button>`;
+    o.onclick = e => { o.remove(); if (e.target.closest('button')) $('#dailyHdr').click(); };
+    document.body.appendChild(o);
+  })();
+}
