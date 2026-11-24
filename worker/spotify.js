@@ -6,7 +6,7 @@
 // Aufruf: GET https://<worker>/?type=playlist&id=37i9dQZF1DXcBWIGoYBM5M
 // Antwort: { name, tracks: [{ t: "Titel", a: "Interpret" }, …] }   (max. 100 Songs – mehr liefert Spotify dort nicht)
 
-const ALLOWED = ['https://ku3rb1s.github.io', 'http://127.0.0.1:8890', 'http://localhost:8890'];
+const ALLOWED = ['https://ku3rb1s.github.io', 'https://jukeboxquiz.de', 'https://www.jukeboxquiz.de', 'http://127.0.0.1:8890', 'http://localhost:8890'];
 
 export default {
   async fetch(request, env, ctx) {
