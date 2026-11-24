@@ -2,6 +2,10 @@
 
 Die Versionsnummer steht in `js/quiz.js` (`APP_VERSION`) und unten in den Einstellungen. In `index.html` bei jedem Update auch `?v=` an CSS/JS-Dateien erhöhen.
 
+## 1.16.28 – 24.11.2026
+- Behoben: Die Tägliche Challenge ließ sich durch Neuladen der Seite mittendrin beliebig oft neu versuchen – mit denselben, schon bekannten Songs. Jetzt zählt sie ab dem ersten Song als gespielt: Wird die Seite neu geladen oder geschlossen, gilt sie wie „Abbrechen“ mit den bisherigen Punkten
+- Eigene Spotify-Playlist: Bei „Leicht“ und „Normal“ kamen nur die ersten 35 % bzw. 70 % der Playlist dran (Spotify liefert keine Bekanntheit). Jetzt wird aus der ganzen Playlist gewählt
+
 ## 1.16.27 – 16.11.2026
 - Aus der Jukebox: erst ein Knopf „Challenge starten“ statt sofortigem Start (Abbrechen verbraucht die Challenge nicht)
 

@@ -92,6 +92,7 @@ const Daily = (() => {
       busy = false;
       await nextRound();
       if (G && !G.rounds.length) throw new Error(tx('Die Challenge konnte nicht geladen werden. Prüf die Verbindung und versuch es nochmal.'));
+      saveRun();   // ab dem ersten Song zählt sie als gespielt
     } catch (e) {
       toast(e.message || tx('Challenge konnte nicht geladen werden'));
       G = null; show('home');
@@ -99,8 +100,8 @@ const Daily = (() => {
   }
 
   /* ---------- Ende (oder Abbruch) ---------- */
-  function finish(aborted = false) {
-    Snip.stop();
+  // Stand der laufenden Challenge als Ergebnis (fertige Songs mit Punkten, der Rest leer)
+  function snapshot(aborted) {
     const { date, late } = G.daily;
     const rounds = G.rounds.filter(Boolean);
     const items = rounds.map(r => ({
@@ -109,10 +110,28 @@ const Daily = (() => {
     }));
     while (items.length < N) items.push({ t: '–', a: 'nicht gespielt', c: '', p: 0, e: '⬛⬛⬛⬛⬛⬛' });
     const score = items.reduce((s, x) => s + x.p, 0);
-    const L = log();
     const complete = rounds.length >= N && rounds.every(r => r.done);
-    L[date] = { score, found: rounds.filter(r => r.won).length, items, aborted: (aborted && !complete) || undefined, late: late || undefined };
+    return { date, res: { score, found: rounds.filter(r => r.won).length, items, aborted: (aborted && !complete) || undefined, late: late || undefined } };
+  }
+  /* Laufende Challenge mitschreiben (nach dem Laden und nach jedem Song). Wird die Seite mittendrin neu geladen oder
+     geschlossen, zählt sie beim nächsten Öffnen wie „Abbrechen“ – mit den bisherigen Punkten. Vorher ließ sie sich durch
+     Neuladen beliebig oft neu versuchen (mit denselben, schon bekannten Songs). Eigener Schlüssel (mq.dailyRun): wird
+     nicht abgeglichen und nicht an die Bestenliste gemeldet – das geschieht erst mit dem fertigen Ergebnis. */
+  function saveRun() { if (G?.daily) LS.set('dailyRun', snapshot(true)); }
+  function recover() {
+    const run = LS.get('dailyRun', null);
+    if (!run?.date || !run.res) return;
+    const L = log();
+    if (!L[run.date]) { L[run.date] = run.res; LS.set('daily', L); LS.set('dailyBest', Math.max(LS.get('dailyBest', 0), streak())); }
+    LS.set('dailyRun', null);
+  }
+  function finish(aborted = false) {
+    Snip.stop();
+    const { date, res } = snapshot(aborted);
+    const L = log();
+    L[date] = res;
     LS.set('daily', L);
+    LS.set('dailyRun', null);
     LS.set('dailyBest', Math.max(LS.get('dailyBest', 0), streak()));
     const freshAch = checkAch(G);
     G = null;
@@ -241,9 +260,10 @@ const Daily = (() => {
   $('#dailyNext').addEventListener('click', e => { if (e.target.id === 'toArchive') openArchive(e); });
 
   $('#dailyHdr').onclick = () => { if (busy || G) return; const d = today(); result(d) ? showResult(d) : start(); };
+  recover();
   tidy();
   renderCard();
-  return { start, finish, showResult, resetEnd, shareText, renderCard, renderArchive, today, streak };
+  return { start, finish, saveRun, showResult, resetEnd, shareText, renderCard, renderArchive, today, streak };
 })();
 
 // Aus der Jukebox („Heute noch offen“): ?daily=1 zeigt sofort einen Knopf „Challenge starten“ (schon gespielt → Ergebnis).

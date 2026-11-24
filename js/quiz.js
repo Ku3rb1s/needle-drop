@@ -1,5 +1,5 @@
 /* Needle Drop – Spielablauf und Anzeige */
-const APP_VERSION = '1.16.27', APP_DATE = '16.11.2026'; // bei jedem Update erhöhen + CHANGELOG.md ergänzen
+const APP_VERSION = '1.16.28', APP_DATE = '24.11.2026'; // bei jedem Update erhöhen + CHANGELOG.md ergänzen
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 
@@ -171,7 +171,9 @@ async function loadPool(cat) {
 
 function pickTracks(pool, diff, n) {
   const sorted = pool.filter(t => !opt.clean || !t.explicit_lyrics).sort((a, b) => (b.rank || 0) - (a.rank || 0));
-  const top = sorted.slice(0, Math.max(n, Math.ceil(sorted.length * DIFF[diff].top)));
+  // Ohne Bekanntheitswerte (eigene Spotify-Playlist: alle 0) nicht kürzen – sonst kämen nur die ersten Songs der Playlist dran
+  const ranked = sorted.some(t => t.rank);
+  const top = ranked ? sorted.slice(0, Math.max(n, Math.ceil(sorted.length * DIFF[diff].top))) : sorted;
   for (let i = top.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [top[i], top[j]] = [top[j], top[i]]; }
   // Abwechslung: jeder Interpret möglichst nur einmal pro Spiel (Doppelte wandern ans Ende – nur genutzt, wenn sonst zu wenig da ist)
   const seen = new Set(), first = [], rest = [];
@@ -435,6 +437,7 @@ function finishRound(won) {
     calc = tx('Nur Interpret (bei {s}): {p} ÷ 2', { s: fmtS(STEPS[r.artistAt]), p: PTS[r.artistAt] }) + (r.hintCost ? ' ' + tx('− {n} für Tipps', { n: r.hintCost }) : '');
   } else { r.pts = 0; calc = tx('Diesmal leider nicht erkannt'); }
   G.score += r.pts;
+  if (G.daily) Daily.saveRun();   // Zwischenstand der Tages-Challenge (zählt auch nach Neuladen)
   const t = r.track;
   // Platte dreht sich um und zeigt das Cover (wie bei Musik-Bingo)
   $('#discCover').innerHTML = t.album?.cover_big ? `<img src="${esc(t.album.cover_big)}" alt="">` : '🎵';
