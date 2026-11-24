@@ -1,5 +1,5 @@
 /* Needle Drop – Spielablauf und Anzeige */
-const APP_VERSION = '1.16.29', APP_DATE = '24.11.2026'; // bei jedem Update erhöhen + CHANGELOG.md ergänzen
+const APP_VERSION = '1.16.30', APP_DATE = '24.11.2026'; // bei jedem Update erhöhen + CHANGELOG.md ergänzen
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 
@@ -118,7 +118,7 @@ const bestKey = (cat = opt.cat) => `best2.${cat}.${opt.diff}.${opt.count}.${opt.
 const pools = {};
 /* Bestenliste (in der Jukebox): Rekorde je Kategorie und Schwierigkeit – nur mit vergleichbaren Regeln.
    Gemeldet wird von js/sync.js (BOARD.high) aus mq.best2.<kat>.<stufe>.10.classic.search */
-const LB_PAGE = 'https://ku3rb1s.github.io/jukebox/#bestenliste=needle-drop/';
+const LB_PAGE = 'https://jukeboxquiz.de/jukebox/#bestenliste=needle-drop/';
 const lbCounts = () => opt.count === 10 && opt.ladder === 'classic' && opt.answer === 'search' && opt.mode === 'standard';
 let G = null;
 let catTab = null; // gerade offener Kategorie-Reiter auf der Startseite
@@ -527,7 +527,7 @@ function emojiRow(r) {
 
 const modeLabel = () => opt.mode === 'crazy' ? FX_NAMES[opt.fx] : MODES[opt.mode].label;
 const modeSuffix = () => opt.mode === 'standard' ? '' : ` · ${MODES[opt.mode].icon} ${tx(modeLabel())}`;
-const shareText = () => `🎵 Needle Drop – ${G.cat.name} (${DIFF[opt.diff].label}${modeSuffix()})\n${tx('{n} Punkte', { n: fmtN(G.score) })}\n${G.rounds.map(emojiRow).join('\n')}${Profile.tag() ? '\n' + Profile.tag() : ''}\nhttps://ku3rb1s.github.io/needle-drop/`;
+const shareText = () => `🎵 Needle Drop – ${G.cat.name} (${DIFF[opt.diff].label}${modeSuffix()})\n${tx('{n} Punkte', { n: fmtN(G.score) })}\n${G.rounds.map(emojiRow).join('\n')}${Profile.tag() ? '\n' + Profile.tag() : ''}\nhttps://jukeboxquiz.de/needle-drop/`;
 
 /* ---------- Erfolge ---------- */
 // [id, Symbol, Name, Beschreibung] – gleicher Aufbau wie in Gold Record. Gespeichert unter mq.ach als { id: Datum },
@@ -666,7 +666,7 @@ async function resultImage(res) {
   });
   x.fillStyle = '#a1a1ad'; x.font = font(600, 40); x.textAlign = 'center';
   x.fillText(tx('Erkennst du den Song in 0,1 Sekunden?'), W / 2, H - 150);
-  x.fillStyle = cat; x.font = font(800, 44); x.fillText('ku3rb1s.github.io/needle-drop', W / 2, H - 90);
+  x.fillStyle = cat; x.font = font(800, 44); x.fillText('jukeboxquiz.de/needle-drop', W / 2, H - 90);
   return await new Promise(ok => cv.toBlob(ok, 'image/png'));
 }
 function roundRect(x, X, Y, w, h, r) { x.beginPath(); x.moveTo(X + r, Y); x.arcTo(X + w, Y, X + w, Y + h, r); x.arcTo(X + w, Y + h, X, Y + h, r); x.arcTo(X, Y + h, X, Y, r); x.arcTo(X, Y, X + w, Y, r); x.closePath(); }

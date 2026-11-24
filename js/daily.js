@@ -218,7 +218,7 @@ const Daily = (() => {
     const res = result(d);
     const st = streak();
     return `🎵 Needle Drop #${dayNo(d)}${res.late ? ' (' + tx('Archiv') + ')' : ''} · ${tx('{n} Punkte', { n: fmtN(res.score) })}\n${res.items.map(x => x.e).join('\n')}` +
-      (st > 1 ? '\n🔥 ' + tx('Serie: {n} Tage', { n: st }) : '') + (Profile.tag() ? '\n' + Profile.tag() : '') + `\nhttps://ku3rb1s.github.io/needle-drop/`;
+      (st > 1 ? '\n🔥 ' + tx('Serie: {n} Tage', { n: st }) : '') + (Profile.tag() ? '\n' + Profile.tag() : '') + `\nhttps://jukeboxquiz.de/needle-drop/`;
   }
 
   /* ---------- Knopf in der Kopfzeile ---------- */
