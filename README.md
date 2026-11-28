@@ -28,6 +28,11 @@ Lokal starten: `node server.js` → http://127.0.0.1:8890/
 Jeden Tag 5 Songs aus dem Billionärs Club, für alle gleich: Die Auswahl hängt nur vom Datum (Europe/Berlin) ab – kein Server nötig.
 Feste Regeln (klassische Leiter, Suchen, Start am Anfang, Tipps erlaubt), einmal pro Tag. Ergebnis, Serie, Statistik („erkannt bei …“) und Countdown werden nur lokal gespeichert (`js/daily.js`).
 
+**Tagesdateien:** `data/daily/JJJJ-MM-TT.json` enthält die 40 Kandidaten des Tages in fester Reihenfolge (Deezer-ID, Titel, Interpret);
+gespielt werden die ersten 5 mit Hörprobe. Das Spiel lädt zuerst die Datei, ohne sie rechnet es selbst (Auswahl in `js/daily-pick.js`).
+`node scripts/build-daily.js` schreibt fehlende Tage (heute − 30 bis + 14, nie überschreiben außer mit `--force`),
+`--check` vergleicht alle Dateien mit der Berechnung im Spiel. Der Workflow „Tages-Challenge vorberechnen“ läuft täglich 0:30 UTC.
+
 **Datensparsam:** Außer Deezer (Suche + Vorschauen) ruft die Seite keine fremden Server auf; alles andere bleibt im Browser.
 
 ## Spotify-Playlists

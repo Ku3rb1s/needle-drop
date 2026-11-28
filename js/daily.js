@@ -4,25 +4,24 @@
    - Feste Regeln (DAILY_RULES in quiz.js), einmal pro Tag, Ergebnis + Serie werden lokal gespeichert. */
 const Daily = (() => {
   const N = 5;
-  const START = '2026-10-01';                     // Challenge #1 (frühere Tage gibt es im Archiv nicht)
+  const { START, dayNo } = DailyPick;            // Challenge #1 = START; Auswahl-Logik in js/daily-pick.js
   const CAT = { id: 'daily', group: 'special', name: 'Tägliche Challenge', icon: 'calendar', color: '#f59e0b' };
   trProps(CAT, ['name']);
   const TZ = 'Europe/Berlin';                     // Tageswechsel um Mitternacht deutscher Zeit – für alle gleich
 
   const today = () => new Date().toLocaleDateString('sv-SE', { timeZone: TZ }); // „2026-11-07“
-  const dayNo = d => Math.round((Date.parse(d) - Date.parse(START)) / 864e5) + 1;
   const prevDay = d => new Date(Date.parse(d) - 864e5).toISOString().slice(0, 10);
 
-  // Kleiner Zufallsgenerator mit Startwert (mulberry32) – gleiches Datum → gleiche Folge
-  function rng(str) {
-    let h = 2166136261;
-    for (const ch of str) h = Math.imul(h ^ ch.charCodeAt(0), 16777619);
-    return () => {
-      h = (h + 0x6D2B79F5) | 0;
-      let t = Math.imul(h ^ (h >>> 15), 1 | h);
-      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-    };
+  /** Fertig berechnete Tagesdatei (scripts/build-daily.js) – überall exakt dieselben Songs, auch in der iPhone-App.
+      Fehlt sie oder ist man offline: null → Auswahl wie bisher selbst berechnen. */
+  async function loadDayFile(d) {
+    try {
+      const r = await fetch(`data/daily/${d}.json`);
+      if (!r.ok) return null;
+      const f = await r.json();
+      if (f?.v !== 1 || f.day !== d || !f.items?.length) return null;
+      return f.items.map(t => ({ id: t.id, title: t.title, artist: { name: t.artist }, rank: t.rank, explicit_lyrics: !!t.x, stub: true }));
+    } catch { return null; }
   }
 
   const log = () => LS.get('daily', {});           // { "2026-11-07": { score, found, items, aborted, late } }
@@ -78,13 +77,9 @@ const Daily = (() => {
     loading(true, late ? tx('Lade Challenge #{n}…', { n: dayNo(d) }) : tx('Lade die heutige Challenge…'));
     Snip.ac();
     try {
-      const pool = await loadPool(CATS.find(c => c.id === 'billion'));
-      // Nur die bekannteren 70 % (nach Streams), fest sortiert – damit die Auswahl überall gleich ist
-      const known = [...pool].sort((a, b) => (b.rank - a.rank) || (a.id - b.id)).slice(0, Math.ceil(pool.length * 0.7));
-      const rnd = rng('needle-drop|' + d);
-      for (let i = known.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [known[i], known[j]] = [known[j], known[i]]; }
-      const artists = new Set();
-      const cand = known.filter(t => { const a = norm(t.artist?.name); if (artists.has(a)) return false; artists.add(a); return true; }).slice(0, 40);
+      const file = await loadDayFile(d);
+      const pool = await loadPool(CATS.find(c => c.id === 'billion')).catch(e => { if (file) return file; throw e; });
+      const cand = file || DailyPick.cand(pool, d, norm);
       STEPS = LADDERS.classic;
       G = { cat: CAT, cand, pool, next: 0, rounds: [], i: -1, score: 0, n: N, daily: { date: d, no: dayNo(d), late } };
       setCat(CAT.color);
