@@ -207,7 +207,6 @@
     "Keiner der Songs ließ sich laden. Versuch es gleich nochmal oder nimm eine andere Kategorie.": "No se pudo cargar ninguna canción. Inténtalo de nuevo en un momento o elige otra categoría.",
     "Klassiker und große Hymnen": "Clásicos y grandes himnos",
     "Klassisch": "Clásico",
-    "Kurze Töne bei Treffer und Fehler, Konfetti bei 0,1-s-Treffern": "Sonidos cortos al acertar y fallar, confeti al acertar en 0,1 s",
     "Kurzlinks gehen nicht – bitte den Link aus der Adresszeile von deezer.com nehmen.": "Los enlaces cortos no funcionan – usa el enlace de la barra de direcciones de deezer.com.",
     "Lade Songs…": "Cargando canciones…",
     "Lade Song…": "Cargando canción…",
@@ -305,7 +304,6 @@
     "Titel stimmt, Interpret nicht": "Título correcto, artista no",
     "Titel-Lücken · −100": "Título con huecos · −100",
     "Tägliche Challenge": "Reto diario",
-    "Töne & Konfetti": "Sonidos y confeti",
     "Töne aus": "Sonidos desactivados",
     "Ungültiger Spotify-Link": "Enlace de Spotify no válido",
     "Version": "Versión",
@@ -372,5 +370,7 @@
     "Abgeglichen · verwalten in der Jukebox": "Sincronizado · gestiónalo en la Jukebox",
     // Adventskalender
     "Aus dem Adventskalender": "Del calendario de Adviento",
+    // Töne und Vibration (Jukebox)
+    "Töne und Vibration stellst du in der Jukebox ein.": "Los sonidos y la vibración se ajustan en la Jukebox.",
   },
 };

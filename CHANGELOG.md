@@ -2,6 +2,9 @@
 
 Die Versionsnummer steht in `js/quiz.js` (`APP_VERSION`) und unten in den Einstellungen. In `index.html` bei jedem Update auch `?v=` an CSS/JS-Dateien erhöhen.
 
+## 1.16.33 – 28.11.2026
+- Töne und Vibration stellst du jetzt einmal in der Jukebox ein – für alle Spiele
+
 ## 1.16.32 – 28.11.2026
 - Tägliche Challenge kommt jetzt aus einer fertig berechneten Tagesdatei – auf der Website und in der kommenden iPhone-App überall exakt dieselben Songs. Ohne Datei (oder offline) wird sie wie bisher selbst berechnet
 

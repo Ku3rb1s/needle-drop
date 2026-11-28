@@ -208,7 +208,6 @@
     "Keiner der Songs ließ sich laden. Versuch es gleich nochmal oder nimm eine andere Kategorie.": "None of the songs could be loaded. Try again in a moment or pick another category.",
     "Klassiker und große Hymnen": "Classics and big anthems",
     "Klassisch": "Classic",
-    "Kurze Töne bei Treffer und Fehler, Konfetti bei 0,1-s-Treffern": "Short sounds for hits and misses, confetti for 0.1 s hits",
     "Kurzlinks gehen nicht – bitte den Link aus der Adresszeile von deezer.com nehmen.": "Short links don't work – use the link from the address bar on deezer.com.",
     "Lade Songs…": "Loading songs…",
     "Lade Song…": "Loading song…",
@@ -306,7 +305,6 @@
     "Titel stimmt, Interpret nicht": "Right title, wrong artist",
     "Titel-Lücken · −100": "Title blanks · −100",
     "Tägliche Challenge": "Daily challenge",
-    "Töne & Konfetti": "Sounds & confetti",
     "Töne aus": "Sounds off",
     "Ungültiger Spotify-Link": "Invalid Spotify link",
     "Version": "Version",
@@ -373,5 +371,7 @@
     "Abgeglichen · verwalten in der Jukebox": "Synced · manage it in the Jukebox",
     // Adventskalender
     "Aus dem Adventskalender": "From the Advent calendar",
+    // Töne und Vibration (Jukebox)
+    "Töne und Vibration stellst du in der Jukebox ein.": "You set sounds and vibration in the Jukebox.",
   },
 };

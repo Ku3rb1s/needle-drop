@@ -1,5 +1,5 @@
 /* Needle Drop – Spielablauf und Anzeige */
-const APP_VERSION = '1.16.32', APP_DATE = '28.11.2026'; // bei jedem Update erhöhen + CHANGELOG.md ergänzen
+const APP_VERSION = '1.16.33', APP_DATE = '28.11.2026'; // bei jedem Update erhöhen + CHANGELOG.md ergänzen
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 
@@ -97,9 +97,11 @@ const opt = {
   cat: LS.get('cat', '80s'), diff: LS.get('diff', 'normal'), count: LS.get('count', 10),
   startMode: LS.get('startMode2', 'start'), hintsOn: LS.get('hintsOn', 'on'), theme: LS.get('theme', 'graphit'),
   ladder: LS.get('ladder', 'classic'), answer: LS.get('answer', 'search'), auto: LS.get('auto', false),
-  clean: LS.get('clean', false), vol: LS.get('vol', 80), muted: false, sfx: LS.get('sfx', true),
+  clean: LS.get('clean', false), vol: LS.get('vol', 80), muted: false,
   mode: LS.get('mode', 'standard'), fx: LS.get('fx', 'random'),
 };
+// Töne gelten für alle Spiele und werden in der Jukebox eingestellt (Prefs in js/profile.js)
+Object.defineProperty(opt, 'sfx', { get: () => Prefs.sfx, enumerable: true });
 // Gespeicherte Werte prüfen – unbekannte (z. B. nach Umbauten) auf Standard zurücksetzen
 if (!CATS.some(c => c.id === opt.cat)) opt.cat = '80s';
 if (!DIFF[opt.diff]) opt.diff = 'normal';
@@ -925,7 +927,6 @@ function renderSettings() {
   $('#setAuto').checked = !!opt.auto;
   $('#setHints').checked = opt.hintsOn === 'on';
   $('#setClean').checked = !!opt.clean;
-  $('#setSfx').checked = !!opt.sfx;
   $('#startInfo').textContent = START_INFO[opt.startMode];
   const L = LADDERS[opt.ladder];
   $('#pointsInfo').innerHTML = L.map((s, k) => `<div class="cell"><span class="grow">${tx('Erkannt bei {s}', { s: fmtS(s) })}</span><b>${PTS[k]}</b></div>`).join('');
@@ -933,7 +934,7 @@ function renderSettings() {
   const LN = tx({ easy: 'Entspannt', classic: 'Klassisch', pro: 'Profi' }[opt.ladder]);
   const SN = tx({ start: 'Am Anfang', hook: 'Hook', random: 'Zufällig' }[opt.startMode]);
   $('#subRules').textContent = `${LN} · ${SN} · ${tx(opt.answer === 'mc' ? '4 Antworten' : 'Suchen')} · ${tx('{n} Songs', { n: opt.count })}`;
-  $('#subHelp').textContent = [opt.hintsOn === 'on' ? 'Tipps an' : 'Tipps aus', opt.auto ? 'Autoplay an' : '', opt.clean ? 'ohne Explicit' : '', opt.sfx ? '' : 'Töne aus'].filter(Boolean).map(s => tx(s)).join(' · ');
+  $('#subHelp').textContent = [opt.hintsOn === 'on' ? 'Tipps an' : 'Tipps aus', opt.auto ? 'Autoplay an' : '', opt.clean ? 'ohne Explicit' : ''].filter(Boolean).map(s => tx(s)).join(' · ');
   $('#subDesign').textContent = tx((THEMES.find(x => x[0] === opt.theme) || THEMES[0])[1]);
   $('#subPoints').textContent = tx('600 bis 100 je Stufe, Tipps kosten Punkte');
   $('#subData').textContent = tx('Alles bleibt auf diesem Gerät');
@@ -1192,7 +1193,6 @@ segPick('setCount', v => { opt.count = +v; LS.set('count', opt.count); });
 segPick('setAnswer', v => { opt.answer = v; LS.set('answer', opt.answer); });
 $('#setAuto').onchange = e => { opt.auto = e.target.checked; LS.set('auto', opt.auto); renderSettings(); };
 $('#setHints').onchange = e => { opt.hintsOn = e.target.checked ? 'on' : 'off'; LS.set('hintsOn', opt.hintsOn); renderSettings(); };
-$('#setSfx').onchange = e => { opt.sfx = e.target.checked; LS.set('sfx', opt.sfx); renderSettings(); if (opt.sfx) sound('ok'); };
 $('#setClean').onchange = e => { opt.clean = e.target.checked; LS.set('clean', opt.clean); renderSettings(); };
 $('#setStart').onclick = e => {
   const b = e.target.closest('button'); if (!b) return;

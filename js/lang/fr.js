@@ -207,7 +207,6 @@
     "Keiner der Songs ließ sich laden. Versuch es gleich nochmal oder nimm eine andere Kategorie.": "Aucun titre n'a pu être chargé. Réessaie dans un instant ou choisis une autre catégorie.",
     "Klassiker und große Hymnen": "Classiques et grands hymnes",
     "Klassisch": "Classique",
-    "Kurze Töne bei Treffer und Fehler, Konfetti bei 0,1-s-Treffern": "Petits sons pour les réussites et les erreurs, confettis pour les réussites à 0,1 s",
     "Kurzlinks gehen nicht – bitte den Link aus der Adresszeile von deezer.com nehmen.": "Les liens courts ne marchent pas – prends le lien dans la barre d'adresse de deezer.com.",
     "Lade Songs…": "Chargement des titres…",
     "Lade Song…": "Chargement du titre…",
@@ -305,7 +304,6 @@
     "Titel stimmt, Interpret nicht": "Bon titre, mauvais artiste",
     "Titel-Lücken · −100": "Titre à trous · −100",
     "Tägliche Challenge": "Défi du jour",
-    "Töne & Konfetti": "Sons et confettis",
     "Töne aus": "Sons désactivés",
     "Ungültiger Spotify-Link": "Lien Spotify non valide",
     "Version": "Version",
@@ -372,5 +370,7 @@
     "Abgeglichen · verwalten in der Jukebox": "Synchronisé · à gérer dans la Jukebox",
     // Adventskalender
     "Aus dem Adventskalender": "Du calendrier de l’Avent",
+    // Töne und Vibration (Jukebox)
+    "Töne und Vibration stellst du in der Jukebox ein.": "Les sons et la vibration se règlent dans la Jukebox.",
   },
 };

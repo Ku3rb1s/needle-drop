@@ -207,7 +207,6 @@
     "Keiner der Songs ließ sich laden. Versuch es gleich nochmal oder nimm eine andere Kategorie.": "Ingen av sangene kunne lastes. Prøv igjen om litt eller velg en annen kategori.",
     "Klassiker und große Hymnen": "Klassikere og store hymner",
     "Klassisch": "Klassisk",
-    "Kurze Töne bei Treffer und Fehler, Konfetti bei 0,1-s-Treffern": "Korte lyder ved riktig og feil, konfetti ved treff på 0,1 s",
     "Kurzlinks gehen nicht – bitte den Link aus der Adresszeile von deezer.com nehmen.": "Kortlenker fungerer ikke – bruk lenken fra adressefeltet på deezer.com.",
     "Lade Songs…": "Laster sanger …",
     "Lade Song…": "Laster sang …",
@@ -305,7 +304,6 @@
     "Titel stimmt, Interpret nicht": "Riktig tittel, feil artist",
     "Titel-Lücken · −100": "Tittel med hull · −100",
     "Tägliche Challenge": "Dagens utfordring",
-    "Töne & Konfetti": "Lyder og konfetti",
     "Töne aus": "Lyder av",
     "Ungültiger Spotify-Link": "Ugyldig Spotify-lenke",
     "Version": "Versjon",
@@ -372,5 +370,7 @@
     "Abgeglichen · verwalten in der Jukebox": "Synkronisert · administreres i Jukebox",
     // Adventskalender
     "Aus dem Adventskalender": "Fra julekalenderen",
+    // Töne und Vibration (Jukebox)
+    "Töne und Vibration stellst du in der Jukebox ein.": "Lyder og vibrasjon stiller du inn i Jukeboxen.",
   },
 };
