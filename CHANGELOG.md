@@ -2,6 +2,9 @@
 
 Die Versionsnummer steht in `js/quiz.js` (`APP_VERSION`) und unten in den Einstellungen. In `index.html` bei jedem Update auch `?v=` an CSS/JS-Dateien erhöhen.
 
+## 1.16.34 – 28.11.2026
+- Neu: 5 Songs pro Runde als Standard (schneller durch). Die Bestenliste wertet jetzt Runden mit 5 Songs und startet dafür neu. Wer lieber 10, 15 oder 20 Songs spielt, stellt das in den Spielregeln ein – zählt dann aber nicht für die Bestenliste
+
 ## 1.16.33 – 28.11.2026
 - Töne und Vibration stellst du jetzt einmal in der Jukebox ein – für alle Spiele
 

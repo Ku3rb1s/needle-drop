@@ -1,5 +1,5 @@
 /* Needle Drop – Spielablauf und Anzeige */
-const APP_VERSION = '1.16.33', APP_DATE = '28.11.2026'; // bei jedem Update erhöhen + CHANGELOG.md ergänzen
+const APP_VERSION = '1.16.34', APP_DATE = '28.11.2026'; // bei jedem Update erhöhen + CHANGELOG.md ergänzen
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 
@@ -94,7 +94,7 @@ const LS = {
 };
 
 const opt = {
-  cat: LS.get('cat', '80s'), diff: LS.get('diff', 'normal'), count: LS.get('count', 10),
+  cat: LS.get('cat', '80s'), diff: LS.get('diff', 'normal'), count: LS.get('count', 5),
   startMode: LS.get('startMode2', 'start'), hintsOn: LS.get('hintsOn', 'on'), theme: LS.get('theme', 'graphit'),
   ladder: LS.get('ladder', 'classic'), answer: LS.get('answer', 'search'), auto: LS.get('auto', false),
   clean: LS.get('clean', false), vol: LS.get('vol', 80), muted: false,
@@ -107,7 +107,7 @@ if (!CATS.some(c => c.id === opt.cat)) opt.cat = '80s';
 if (!DIFF[opt.diff]) opt.diff = 'normal';
 if (!LADDERS[opt.ladder]) opt.ladder = 'classic';
 if (!START_INFO[opt.startMode] && !['start', 'hook', 'random'].includes(opt.startMode)) opt.startMode = 'start';
-if (![5, 10, 15, 20].includes(opt.count)) opt.count = 10;
+if (![5, 10, 15, 20].includes(opt.count)) opt.count = 5;
 if (!['search', 'mc'].includes(opt.answer)) opt.answer = 'search';
 if (!MODES[opt.mode]) opt.mode = 'standard';
 if (!FX_NAMES[opt.fx]) opt.fx = 'random';
@@ -119,9 +119,9 @@ const rule = k => (G && G.daily && k in DAILY_RULES) ? DAILY_RULES[k] : opt[k];
 const bestKey = (cat = opt.cat) => `best2.${cat}.${opt.diff}.${opt.count}.${opt.ladder}.${opt.answer}` + (opt.mode === 'standard' ? '' : `.${opt.mode}${opt.mode === 'crazy' ? '.' + opt.fx : ''}`);
 const pools = {};
 /* Bestenliste (in der Jukebox): Rekorde je Kategorie und Schwierigkeit – nur mit vergleichbaren Regeln.
-   Gemeldet wird von js/sync.js (BOARD.high) aus mq.best2.<kat>.<stufe>.10.classic.search */
+   Gemeldet wird von js/sync.js (BOARD.high) aus mq.best2.<kat>.<stufe>.5.classic.search */
 const LB_PAGE = 'https://jukeboxquiz.de/jukebox/#bestenliste=needle-drop/';
-const lbCounts = () => opt.count === 10 && opt.ladder === 'classic' && opt.answer === 'search' && opt.mode === 'standard';
+const lbCounts = () => opt.count === 5 && opt.ladder === 'classic' && opt.answer === 'search' && opt.mode === 'standard';
 let G = null;
 let catTab = null; // gerade offener Kategorie-Reiter auf der Startseite
 

@@ -8,7 +8,7 @@
     "Neuer Rekord – zur Bestenliste": "Nuevo récord – ver la clasificación",
     "Bestenliste": "Clasificación",
     "Rekorde je Kategorie, Tages-Challenge und Serien – in der Jukebox": "Récords por categoría, reto diario y rachas – en la Jukebox",
-    "Zählt nicht für die Bestenliste – dort gelten 10 Songs, Leiter „Klassisch“, Antwort „Suchen“ und Modus „Standard“.": "No cuenta para la clasificación – allí valen 10 canciones, la escala «Clásica», la respuesta «Buscar» y el modo «Estándar».",
+    "Zählt nicht für die Bestenliste – dort gelten 5 Songs, Leiter „Klassisch“, Antwort „Suchen“ und Modus „Standard“.": "No cuenta para la clasificación – allí valen 5 canciones, la escala «Clásica», la respuesta «Buscar» y el modo «Estándar».",
     "Erfolge": "Logros",
     "{a} von {b}": "{a} de {b}",
     "Neuer Erfolg: {s}": "Nuevo logro: {s}",

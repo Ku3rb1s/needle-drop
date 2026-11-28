@@ -8,7 +8,7 @@
     "Neuer Rekord – zur Bestenliste": "Ny rekord – til topplisten",
     "Bestenliste": "Toppliste",
     "Rekorde je Kategorie, Tages-Challenge und Serien – in der Jukebox": "Rekorder per kategori, daglig utfordring og rekker – i Jukeboxen",
-    "Zählt nicht für die Bestenliste – dort gelten 10 Songs, Leiter „Klassisch“, Antwort „Suchen“ und Modus „Standard“.": "Teller ikke på topplisten – der gjelder 10 sanger, stigen «Klassisk», svar «Søk» og modus «Standard».",
+    "Zählt nicht für die Bestenliste – dort gelten 5 Songs, Leiter „Klassisch“, Antwort „Suchen“ und Modus „Standard“.": "Teller ikke på topplisten – der gjelder 5 sanger, stigen «Klassisk», svar «Søk» og modus «Standard».",
     "Erfolge": "Prestasjoner",
     "{a} von {b}": "{a} av {b}",
     "Neuer Erfolg: {s}": "Ny prestasjon: {s}",
